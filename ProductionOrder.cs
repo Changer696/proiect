@@ -48,7 +48,18 @@ public class ProductionOrder
     }
     public void SetPriority()
     {
-
+        if (CantitateTarget > 1 && CantitateTarget <= 5)
+        {
+            Prioritate = Priority.High;
+        }
+        else if (CantitateTarget > 5 && CantitateTarget < 10)
+        {
+            Prioritate = Priority.Medium;
+        }
+        else
+        {
+            Prioritate = Priority.Low;
+        }
     }
 
     public void Afiseaza()
@@ -57,6 +68,7 @@ public class ProductionOrder
                           " x" + CantitateTarget +
                           " | Product: " + CantitateProdusa +
                           " | Status: " + Status +
+                          " | Prioritate: " + Prioritate +
                           " | Manager: " + CreatDe.Nume +
                           " | Machine: " + Masina.SerialNumber +
                           " | Date: " + DataCrearii.ToString("yyyy-MM-dd"));

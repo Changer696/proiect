@@ -374,4 +374,104 @@ public class Factory
             _comenzi[i].Afiseaza();
         }
     }
+
+    public void AfiseazaComenziSortedByPriority()
+    {
+        if (_nrComenzi == 0)
+        {
+            Console.WriteLine("Nu exista comenzi!");
+            return;
+        }
+
+        ProductionOrder[] comenziActive = new ProductionOrder[_nrComenzi];
+        int nrActive = 0;
+
+        for (int i = 0; i < _nrComenzi; i++)
+        {
+            if (_comenzi[i].Status != ProductionOrderStatus.Completed)
+            {
+                comenziActive[nrActive] = _comenzi[i];
+                nrActive++;
+            }
+        }
+
+        // Sort by priority: High > Medium > Low, then by Status (Created > InProgress)
+        for (int i = 0; i < nrActive - 1; i++)
+        {
+            for (int j = 0; j < nrActive - i - 1; j++)
+            {
+                if (ComparePriority(comenziActive[j], comenziActive[j + 1]) < 0)
+                {
+                    ProductionOrder temp = comenziActive[j];
+                    comenziActive[j] = comenziActive[j + 1];
+                    comenziActive[j + 1] = temp;
+                }
+            }
+        }
+
+        Console.WriteLine("=== COMENZI SORTATE DUPA PRIORITATE ===");
+        for (int i = 0; i < nrActive; i++)
+        {
+            comenziActive[i].Afiseaza();
+        }
+    }
+
+    private int ComparePriority(ProductionOrder a, ProductionOrder b)
+    {
+        int priorityOrder_a = GetPriorityValue(a.Prioritate);
+        int priorityOrder_b = GetPriorityValue(b.Prioritate);
+
+        if (priorityOrder_a != priorityOrder_b)
+            return priorityOrder_a.CompareTo(priorityOrder_b);
+
+        int statusOrder_a = GetStatusValue(a.Status);
+        int statusOrder_b = GetStatusValue(b.Status);
+
+        return statusOrder_a.CompareTo(statusOrder_b);
+    }
+
+    private int GetPriorityValue(Priority priority)
+    {
+        if (priority == Priority.High)
+            return 3;
+        else if (priority == Priority.Medium)
+            return 2;
+        else
+            return 1;
+    }
+
+    private int GetStatusValue(ProductionOrderStatus status)
+    {
+        if (status == ProductionOrderStatus.Created)
+            return 2;
+        else if (status == ProductionOrderStatus.InProgress)
+            return 1;
+        else
+            return 0;
+    }
+
+    public ProductionOrder GetNextPriorityOrder(string idOperator)
+    {
+        Employee angajat = GasesteAngajat(idOperator);
+        if (angajat == null)
+            return null;
+
+        if (!(angajat is MachineOperator))
+            return null;
+
+        ProductionOrder nextOrder = null;
+
+        for (int i = 0; i < _nrComenzi; i++)
+        {
+            if (_comenzi[i].Status != ProductionOrderStatus.Completed)
+            {
+                if (nextOrder == null || ComparePriority(_comenzi[i], nextOrder) > 0)
+                {
+                    nextOrder = _comenzi[i];
+                }
+            }
+        }
+
+        return nextOrder;
+    }
 }
