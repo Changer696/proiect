@@ -379,7 +379,7 @@ public class Factory
     {
         if (_nrComenzi == 0)
         {
-            Console.WriteLine("Nu exista comenzi!");
+            Console.WriteLine("There are no orders!");
             return;
         }
 
@@ -409,7 +409,7 @@ public class Factory
             }
         }
 
-        Console.WriteLine("=== COMENZI SORTATE DUPA PRIORITATE ===");
+        Console.WriteLine("=== Orders sorted by priority ===");
         for (int i = 0; i < nrActive; i++)
         {
             comenziActive[i].Afiseaza();

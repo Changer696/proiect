@@ -11,7 +11,7 @@ public class SewingMachine : Machine
     {
         if (Status != MachineStatus.Running)
         {
-            Console.WriteLine(Nume + " nu e pornita, nu poate produce!");
+            Console.WriteLine(Nume + " isn't started!");
             return;
         }
         Console.WriteLine(Nume + " sews the material .");
