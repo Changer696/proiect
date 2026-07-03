@@ -11,10 +11,10 @@ public class CuttingMachine : Machine
     {
         if (Status != MachineStatus.Running)
         {
-            Console.WriteLine(Nume + " nu e pornita, nu poate produce!");
+            Console.WriteLine(Nume + " it's not on, it can't produce!");
             return;
         }
-        Console.WriteLine(Nume + " taie materialul dupa tipare.");
+        Console.WriteLine(Nume + "Cuts the material according to the patterns.");
         DegradeazaConditia();
         StareVerificarePiesa();
 
@@ -23,8 +23,8 @@ public class CuttingMachine : Machine
     public override string RunDiagnostics()
     {
         if (Conditie == MachineCondition.Critical)
-            return "ATENTIE: Lama e tocita, necesita inlocuire!";
+            return "WARNING: The blade is dull, needs replacing!";
         else
-            return "Lama ascutita. Functionare normala.";
+            return "Sharp blade. Normal operation.";
     }
 }

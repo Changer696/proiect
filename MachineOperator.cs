@@ -17,20 +17,20 @@ public class MachineOperator : Employee
         }
         else if (masina.Status == MachineStatus.Maintenance)
         {
-            Console.WriteLine("Masina este in mentenanta,asteptati sa fie reparata");
+            Console.WriteLine("The car is in maintenance, wait for it to be repaired");
             return;
         }
         else
         {
-            Console.WriteLine("Masina este oprita,nu puteti executa comanda");
-            Console.WriteLine("Doriti sa porniti masina? DA/NU ");
+            Console.WriteLine("The car is off, you can't execute the command");
+            Console.WriteLine("Do you want to start the car? YES/NO");
             string continuare = Console.ReadLine();
-            if (continuare == "DA")
+            if (continuare == "YES")
             { 
                 masina.Status = MachineStatus.Running;
                 masina.Produce();
             }
-            else if(continuare == "NU")
+            else if(continuare == "NO")
                 {
                  return;
                 }
@@ -40,6 +40,6 @@ public class MachineOperator : Employee
 
     public override void PerformDuty()
     {
-        Console.WriteLine(Nume + " (Machine Operator) opereaza masinile.");
+        Console.WriteLine(Nume + " (Machine Operator) operates the machines.");
     }
 }

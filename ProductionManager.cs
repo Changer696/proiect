@@ -10,7 +10,7 @@ public class ProductionManager : Employee
     public ProductionOrder CreazaComanda(string idComanda, Machine masina,
                                           string produs, int cantitate)
     {
-        Console.WriteLine(Nume + " a creat comanda " + idComanda + " pentru " + cantitate + "x " + produs);
+        Console.WriteLine(Nume + " created the order " + idComanda + " for " + cantitate + " x " + produs);
         ProductionOrder comanda = new ProductionOrder(idComanda, masina, this, produs, cantitate);
         comanda.SetPriority();
         return comanda;
@@ -18,6 +18,6 @@ public class ProductionManager : Employee
 
     public override void PerformDuty()
     {
-        Console.WriteLine(Nume + " (Production Manager) coordoneaza productia.");
+        Console.WriteLine(Nume + " (Production Manager) coordinates production.");
     }
 }

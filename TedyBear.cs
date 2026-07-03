@@ -9,7 +9,9 @@ public class TedyBear : Product
     }
     public override string GetDescription()
     {
-        return "Teddy Bear '" + Nume + "Categorie" + Category + " marime " + Marime + "." ;
+        
+        return "Teddy Bear:" + Nume + " " + Category + " Size " + Marime;
     }
 }
+
 

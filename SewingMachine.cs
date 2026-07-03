@@ -14,7 +14,7 @@ public class SewingMachine : Machine
             Console.WriteLine(Nume + " nu e pornita, nu poate produce!");
             return;
         }
-        Console.WriteLine(Nume + " coase materialul si produce o camasa.");
+        Console.WriteLine(Nume + " sews the material .");
         DegradeazaConditia();
         StareVerificarePiesa();
     }
@@ -22,8 +22,8 @@ public class SewingMachine : Machine
     public override string RunDiagnostics()
     {
         if (Conditie == MachineCondition.Critical)
-            return "ATENTIE: Tensiunea acului e neregulata!";
+            return "WARNING: The needle tension is irregular!";
         else
-            return "Ac si ata verificate. Functionare normala.";
+            return "Needle and thread checked. Working normally.";
     }
 }

@@ -46,7 +46,7 @@ public abstract class Machine
     {
         if (NrPiese == 0)
         {
-            Console.WriteLine("Nu sunt piese existente");
+            Console.WriteLine("There are no existing parts");
         }
          int sansa = _random.Next(1,101);
          if(sansa <= 20)
@@ -55,7 +55,7 @@ public abstract class Machine
             if (Piese[index].EFunctionala)
             {
                 Piese[index].Strica();
-                Console.WriteLine($"Piesa:{Piese[index].Nume} de pe {Nume} este stricata");
+                Console.WriteLine($"Pieces:{Piese[index].Nume} from {Nume} are broken");
             }
         }
     }
@@ -70,29 +70,29 @@ public abstract class Machine
     {
         if (Status == MachineStatus.Maintenance)
         {
-            Console.WriteLine(Nume + " e in mentenanta, nu poate fi pornita!");
+            Console.WriteLine(Nume + " It's under maintenance, it can't be started!");
             return;
         }
         if (!ArePieseComplete())
         {
-            Console.WriteLine(Nume + " are piese stricate sau lipsa!");
+            Console.WriteLine(Nume + " has broken or missing parts!");
             return;
         }
         Status = MachineStatus.Running;
-        Console.WriteLine(Nume + " a fost pornita.");
+        Console.WriteLine(Nume + " was turned on.");
     }
 
     public virtual void Stop()
     {
         Status = MachineStatus.Stopped;
-        Console.WriteLine(Nume + " a fost oprita.");
+        Console.WriteLine(Nume + " was stopped.");
     }
 
     public void SetMaintenance()
     {
         if (Status == MachineStatus.Running)
         {
-            Console.WriteLine("Opreste masina inainte de mentenanta!");
+            Console.WriteLine("Stop the machine before maintenance!");
             return;
         }
         Status = MachineStatus.Maintenance;
@@ -122,8 +122,8 @@ public abstract class Machine
     {
         Console.WriteLine("[" + SerialNumber + "] " + Nume +
                           " - Status: " + Status +
-                          " - Conditie: " + Conditie +
-                          " - Varsta: " + GetVarstaZile() + " zile" +
-                          " - Piese: " + NrPiese);
+                          " - Condition: " + Conditie +
+                          " - Age: " + GetVarstaZile() + " zile" +
+                          " - Pieces: " + NrPiese);
     }
 }

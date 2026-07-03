@@ -31,7 +31,7 @@ public class Factory
     {
         if (_nrAngajati >= _angajati.Length)
         {
-            Console.WriteLine("Nu mai e loc pentru angajati!");
+            Console.WriteLine("There's no more room for employees!");
             return false;
         }
 
@@ -39,7 +39,7 @@ public class Factory
         {
             if (_angajati[i].Id == angajat.Id)
             {
-                Console.WriteLine("Exista deja un angajat cu ID-ul " + angajat.Id);
+                Console.WriteLine("There is already an employee with the ID " + angajat.Id);
                 return false;
             }
         }
@@ -53,11 +53,11 @@ public class Factory
     {
         if (_nrAngajati == 0)
         {
-            Console.WriteLine("Nu exista angajati!");
+            Console.WriteLine("There are no employees!");
             return;
         }
 
-        Console.WriteLine("=== ANGAJATI ===");
+        Console.WriteLine("=== EMPLOYEES ===");
         for (int i = 0; i < _nrAngajati; i++)
         {
             _angajati[i].Afiseaza();
@@ -86,11 +86,11 @@ public class Factory
                 }
                 _angajati[_nrAngajati - 1] = null;
                 _nrAngajati--;
-                Console.WriteLine("Angajat sters cu succes!");
+                Console.WriteLine("Employee successfully deleted!");
                 return true;
             }
         }
-        Console.WriteLine("Angajatul nu exista!");
+        Console.WriteLine("The employee doesn't exist!");
         return false;
     }
 
@@ -100,7 +100,7 @@ public class Factory
     {
         if (_nrMasini >= _masini.Length)
         {
-            Console.WriteLine("Nu mai e loc pentru masini!");
+            Console.WriteLine("There's no more room for machines!");
             return false;
         }
 
@@ -108,7 +108,7 @@ public class Factory
         {
             if (_masini[i].SerialNumber == masina.SerialNumber)
             {
-                Console.WriteLine("Exista deja o masina cu serialul " + masina.SerialNumber);
+                Console.WriteLine("There is already a machine with the serial number " + masina.SerialNumber);
                 return false;
             }
         }
@@ -123,11 +123,11 @@ public class Factory
     {
         if (_nrMasini == 0)
         {
-            Console.WriteLine("Nu exista masini!");
+            Console.WriteLine("There are no machines!");
             return;
         }
 
-        Console.WriteLine("=== MASINI ===");
+        Console.WriteLine("=== MACHINES ===");
         for (int i = 0; i < _nrMasini; i++)
         {
             _masini[i].Afiseaza();
@@ -150,7 +150,7 @@ public class Factory
     {
         if (_nrProduse >= _produse.Length)
         {
-            Console.WriteLine("Nu mai e loc pentru produse!");
+            Console.WriteLine("There's no more room for products!");
             return false;
         }
         _produse[_nrProduse] = produs;
@@ -162,11 +162,11 @@ public class Factory
     {
         if (_nrProduse == 0)
         {
-            Console.WriteLine("Nu exista produse!");
+            Console.WriteLine("There are no products!");
             return;
         }
 
-        Console.WriteLine("=== PRODUSE ===");
+        Console.WriteLine("=== PRODUCTS ===");
         for (int i = 0; i < _nrProduse; i++)
         {
             _produse[i].Afiseaza();
@@ -191,13 +191,13 @@ public class Factory
         Employee angajat = GasesteAngajat(idManager);
         if (angajat == null)
         {
-            Console.WriteLine("Angajatul nu exista!");
+            Console.WriteLine("The employee doesn't exist!");
             return;
         }
 
         if (!(angajat is ProductionManager))
         {
-            Console.WriteLine(angajat.Nume + " nu este ProductionManager!");
+            Console.WriteLine(angajat.Nume + " is not ProductionManager!");
             return;
         }
 
@@ -206,13 +206,13 @@ public class Factory
         Machine masina = GasesteMasina(serialMasina);
         if (masina == null)
         {
-            Console.WriteLine("Masina nu exista!");
+            Console.WriteLine("Machine doesn't exist!");
             return;
         }
 
         if (_nrComenzi >= _comenzi.Length)
         {
-            Console.WriteLine("Nu mai e loc pentru comenzi!");
+            Console.WriteLine("There's no room for orders anymore!");
             return;
         }
 
@@ -229,13 +229,13 @@ public class Factory
         Employee angajat = GasesteAngajat(idOperator);
         if (angajat == null)
         {
-            Console.WriteLine("Angajatul nu exista!");
+            Console.WriteLine("Employee doesn't exist!");
             return;
         }
 
         if (!(angajat is MachineOperator))
         {
-            Console.WriteLine(angajat.Nume + " nu este MachineOperator!");
+            Console.WriteLine(angajat.Nume + " is not MachineOperator!");
             return;
         }
 
@@ -253,7 +253,7 @@ public class Factory
 
         if (comanda == null)
         {
-            Console.WriteLine("Comanda nu exista!");
+            Console.WriteLine("Order doesn't exist!");
             return;
         }
 
@@ -272,19 +272,19 @@ public class Factory
 
         if (a1 == null || a2 == null)
         {
-            Console.WriteLine("Unul dintre angajati nu exista!");
+            Console.WriteLine("One of the employees doesn't exist!");
             return;
         }
 
         if (a1 is not Technician)
         {
-            Console.WriteLine(a1.Nume + " nu este Technician!");
+            Console.WriteLine(a1.Nume + " is not a Technician!");
             return;
         }
 
         if (a2 is not Engineer)
         {
-            Console.WriteLine(a2.Nume + " nu este Engineer!");
+            Console.WriteLine(a2.Nume + " is not a Engineer!");
             return;
         }
 
@@ -294,13 +294,13 @@ public class Factory
         Machine masina = GasesteMasina(serial);
         if (masina == null)
         {
-            Console.WriteLine("Masina nu exista!");
+            Console.WriteLine("Machine doesn't exist!");
             return;
         }
 
         if (masina.Status == MachineStatus.Running)
         {
-            Console.WriteLine("Opreste masina inainte de reparatie!");
+            Console.WriteLine("Stop the car before the repair!");
             return;
         }
 
@@ -313,11 +313,11 @@ public class Factory
         Product produs = GasesteProdus(numeProdus);
         if(numeProdus == null)
         {
-            Console.WriteLine("Nu exista un asemenea produs");
+            Console.WriteLine("There is no such product");
             return;
         }
         produs.AdaugaStoc(cantitate);
-        Console.WriteLine($"Stoc nou adaugat:{numeProdus} + {cantitate} bucati");
+        Console.WriteLine($"New stock added:{numeProdus} + {cantitate} pieces");
     }
 
     public void VandeProdus(string idAgent, string numeProdus, int cantitate)
@@ -325,13 +325,13 @@ public class Factory
         Employee angajat = GasesteAngajat(idAgent);
         if (angajat == null)
         {
-            Console.WriteLine("Angajatul nu exista!");
+            Console.WriteLine("Employee doesn't exist!");
             return;
         }
 
         if (!(angajat is SalesAgent))
         {
-            Console.WriteLine(angajat.Nume + " nu este SalesAgent!");
+            Console.WriteLine(angajat.Nume + " is not a SalesAgent!");
             return;
         }
 
@@ -342,7 +342,7 @@ public class Factory
         Product produs = GasesteProdus(numeProdus);
         if (produs == null)
         {
-            Console.WriteLine("Produsul nu exista!");
+            Console.WriteLine("Product doesn't exist!");
             return;
         }
 
@@ -353,22 +353,22 @@ public class Factory
 
     public void AfiseazaRaportGeneral()
     {
-        Console.WriteLine("\n=== RAPORT: " + Nume + " ===");
-        Console.WriteLine("Angajati: " + _nrAngajati);
-        Console.WriteLine("Masini:   " + _nrMasini);
-        Console.WriteLine("Produse:  " + _nrProduse);
-        Console.WriteLine("Comenzi:  " + _nrComenzi);
+        Console.WriteLine("\n=== REPORT: " + Nume + " ===");
+        Console.WriteLine("Employees: " + _nrAngajati);
+        Console.WriteLine("Machines:   " + _nrMasini);
+        Console.WriteLine("Products:  " + _nrProduse);
+        Console.WriteLine("Orders:  " + _nrComenzi);
     }
 
     public void AfiseazaComenzi()
     {
         if (_nrComenzi == 0)
         {
-            Console.WriteLine("Nu exista comenzi!");
+            Console.WriteLine("There are no orders!");
             return;
         }
 
-        Console.WriteLine("=== COMENZI ===");
+        Console.WriteLine("=== Orders ===");
         for (int i = 0; i < _nrComenzi; i++)
         {
             _comenzi[i].Afiseaza();

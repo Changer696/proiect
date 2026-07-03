@@ -27,8 +27,8 @@ public abstract class Employee
     public virtual void Afiseaza()
     {
         Console.WriteLine("[" + Id + "] " + Nume +
-                          " - Rol: " + Rol +
-                          " - Salariu: " + Salariu +
-                          " - Vechime: " + GetVechimeZile() + " zile");
+                          " - Role: " + Rol +
+                          " - Salary: " + Salariu +
+                          " - Period of activity: " + GetVechimeZile() + " days");
     }
 }

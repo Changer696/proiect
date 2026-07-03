@@ -9,7 +9,7 @@ public abstract class Product
         get { return sellingPrice; }
         set
         {
-            if (value < 0) throw new ArgumentException("Prețul de vânzare nu poate fi negativ.");
+            if (value < 0) throw new ArgumentException("The selling price can't be negative.");
             sellingPrice = value;
         }
     }
@@ -18,7 +18,7 @@ public abstract class Product
         get { return productionCost; }
         set
         {
-            if (value < 0) throw new ArgumentException("Costul de producție nu poate fi negativ.");
+            if (value < 0) throw new ArgumentException("The production cost can't be negative.");
             productionCost = value;
         }
     }
@@ -27,7 +27,7 @@ public abstract class Product
         get { return quantity; }
         set
         {
-            if (value < 0) throw new ArgumentException("Cantitatea nu poate fi negativă.");
+            if (value < 0) throw new ArgumentException("The quantity can't be negative.");
             quantity = value;
         }
     }
@@ -47,7 +47,7 @@ public abstract class Product
     {
         if (cantitate < 0)
         {
-            Console.WriteLine("Cantitatea nu poate fi negativa!");
+            Console.WriteLine("The quantity can't be negative!");
             return;
         }
         Cantitate = Cantitate + cantitate;
@@ -56,7 +56,7 @@ public abstract class Product
     {
         if (cantitate > Cantitate)
         {
-            Console.WriteLine("Stoc insuficient!");
+            Console.WriteLine("Insufficient stock!");
             return;
         }
         Cantitate = Cantitate - cantitate;
@@ -64,7 +64,7 @@ public abstract class Product
     public abstract string GetDescription();
     public virtual void Afiseaza()
     {
-        Console.WriteLine(Nume + "-Production Cost" + ProductionCost + " - sellingPrice: " + SellingPrice + " RON - Stoc: " + Cantitate);
         Console.WriteLine("  " + GetDescription());
+        Console.WriteLine(" -Production Cost=" + ProductionCost + " -sellingPrice= " + SellingPrice + " -RON - Stock: " + Cantitate);
     }
 }

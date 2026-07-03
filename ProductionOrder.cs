@@ -29,7 +29,7 @@ public class ProductionOrder
     {
         if (Status == ProductionOrderStatus.Completed)
         {
-            Console.WriteLine("Comanda e deja finalizata!");
+            Console.WriteLine("The order is already completed!");
             return;
         }
         CantitateProdusa = CantitateProdusa + unitati;
@@ -38,7 +38,7 @@ public class ProductionOrder
         {
             CantitateProdusa = CantitateTarget;
             Status = ProductionOrderStatus.Completed;
-            Console.WriteLine("Comanda " + Id + " FINALIZATA!");
+            Console.WriteLine("Order " + Id + " COMPLETED!");
         }
         else
         {
@@ -55,10 +55,10 @@ public class ProductionOrder
     {
         Console.WriteLine("[" + Id + "] " + NumeProdus +
                           " x" + CantitateTarget +
-                          " | Produs: " + CantitateProdusa +
+                          " | Product: " + CantitateProdusa +
                           " | Status: " + Status +
                           " | Manager: " + CreatDe.Nume +
-                          " | Masina: " + Masina.SerialNumber +
-                          " | Data: " + DataCrearii.ToString("yyyy-MM-dd"));
+                          " | Machine: " + Masina.SerialNumber +
+                          " | Date: " + DataCrearii.ToString("yyyy-MM-dd"));
     }
 }

@@ -32,8 +32,8 @@ public class MachinePart
         if (EFunctionala)
             status = "OK";
         else
-            status = "STRICATA";
+            status = "BROKEN";
 
-        Console.WriteLine("  Piesa: " + Nume + " | Tip: " + Tip + " | Status: " + status);
+        Console.WriteLine("  The piece: " + Nume + " | Type: " + Tip + " | Status: " + status);
     }
 }

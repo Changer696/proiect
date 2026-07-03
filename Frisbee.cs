@@ -12,7 +12,8 @@ namespace SmartFactorySimple
 
         public override string GetDescription()
         {
-            return "Frisbee " + Nume + "Categorie" + Category + " marime " + Marime + "." ;
+            
+            return "Frisbee:" + Nume + " " + Category + " Size " + Marime;
         }
     }
 }
