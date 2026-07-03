@@ -15,6 +15,8 @@ public class Factory
     private int _nrProduse = 0;
     private int _nrComenzi = 0;
     private int _idComandaCounter = 1;
+    private decimal _totalRevenue = 0;
+    private int _totalSalesQuantity = 0;
 
     public Factory(string nume)
     {
@@ -346,7 +348,7 @@ public class Factory
             return;
         }
 
-        agent.VindeProdus(produs, cantitate);
+        agent.VindeProdus(produs, cantitate, this);
     }
 
     // ===== RAPOARTE =====
@@ -358,6 +360,55 @@ public class Factory
         Console.WriteLine("Machines:   " + _nrMasini);
         Console.WriteLine("Products:  " + _nrProduse);
         Console.WriteLine("Orders:  " + _nrComenzi);
+        Console.WriteLine("Total Revenue: " + _totalRevenue + " RON");
+        Console.WriteLine("Total Units Sold: " + _totalSalesQuantity);
+        Console.WriteLine("");
+    }
+
+    // ===== REVENUE & SALES =====
+
+    public void RecordSale(string productName, int quantity, decimal unitPrice)
+    {
+        decimal saleAmount = quantity * unitPrice;
+        _totalRevenue += saleAmount;
+        _totalSalesQuantity += quantity;
+
+        Product p = GasesteProdus(productName);
+        if (p != null)
+        {
+            p.VindeStoc(quantity);
+            Console.WriteLine("Sale recorded: " + quantity + "x " + productName + " = " + saleAmount + " RON");
+        }
+    }
+
+    public decimal GetTotalRevenue()
+    {
+        return _totalRevenue;
+    }
+
+    public int GetTotalSalesQuantity()
+    {
+        return _totalSalesQuantity;
+    }
+
+    public decimal CalculateProfit()
+    {
+        decimal totalCost = 0;
+        for (int i = 0; i < _nrProduse; i++)
+        {
+            totalCost += _produse[i].ProductionCost * (1000 - _produse[i].Cantitate);
+        }
+        return _totalRevenue - totalCost;
+    }
+
+    public void AfiseazaRaportVanzari()
+    {
+        Console.WriteLine("\n=== SALES REPORT: " + Nume + " ===");
+        Console.WriteLine("Total Revenue: " + _totalRevenue + " RON");
+        Console.WriteLine("Total Units Sold: " + _totalSalesQuantity);
+        Console.WriteLine("Average Price Per Unit: " + (_totalSalesQuantity > 0 ? (_totalRevenue / _totalSalesQuantity).ToString("F2") : "N/A") + " RON");
+        Console.WriteLine("Estimated Profit: " + CalculateProfit() + " RON");
+        Console.WriteLine("");
     }
 
     public void AfiseazaComenzi()

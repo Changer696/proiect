@@ -8,14 +8,14 @@ public class SalesAgent : Employee
         Rol = EmployeeRole.SalesAgent;
     }
 
-    public bool VindeProdus(Product produs, int cantitate)
+    public bool VindeProdus(Product produs, int cantitate, Factory fabrica)
     {
         if (produs.Cantitate < cantitate)
         {
             Console.WriteLine("Insufficient stock! Available: " + produs.Cantitate);
             return false;
         }
-        produs.VindeStoc(cantitate);
+        fabrica.RecordSale(produs.Nume, cantitate, produs.SellingPrice);
         Console.WriteLine(Nume + " sold " + cantitate + "x " + produs.Nume);
         return true;
     }

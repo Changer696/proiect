@@ -17,7 +17,8 @@ class Program
             Console.WriteLine("2. Machines");
             Console.WriteLine("3. Products");
             Console.WriteLine("4. Production");
-            Console.WriteLine("5. General Report");
+            Console.WriteLine("5. Sales");
+            Console.WriteLine("6. General Report");
             Console.WriteLine("0. Exit");
             Console.Write("Choose: ");
 
@@ -32,6 +33,8 @@ class Program
             else if (alegere == "4")
                 MeniuProductie();
             else if (alegere == "5")
+                MeniuVanzari();
+            else if (alegere == "6")
                 fabrica.AfiseazaRaportGeneral();
             else if (alegere == "0")
                 running = false;
@@ -431,6 +434,55 @@ class Program
         int unitati = int.Parse(Console.ReadLine());
 
         fabrica.ExecutaComanda(idOp, nextOrder.Id, unitati);
+    }
+
+    static void MeniuVanzari()
+    {
+        Console.WriteLine("\n--- SALES ---");
+        Console.WriteLine("1. Sell Product");
+        Console.WriteLine("2. View Sales Report");
+        Console.WriteLine("3. View General Report");
+        Console.Write("Choose: ");
+        string alegere = Console.ReadLine();
+
+        if (alegere == "1")
+            VindeProdus();
+        else if (alegere == "2")
+            fabrica.AfiseazaRaportVanzari();
+        else if (alegere == "3")
+            fabrica.AfiseazaRaportGeneral();
+    }
+
+    static void VindeProdus()
+    {
+        fabrica.AfiseazaAngajati();
+        Console.Write("ID SalesAgent: ");
+        string idAgent = Console.ReadLine();
+
+        Employee ang = fabrica.GasesteAngajat(idAgent);
+        if (ang == null || !(ang is SalesAgent))
+        {
+            Console.WriteLine("Sales Agent not found!");
+            return;
+        }
+
+        SalesAgent agent = (SalesAgent)ang;
+
+        fabrica.AfiseazaProduse();
+        Console.Write("Product name to sell: ");
+        string produsNume = Console.ReadLine();
+
+        Product produs = fabrica.GasesteProdus(produsNume);
+        if (produs == null)
+        {
+            Console.WriteLine("Product not found!");
+            return;
+        }
+
+        Console.Write("Quantity to sell: ");
+        int cantitate = int.Parse(Console.ReadLine());
+
+        agent.VindeProdus(produs, cantitate, fabrica);
     }
 
     // ===== DATE DEMO =====
