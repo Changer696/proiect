@@ -345,8 +345,10 @@ class Program
     {
         Console.WriteLine("\n--- PRODUCTIE ---");
         Console.WriteLine("1. Creeaza comanda");
-        Console.WriteLine("2. Executa comanda");
-        Console.WriteLine("3. Afiseaza comenzi");
+        Console.WriteLine("2. Execute Order (manualy)");
+        Console.WriteLine("3. Execute the next priority order (auto)");
+        Console.WriteLine("4. Show orders");
+        Console.WriteLine("5. Show orders sorted by priority");
         Console.Write("Alege: ");
         string alegere = Console.ReadLine();
 
@@ -355,7 +357,11 @@ class Program
         else if (alegere == "2")
             ExecutaComanda();
         else if (alegere == "3")
+            ExecutaComanaPrioritara();
+        else if (alegere == "4")
             fabrica.AfiseazaComenzi();
+        else if (alegere == "5")
+            fabrica.AfiseazaComenziSortedByPriority();
     }
 
     static void CreazaComanda()
@@ -403,6 +409,28 @@ class Program
         int unitati = int.Parse(Console.ReadLine());
 
         fabrica.ExecutaComanda(idOp, idComanda, unitati);
+    }
+
+    static void ExecutaComanaPrioritara()
+    {
+        fabrica.AfiseazaAngajati();
+        Console.Write("ID MachineOperator: ");
+        string idOp = Console.ReadLine();
+
+        ProductionOrder nextOrder = fabrica.GetNextPriorityOrder(idOp);
+        if (nextOrder == null)
+        {
+            Console.WriteLine("Nu exista comenzi active sau operatorul nu este valid!");
+            return;
+        }
+
+        Console.WriteLine("\nUrmatoarea comanda prioritara:");
+        nextOrder.Afiseaza();
+
+        Console.Write("Unitati de produs acum: ");
+        int unitati = int.Parse(Console.ReadLine());
+
+        fabrica.ExecutaComanda(idOp, nextOrder.Id, unitati);
     }
 
     // ===== DATE DEMO =====
