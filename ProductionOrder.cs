@@ -1,8 +1,8 @@
 using System;
 
-public class ProductionOrder
+public class ProductionOrder : IIdentifiable
 {
-    public string Id;
+    public string Id { get; set; }
     public Machine Masina;
     public ProductionManager CreatDe;
     public string NumeProdus;
