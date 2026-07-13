@@ -5,8 +5,8 @@ using System.Linq;
 
 public class Login
 {
-    private const string CREDENTIALS_FILE = "employees.txt";
-    private Dictionary<string, EmployeeCredential> credentials = new Dictionary<string, EmployeeCredential>();
+    private readonly string CREDENTIALS_FILE;
+    private readonly Dictionary<string, EmployeeCredential> credentials = [];
 
     public class EmployeeCredential
     {
@@ -18,21 +18,20 @@ public class Login
 
     public Login()
     {
+        // Set credentials file path in the project directory
+        CREDENTIALS_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "employees.txt");
         LoadCredentials();
     }
 
-    /// <summary>
-    /// Loads employee credentials from the employees.txt file
-    /// File format: employeeId;username;password;role
-    /// </summary>
+   
     private void LoadCredentials()
     {
         try
         {
             if (!File.Exists(CREDENTIALS_FILE))
             {
-                Console.WriteLine($"Warning: {CREDENTIALS_FILE} not found. Creating default file...");
-                CreateDefaultCredentialsFile();
+                Console.WriteLine($"Error: {CREDENTIALS_FILE} not found. Please ensure the file exists.");
+                return;
             }
 
             credentials.Clear();
@@ -66,35 +65,6 @@ public class Login
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading credentials: {ex.Message}");
-        }
-    }
-
-    
-    private void CreateDefaultCredentialsFile()
-    {
-        try
-        {
-            string[] defaultCredentials = new string[]
-            {
-                "# Smart Factory - Employee Credentials",
-                "# Format: employeeId;username;password;role",
-                
-                "",
-                "1;director;pass123;Director",
-                "2;manager;pass123;ProductionManager",
-                "3;engineer;pass123;Engineer",
-                "4;tech1;pass123;Technician",
-                "5;operator1;pass123;MachineOperator",
-                "6;sales1;pass123;SalesAgent"
-            };
-
-            File.WriteAllLines(CREDENTIALS_FILE, defaultCredentials);
-            Console.WriteLine($"Default credentials file created: {CREDENTIALS_FILE}");
-            LoadCredentials();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error creating credentials file: {ex.Message}");
         }
     }
 
