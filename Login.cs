@@ -69,9 +69,7 @@ public class Login
         }
     }
 
-    /// <summary>
-    /// Creates a default credentials file with sample data
-    /// </summary>
+    
     private void CreateDefaultCredentialsFile()
     {
         try
@@ -95,12 +93,7 @@ public class Login
         }
     }
 
-    /// <summary>
-    /// Authenticates a user with username and password
-    /// </summary>
-    /// <param name="username">The username to authenticate</param>
-    /// <param name="password">The password to verify</param>
-    /// <returns>The employee credential if authentication is successful, null otherwise</returns>
+    
     public EmployeeCredential Authenticate(string username, string password)
     {
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
@@ -120,10 +113,7 @@ public class Login
         return null;
     }
 
-    /// <summary>
-    /// Displays the login prompt and authenticates the user
-    /// </summary>
-    /// <returns>The authenticated employee credential, or null if authentication fails</returns>
+    
     public EmployeeCredential PromptLogin()
     {
         Console.WriteLine("\n========== SMART FACTORY LOGIN ==========");
@@ -166,5 +156,48 @@ public class Login
 
         Console.WriteLine("Login failed after maximum attempts. Exiting...");
         return null;
+    }
+
+   
+    public bool SaveEmployeeCredential(string employeeId, string username, string password, string role)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(employeeId) || string.IsNullOrWhiteSpace(username) || 
+                string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(role))
+            {
+                Console.WriteLine("Error: All credential fields must be provided!");
+                return false;
+            }
+
+            if (credentials.ContainsKey(username))
+            {
+                Console.WriteLine($"Error: Username '{username}' already exists!");
+                return false;
+            }
+
+            string credentialLine = $"{employeeId};{username};{password};{role}";
+            
+            // Append to file
+            File.AppendAllText(CREDENTIALS_FILE, credentialLine + Environment.NewLine);
+            
+            // Update in-memory dictionary
+            var credential = new EmployeeCredential
+            {
+                EmployeeId = employeeId,
+                Username = username,
+                Password = password,
+                Role = role
+            };
+            credentials[username] = credential;
+
+            Console.WriteLine($"Credentials saved for employee {username} ({role})");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving credentials: {ex.Message}");
+            return false;
+        }
     }
 }

@@ -1,19 +1,17 @@
 using System;
-using System.Security.Cryptography.X509Certificates;
+using System.Collections.Generic;
+using System.Linq;
 
 public class Factory
 {
     public string Nume;
 
-    private Employee[] _angajati;
-    private Machine[] _masini;
-    private Product[] _produse;
-    private ProductionOrder[] _comenzi;
+    
+    private EmployeeRepository _employeeRepository = new EmployeeRepository();
+    private MachineRepository _machineRepository = new MachineRepository();
+    private ProductRepository _productRepository = new ProductRepository();
+    private ProductionOrderRepository _orderRepository = new ProductionOrderRepository();
 
-    private int _nrAngajati = 0;
-    private int _nrMasini = 0;
-    private int _nrProduse = 0;
-    private int _nrComenzi = 0;
     private int _idComandaCounter = 1;
     private decimal _totalRevenue = 0;
     private int _totalSalesQuantity = 0;
@@ -21,171 +19,75 @@ public class Factory
     public Factory(string nume)
     {
         Nume = nume;
-        _angajati = new Employee[50];
-        _masini = new Machine[20];
-        _produse = new Product[50];
-        _comenzi = new ProductionOrder[100];
     }
 
-    // ANGAJATI 
+    // ===== EMPLOYEES =====
 
     public bool AdaugaAngajat(Employee angajat)
     {
-        if (_nrAngajati >= _angajati.Length)
-        {
-            Console.WriteLine("There's no more room for employees!");
-            return false;
-        }
-
-        for (int i = 0; i < _nrAngajati; i++)
-        {
-            if (_angajati[i].Id == angajat.Id)
-            {
-                Console.WriteLine("There is already an employee with the ID " + angajat.Id);
-                return false;
-            }
-        }
-
-        _angajati[_nrAngajati] = angajat;
-        _nrAngajati++;
-        return true;
+        return _employeeRepository.Add(angajat);
     }
 
     public void AfiseazaAngajati()
     {
-        if (_nrAngajati == 0)
-        {
-            Console.WriteLine("There are no employees!");
-            return;
-        }
-
-        Console.WriteLine("=== EMPLOYEES ===");
-        for (int i = 0; i < _nrAngajati; i++)
-        {
-            _angajati[i].Afiseaza();
-        }
+        _employeeRepository.DisplayAll();
     }
 
     public Employee GasesteAngajat(string id)
     {
-        for (int i = 0; i < _nrAngajati; i++)
-        {
-            if (_angajati[i].Id == id)
-                return _angajati[i];
-        }
-        return null;
+        return _employeeRepository.FindById(id);
     }
 
     public bool StergeAngajat(string id)
     {
-        for (int i = 0; i < _nrAngajati; i++)
+        if (_employeeRepository.RemoveById(id))
         {
-            if (_angajati[i].Id == id)
-            {
-                for (int j = i; j < _nrAngajati - 1; j++)
-                {
-                    _angajati[j] = _angajati[j + 1];
-                }
-                _angajati[_nrAngajati - 1] = null;
-                _nrAngajati--;
-                Console.WriteLine("Employee successfully deleted!");
-                return true;
-            }
+            Console.WriteLine("Employee successfully deleted!");
+            return true;
         }
-        Console.WriteLine("The employee doesn't exist!");
-        return false;
+        else
+        {
+            Console.WriteLine("The employee doesn't exist!");
+            return false;
+        }
     }
 
-    //  MASINI 
+    // ===== MACHINES =====
 
     public bool AdaugaMasina(Machine masina)
     {
-        if (_nrMasini >= _masini.Length)
-        {
-            Console.WriteLine("There's no more room for machines!");
-            return false;
-        }
-
-        for (int i = 0; i < _nrMasini; i++)
-        {
-            if (_masini[i].SerialNumber == masina.SerialNumber)
-            {
-                Console.WriteLine("There is already a machine with the serial number " + masina.SerialNumber);
-                return false;
-            }
-        }
-
-        _masini[_nrMasini] = masina;
-        _nrMasini++;
-        return true;
+        return _machineRepository.Add(masina);
     }
 
-    
     public void AfiseazaMasini()
     {
-        if (_nrMasini == 0)
-        {
-            Console.WriteLine("There are no machines!");
-            return;
-        }
-
-        Console.WriteLine("=== MACHINES ===");
-        for (int i = 0; i < _nrMasini; i++)
-        {
-            _masini[i].Afiseaza();
-        }
+        _machineRepository.DisplayAll();
     }
 
     public Machine GasesteMasina(string serial)
     {
-        for (int i = 0; i < _nrMasini; i++)
-        {
-            if (_masini[i].SerialNumber == serial)
-                return _masini[i];
-        }
-        return null;
+        return _machineRepository.FindBySerialNumber(serial);
     }
 
-    // PRODUSE
+    // ===== PRODUCTS =====
 
     public bool AdaugaProdus(Product produs)
     {
-        if (_nrProduse >= _produse.Length)
-        {
-            Console.WriteLine("There's no more room for products!");
-            return false;
-        }
-        _produse[_nrProduse] = produs;
-        _nrProduse++;
+        _productRepository.Add(produs);
         return true;
     }
 
     public void AfiseazaProduse()
     {
-        if (_nrProduse == 0)
-        {
-            Console.WriteLine("There are no products!");
-            return;
-        }
-
-        Console.WriteLine("=== PRODUCTS ===");
-        for (int i = 0; i < _nrProduse; i++)
-        {
-            _produse[i].Afiseaza();
-        }
+        _productRepository.DisplayAll();
     }
 
     public Product GasesteProdus(string nume)
     {
-        for (int i = 0; i < _nrProduse; i++)
-        {
-            if (_produse[i].Nume == nume)
-                return _produse[i];
-        }
-        return null;
+        return _productRepository.FindByName(nume);
     }
 
-    // PRODUCTIE 
+    // ===== PRODUCTION ORDERS =====
 
     public void CreazaComanda(string idManager, string serialMasina,
                                string produs, int cantitate, Priority prioritate)
@@ -212,18 +114,11 @@ public class Factory
             return;
         }
 
-        if (_nrComenzi >= _comenzi.Length)
-        {
-            Console.WriteLine("There's no room for orders anymore!");
-            return;
-        }
-
         string idComanda = "ORD" + _idComandaCounter;
         _idComandaCounter++;
 
         ProductionOrder comanda = manager.CreazaComanda(idComanda, masina, produs, cantitate);
-        _comenzi[_nrComenzi] = comanda;
-        _nrComenzi++;
+        _orderRepository.Add(comanda);
     }
 
     public void ExecutaComanda(string idOperator, string idComanda, int unitati)
@@ -243,15 +138,7 @@ public class Factory
 
         MachineOperator op = (MachineOperator)angajat;
 
-        ProductionOrder comanda = null;
-        for (int i = 0; i < _nrComenzi; i++)
-        {
-            if (_comenzi[i].Id == idComanda)
-            {
-                comanda = _comenzi[i];
-                break;
-            }
-        }
+        ProductionOrder comanda = _orderRepository.FindById(idComanda);
 
         if (comanda == null)
         {
@@ -310,16 +197,16 @@ public class Factory
         teh.Repara(masina);
     }
 
-    public void AdaugaStocProduse(string numeProdus , int cantitate)
+    public void AdaugaStocProduse(string numeProdus, int cantitate)
     {
         Product produs = GasesteProdus(numeProdus);
-        if(numeProdus == null)
+        if (produs == null)
         {
             Console.WriteLine("There is no such product");
             return;
         }
         produs.AdaugaStoc(cantitate);
-        Console.WriteLine($"New stock added:{numeProdus} + {cantitate} pieces");
+        Console.WriteLine($"New stock added: {numeProdus} + {cantitate} pieces");
     }
 
     public void VandeProdus(string idAgent, string numeProdus, int cantitate)
@@ -337,8 +224,6 @@ public class Factory
             return;
         }
 
-        
-
         SalesAgent agent = (SalesAgent)angajat;
 
         Product produs = GasesteProdus(numeProdus);
@@ -351,15 +236,15 @@ public class Factory
         agent.VindeProdus(produs, cantitate, this);
     }
 
-    // ===== RAPOARTE =====
+    // ===== REPORTS =====
 
     public void AfiseazaRaportGeneral()
     {
         Console.WriteLine("\n=== REPORT: " + Nume + " ===");
-        Console.WriteLine("Employees: " + _nrAngajati);
-        Console.WriteLine("Machines:   " + _nrMasini);
-        Console.WriteLine("Products:  " + _nrProduse);
-        Console.WriteLine("Orders:  " + _nrComenzi);
+        Console.WriteLine("Employees: " + _employeeRepository.Count);
+        Console.WriteLine("Machines:   " + _machineRepository.Count);
+        Console.WriteLine("Products:  " + _productRepository.Count);
+        Console.WriteLine("Orders:  " + _orderRepository.Count);
         Console.WriteLine("Total Revenue: " + _totalRevenue + " RON");
         Console.WriteLine("Total Units Sold: " + _totalSalesQuantity);
         Console.WriteLine("");
@@ -394,9 +279,9 @@ public class Factory
     public decimal CalculateProfit()
     {
         decimal totalCost = 0;
-        for (int i = 0; i < _nrProduse; i++)
+        foreach (var product in _productRepository.GetAll())
         {
-            totalCost += _produse[i].ProductionCost * (1000 - _produse[i].Cantitate);
+            totalCost += product.ProductionCost * (1000 - product.Cantitate);
         }
         return _totalRevenue - totalCost;
     }
@@ -413,92 +298,24 @@ public class Factory
 
     public void AfiseazaComenzi()
     {
-        if (_nrComenzi == 0)
-        {
-            Console.WriteLine("There are no orders!");
-            return;
-        }
-
-        Console.WriteLine("=== Orders ===");
-        for (int i = 0; i < _nrComenzi; i++)
-        {
-            _comenzi[i].Afiseaza();
-        }
+        _orderRepository.DisplayAll();
     }
 
     public void AfiseazaComenziSortedByPriority()
     {
-        if (_nrComenzi == 0)
+        List<ProductionOrder> comenziSortate = _orderRepository.GetSortedByPriority();
+
+        if (comenziSortate.Count == 0)
         {
             Console.WriteLine("There are no orders!");
             return;
         }
 
-        ProductionOrder[] comenziActive = new ProductionOrder[_nrComenzi];
-        int nrActive = 0;
-
-        for (int i = 0; i < _nrComenzi; i++)
-        {
-            if (_comenzi[i].Status != ProductionOrderStatus.Completed)
-            {
-                comenziActive[nrActive] = _comenzi[i];
-                nrActive++;
-            }
-        }
-
-        // Sort by priority: High > Medium > Low, then by Status (Created > InProgress)
-        for (int i = 0; i < nrActive - 1; i++)
-        {
-            for (int j = 0; j < nrActive - i - 1; j++)
-            {
-                if (ComparePriority(comenziActive[j], comenziActive[j + 1]) < 0)
-                {
-                    ProductionOrder temp = comenziActive[j];
-                    comenziActive[j] = comenziActive[j + 1];
-                    comenziActive[j + 1] = temp;
-                }
-            }
-        }
-
         Console.WriteLine("=== Orders sorted by priority ===");
-        for (int i = 0; i < nrActive; i++)
+        foreach (var comanda in comenziSortate)
         {
-            comenziActive[i].Afiseaza();
+            comanda.Afiseaza();
         }
-    }
-
-    private int ComparePriority(ProductionOrder a, ProductionOrder b)
-    {
-        int priorityOrder_a = GetPriorityValue(a.Prioritate);
-        int priorityOrder_b = GetPriorityValue(b.Prioritate);
-
-        if (priorityOrder_a != priorityOrder_b)
-            return priorityOrder_a.CompareTo(priorityOrder_b);
-
-        int statusOrder_a = GetStatusValue(a.Status);
-        int statusOrder_b = GetStatusValue(b.Status);
-
-        return statusOrder_a.CompareTo(statusOrder_b);
-    }
-
-    private int GetPriorityValue(Priority priority)
-    {
-        if (priority == Priority.High)
-            return 3;
-        else if (priority == Priority.Medium)
-            return 2;
-        else
-            return 1;
-    }
-
-    private int GetStatusValue(ProductionOrderStatus status)
-    {
-        if (status == ProductionOrderStatus.Created)
-            return 2;
-        else if (status == ProductionOrderStatus.InProgress)
-            return 1;
-        else
-            return 0;
     }
 
     public ProductionOrder GetNextPriorityOrder(string idOperator)
@@ -510,19 +327,7 @@ public class Factory
         if (!(angajat is MachineOperator))
             return null;
 
-        ProductionOrder nextOrder = null;
-
-        for (int i = 0; i < _nrComenzi; i++)
-        {
-            if (_comenzi[i].Status != ProductionOrderStatus.Completed)
-            {
-                if (nextOrder == null || ComparePriority(_comenzi[i], nextOrder) > 0)
-                {
-                    nextOrder = _comenzi[i];
-                }
-            }
-        }
-
-        return nextOrder;
+        List<ProductionOrder> comenziSortate = _orderRepository.GetSortedByPriority();
+        return comenziSortate.FirstOrDefault();
     }
 }

@@ -5,12 +5,13 @@ class Program
 {
     static Factory fabrica = new Factory("TOYS R US");
     static Login.EmployeeCredential loggedInUser;
+    static Login loginManager;
 
     static void Main()
     {
         // Authentication - Login required
-        Login login = new Login();
-        loggedInUser = login.LoginWithAttempts(3);
+        loginManager = new Login();
+        loggedInUser = loginManager.LoginWithAttempts(3);
 
         if (loggedInUser == null)
         {
@@ -116,27 +117,62 @@ class Program
         string tip = Console.ReadLine();
 
         Employee angajat = null;
+        string role = null;
 
         if (tip == "1")
+        {
             angajat = new Director(id, nume, salariu, DateTime.Now);
+            role = "Director";
+        }
         else if (tip == "2")
+        {
             angajat = new ProductionManager(id, nume, salariu, DateTime.Now);
+            role = "ProductionManager";
+        }
         else if (tip == "3")
+        {
             angajat = new Engineer(id, nume, salariu, DateTime.Now);
+            role = "Engineer";
+        }
         else if (tip == "4")
+        {
             angajat = new Technician(id, nume, salariu, DateTime.Now);
+            role = "Technician";
+        }
         else if (tip == "5")
+        {
             angajat = new MachineOperator(id, nume, salariu, DateTime.Now);
+            role = "MachineOperator";
+        }
         else if (tip == "6")
+        {
             angajat = new SalesAgent(id, nume, salariu, DateTime.Now);
+            role = "SalesAgent";
+        }
         else
         {
             Console.WriteLine("Invalid user!");
             return;
         }
 
+        // Ask for login credentials
+        Console.Write("Username for login: ");
+        string username = Console.ReadLine();
+        Console.Write("Password for login: ");
+        string password = Console.ReadLine();
+
         if (fabrica.AdaugaAngajat(angajat))
-            Console.WriteLine("Employee added successfully!");
+        {
+            // Save credentials to file
+            if (loginManager.SaveEmployeeCredential(id, username, password, role))
+            {
+                Console.WriteLine("Employee added successfully!");
+            }
+            else
+            {
+                Console.WriteLine("Employee added but failed to save credentials!");
+            }
+        }
     }
 
     // ===== MENIU MASINI =====

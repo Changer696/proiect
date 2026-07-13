@@ -1,8 +1,8 @@
 using System;
 
-public abstract class Employee
+public abstract class Employee : IIdentifiable
 {
-    public string Id;
+    public string Id { get; set; }
     public string Nume;
     public EmployeeRole Rol;
     public decimal Salariu;
