@@ -5,4 +5,10 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="employees.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
