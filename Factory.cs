@@ -21,7 +21,7 @@ public class Factory
         Nume = nume;
     }
 
-    // ===== EMPLOYEES =====
+    
 
     public bool AdaugaAngajat(Employee angajat)
     {
@@ -52,7 +52,6 @@ public class Factory
         }
     }
 
-    // ===== MACHINES =====
 
     public bool AdaugaMasina(Machine masina)
     {
@@ -69,7 +68,7 @@ public class Factory
         return _machineRepository.FindBySerialNumber(serial);
     }
 
-    // ===== PRODUCTS =====
+
 
     public bool AdaugaProdus(Product produs)
     {
@@ -87,7 +86,7 @@ public class Factory
         return _productRepository.FindByName(nume);
     }
 
-    // ===== PRODUCTION ORDERS =====
+    
 
     public void CreazaComanda(string idManager, string serialMasina,
                                string produs, int cantitate, Priority prioritate)
@@ -209,7 +208,7 @@ public class Factory
         Console.WriteLine($"New stock added: {numeProdus} + {cantitate} pieces");
     }
 
-    public void VandeProdus(string idAgent, string numeProdus, int cantitate)
+    public void VindeProdus(string idAgent, string numeProdus, int cantitate)
     {
         Employee angajat = GasesteAngajat(idAgent);
         if (angajat == null)
@@ -236,7 +235,7 @@ public class Factory
         agent.VindeProdus(produs, cantitate, this);
     }
 
-    // ===== REPORTS =====
+    
 
     public void AfiseazaRaportGeneral()
     {
@@ -250,7 +249,7 @@ public class Factory
         Console.WriteLine("");
     }
 
-    // ===== REVENUE & SALES =====
+    
 
     public void RecordSale(string productName, int quantity, decimal unitPrice)
     {

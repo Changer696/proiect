@@ -78,9 +78,14 @@ public class Login
             {
                 "# Smart Factory - Employee Credentials",
                 "# Format: employeeId;username;password;role",
+                
+                "",
                 "1;director;pass123;Director",
                 "2;manager;pass123;ProductionManager",
-                "3;tech1;pass123;Technician"
+                "3;engineer;pass123;Engineer",
+                "4;tech1;pass123;Technician",
+                "5;operator1;pass123;MachineOperator",
+                "6;sales1;pass123;SalesAgent"
             };
 
             File.WriteAllLines(CREDENTIALS_FILE, defaultCredentials);

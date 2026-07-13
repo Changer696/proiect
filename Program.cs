@@ -386,7 +386,7 @@ class Program
         Console.Write("Selling Quantity: ");
         int cantitate = int.Parse(Console.ReadLine());
 
-        fabrica.VandeProdus(idAgent, numeProdus, cantitate);
+        fabrica.VindeProdus(idAgent, numeProdus, cantitate);
     }
 
     // ===== MENIU PRODUCTIE =====
@@ -532,7 +532,7 @@ class Program
         agent.VindeProdus(produs, cantitate, fabrica);
     }
 
-    // ===== DATE DEMO =====
+    
 
     static void DateDemo()
     {
