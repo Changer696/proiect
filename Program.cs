@@ -4,15 +4,26 @@ using System;
 class Program
 {
     static Factory fabrica = new Factory("TOYS R US");
+    static Login.EmployeeCredential loggedInUser;
 
     static void Main()
     {
+        // Authentication - Login required
+        Login login = new Login();
+        loggedInUser = login.LoginWithAttempts(3);
+
+        if (loggedInUser == null)
+        {
+            return; // Exit if authentication fails
+        }
+
         DateDemo();
 
         bool running = true;
         while (running)
         {
             Console.WriteLine("\n========== SMART FACTORY ==========");
+            Console.WriteLine($"Logged in as: {loggedInUser.Username} ({loggedInUser.Role})");
             Console.WriteLine("1. Employees");
             Console.WriteLine("2. Machines");
             Console.WriteLine("3. Products");
