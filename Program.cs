@@ -70,6 +70,8 @@ class Program
 
     static void ShowOperationLogs()
     {
+        
+
         Console.WriteLine("\n=== Operation History ===");
         string[] entries = Logging.GetAllEntries();
         if (entries.Length == 0)
@@ -151,6 +153,12 @@ class Program
     {
         Console.Write("ID: ");
         string id = Console.ReadLine();
+        if (fabrica.EmployeeIdExists(id))
+        {
+            Console.WriteLine($"Employee ID {id} already exists. Please choose a unique ID.");
+            return;
+        }
+
         Console.Write("Name: ");
         string nume = Console.ReadLine();
         Console.Write("Salary: ");

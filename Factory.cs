@@ -34,6 +34,14 @@ public class Factory
         return added;
     }
 
+    public bool EmployeeIdExists(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            return false;
+
+        return _employeeRepository.ExistsById(id);
+    }
+
     public void AfiseazaAngajati()
     {
         _employeeRepository.DisplayAll();
