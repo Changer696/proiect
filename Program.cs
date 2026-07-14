@@ -23,7 +23,7 @@ class Program
         bool running = true;
         while (running)
         {
-            Console.WriteLine("\n========== SMART FACTORY ==========");
+            Console.WriteLine("\n========== SMART FACTORY ===========");
             Console.WriteLine($"Logged in as: {loggedInUser.Username} ({loggedInUser.Role})");
             Console.WriteLine("1. Employees");
             Console.WriteLine("2. Machines");
@@ -32,6 +32,7 @@ class Program
             Console.WriteLine("5. Sales");
             Console.WriteLine("6. General Report");
             Console.WriteLine("7. Show Operation Logs");
+            Console.WriteLine("8. Log out");
             Console.WriteLine("0. Exit");
             Console.Write("Choose: ");
 
@@ -51,6 +52,13 @@ class Program
                 fabrica.AfiseazaRaportGeneral();
             else if (alegere == "7")
                 ShowOperationLogs();
+            else if (alegere == "8")
+            {
+                // Attempt logout and re-login. If re-login fails, exit application.
+                bool stillRunning = Logout();
+                if (!stillRunning)
+                    return;
+            }
             else if (alegere == "0")
                 running = false;
             else
@@ -76,6 +84,27 @@ class Program
             }
         }
         Console.WriteLine("=========================");
+    }
+
+    // Logout and re-authenticate. Returns true to continue running, false to exit application.
+    static bool Logout()
+    {
+        Console.WriteLine("\nLogging out...");
+        // push logout event into operation history stack and file
+        if (loggedInUser != null)
+        {
+            Logging.Log(loggedInUser.Username, "User logged out");
+        }
+
+        loggedInUser = loginManager.LoginWithAttempts(3);
+        if (loggedInUser == null)
+        {
+            Console.WriteLine("Authentication failed. Exiting application.");
+            return false;
+        }
+
+        Console.WriteLine($"Successfully logged in as: {loggedInUser.Username} ({loggedInUser.Role})");
+        return true;
     }
 
     // ===== MENIU ANGAJATI =====

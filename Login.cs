@@ -97,7 +97,7 @@ public class Login
         string username = Console.ReadLine();
 
         Console.Write("Password: ");
-        string password = Console.ReadLine();
+        string password = ReadPassword();
 
         EmployeeCredential credential = Authenticate(username, password);
 
@@ -178,5 +178,37 @@ public class Login
             Console.WriteLine($"Error saving credentials: {ex.Message}");
             return false;
         }
+    }
+
+    // Read password from console while masking input with '*'
+    public string ReadPassword()
+    {
+        var pwd = new System.Text.StringBuilder();
+        ConsoleKeyInfo key;
+        while (true)
+        {
+            key = Console.ReadKey(intercept: true);
+            if (key.Key == ConsoleKey.Enter)
+            {
+                Console.WriteLine();
+                break;
+            }
+            else if (key.Key == ConsoleKey.Backspace)
+            {
+                if (pwd.Length > 0)
+                {
+                    pwd.Length--;
+                    // move cursor back, write space, move back again
+                    Console.Write("\b \b");
+                }
+            }
+            else if (!char.IsControl(key.KeyChar))
+            {
+                pwd.Append(key.KeyChar);
+                Console.Write("*");
+            }
+        }
+
+        return pwd.ToString();
     }
 }
