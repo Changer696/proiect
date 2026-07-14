@@ -115,6 +115,11 @@ public class StackRepository<T> where T : class
     }
 
     public bool IsEmpty => _items.Count == 0;
+
+    public List<T> GetAll()
+    {
+        return _items.ToList();
+    }
 }
 
 

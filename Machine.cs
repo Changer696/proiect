@@ -1,4 +1,5 @@
 using System;
+using SmartFactorySimple;
 
 public abstract class Machine
 {
@@ -80,12 +81,14 @@ public abstract class Machine
         }
         Status = MachineStatus.Running;
         Console.WriteLine(Nume + " was turned on.");
+        Logging.Log($"Started machine {SerialNumber}");
     }
 
     public virtual void Stop()
     {
         Status = MachineStatus.Stopped;
         Console.WriteLine(Nume + " was stopped.");
+        Logging.Log($"Stopped machine {SerialNumber}");
     }
 
     public void SetMaintenance()

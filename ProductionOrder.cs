@@ -1,4 +1,5 @@
 using System;
+using SmartFactorySimple;
 
 public class ProductionOrder : IIdentifiable
 {
@@ -39,11 +40,15 @@ public class ProductionOrder : IIdentifiable
             CantitateProdusa = CantitateTarget;
             Status = ProductionOrderStatus.Completed;
             Console.WriteLine("Order " + Id + " COMPLETED!");
+            if (CreatDe != null)
+                Logging.Log(CreatDe.Id, $"Produced {unitati} units for order {Id} ({NumeProdus}) - completed");
         }
         else
         {
             Status = ProductionOrderStatus.InProgress;
             Console.WriteLine("Progres " + Id + ": " + CantitateProdusa + "/" + CantitateTarget);
+            if (CreatDe != null)
+                Logging.Log(CreatDe.Id, $"Produced {unitati} units for order {Id} ({NumeProdus})");
         }
     }
     public void SetPriority()

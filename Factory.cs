@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SmartFactorySimple;
 
 public class Factory
 {
@@ -25,7 +26,12 @@ public class Factory
 
     public bool AdaugaAngajat(Employee angajat)
     {
-        return _employeeRepository.Add(angajat);
+        bool added = _employeeRepository.Add(angajat);
+        if (added)
+        {
+            Logging.Log(angajat.Id, $"Employee added: {angajat.Nume}");
+        }
+        return added;
     }
 
     public void AfiseazaAngajati()
@@ -43,6 +49,7 @@ public class Factory
         if (_employeeRepository.RemoveById(id))
         {
             Console.WriteLine("Employee successfully deleted!");
+            Logging.Log(id, $"Employee removed: {id}");
             return true;
         }
         else
@@ -150,6 +157,7 @@ public class Factory
         if (comanda.Masina.Status == MachineStatus.Running)
         {
             comanda.InregistreazaProductie(unitati);
+            Logging.Log(idOperator, $"Produced {unitati} units for order {idComanda} ({comanda.NumeProdus})");
         }
     }
 

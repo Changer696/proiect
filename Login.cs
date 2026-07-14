@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SmartFactorySimple;
 
 public class Login
 {
@@ -103,11 +104,14 @@ public class Login
         if (credential != null)
         {
             Console.WriteLine($"\nWelcome {username}! Role: {credential.Role}\n");
+            Logging.Log(credential.Username, "Successful login");
             return credential;
         }
         else
         {
             Console.WriteLine("\nInvalid username or password!\n");
+            var userForLog = string.IsNullOrWhiteSpace(username) ? "unknown" : username;
+            Logging.Log(userForLog, "Failed login attempt");
             return null;
         }
     }
