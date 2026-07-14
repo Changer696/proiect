@@ -1,4 +1,5 @@
 using System;
+using SmartFactorySimple;
 
 public class SalesAgent : Employee
 {
@@ -17,6 +18,7 @@ public class SalesAgent : Employee
         }
         fabrica.RecordSale(produs.Nume, cantitate, produs.SellingPrice);
         Console.WriteLine(Nume + " sold " + cantitate + "x " + produs.Nume);
+        Logging.Log(Id, $"Sold product {produs.Nume} x{cantitate}");
         return true;
     }
 

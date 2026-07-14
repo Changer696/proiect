@@ -1,4 +1,5 @@
 using System;
+using SmartFactorySimple;
 
 public class Technician : Employee
 {
@@ -27,6 +28,7 @@ public class Technician : Employee
 
         masina.RestoreazaConditia();
         Console.WriteLine(Nume + " fixed the machine " + masina.Nume);
+        Logging.Log(Id, $"Repaired machine {masina.SerialNumber}");
         return true;
     }
 
