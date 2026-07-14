@@ -31,6 +31,7 @@ class Program
             Console.WriteLine("4. Production");
             Console.WriteLine("5. Sales");
             Console.WriteLine("6. General Report");
+            Console.WriteLine("7. Show Operation Logs");
             Console.WriteLine("0. Exit");
             Console.Write("Choose: ");
 
@@ -48,6 +49,8 @@ class Program
                 MeniuVanzari();
             else if (alegere == "6")
                 fabrica.AfiseazaRaportGeneral();
+            else if (alegere == "7")
+                ShowOperationLogs();
             else if (alegere == "0")
                 running = false;
             else
@@ -55,6 +58,24 @@ class Program
         }
 
         Console.WriteLine("Good Bye!");
+    }
+
+    static void ShowOperationLogs()
+    {
+        Console.WriteLine("\n=== Operation History ===");
+        string[] entries = Logging.GetAllEntries();
+        if (entries.Length == 0)
+        {
+            Console.WriteLine("No operation logs available.");
+        }
+        else
+        {
+            foreach (string entry in entries)
+            {
+                Console.WriteLine(entry);
+            }
+        }
+        Console.WriteLine("=========================");
     }
 
     // ===== MENIU ANGAJATI =====
