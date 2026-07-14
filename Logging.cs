@@ -12,7 +12,7 @@ namespace SmartFactorySimple
         private const string DefaultFileName = "operations.txt";
 
         // FilePath can be overridden by the application if needed.
-        public static string FilePath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), DefaultFileName);
+        public static string FilePath { get; set; } = Path.Combine(AppContext.BaseDirectory, DefaultFileName);
 
         // Log entry with explicit username
         public static void Log(string username, string description)
