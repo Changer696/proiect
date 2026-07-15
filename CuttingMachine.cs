@@ -17,6 +17,7 @@ public class CuttingMachine : Machine
         Console.WriteLine(Nume + "Cuts the material according to the patterns.");
         DegradeazaConditia();
         StareVerificarePiesa();
+        RegisterProductionCycle();
 
     }
 

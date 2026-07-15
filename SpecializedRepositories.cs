@@ -187,6 +187,15 @@ public class ProductionOrderRepository : RepositoryWithId<ProductionOrder>
             .ToList();
     }
 
+    public ProductionOrder GetNextByPriority()
+    {
+        return _items
+            .Where(o => o.Status != ProductionOrderStatus.Completed)
+            .OrderByDescending(o => GetPriorityValue(o.Prioritate))
+            .ThenBy(o => GetStatusValue(o.Status))
+            .FirstOrDefault();
+    }
+
     private int GetPriorityValue(Priority priority)
     {
         return priority switch

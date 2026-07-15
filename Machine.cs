@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using SmartFactorySimple;
 
 public abstract class Machine
@@ -9,6 +10,8 @@ public abstract class Machine
     public MachineCondition Conditie;
     public DateTime DataFabricatiei;
     public static Random _random = new Random();
+    public int ProductionCycles { get; private set; }
+    public DateTime? LastMaintenanceDate { get; private set; }
 
     public MachinePart[] Piese;
     public int NrPiese;
@@ -32,15 +35,9 @@ public abstract class Machine
 
     public bool ArePieseComplete()
     {
-        if (NrPiese == 0)
-            return false;
-
-        for (int i = 0; i < NrPiese; i++)
-        {
-            if (!Piese[i].EFunctionala)
-                return false;
-        }
-        return true;
+        return NrPiese > 0 && Piese
+            .Take(NrPiese)
+            .All(piesa => piesa.EFunctionala);
     }
 
     public void StareVerificarePiesa()
@@ -65,6 +62,55 @@ public abstract class Machine
     {
         TimeSpan varsta = DateTime.Now - DataFabricatiei;
         return varsta.Days;
+    }
+
+    public int EstimateDaysUntilMaintenance()
+    {
+        int conditionAllowance = Conditie switch
+        {
+            MachineCondition.Excellent => 60,
+            MachineCondition.Good => 30,
+            MachineCondition.Worn => 7,
+            _ => 0
+        };
+
+        return Math.Max(0, conditionAllowance - GetVarstaZile() / 365);
+    }
+
+    public decimal CalculateEfficiencyPercentage()
+    {
+        decimal conditionScore = Conditie switch
+        {
+            MachineCondition.Excellent => 100m,
+            MachineCondition.Good => 85m,
+            MachineCondition.Worn => 60m,
+            _ => 30m
+        };
+
+        decimal functionalPartsRatio = NrPiese == 0
+            ? 0m
+            : Piese.Take(NrPiese).Count(piesa => piesa.EFunctionala) / (decimal)NrPiese;
+
+        return Math.Round(conditionScore * functionalPartsRatio, 2);
+    }
+
+    public string GetHealthAlert()
+    {
+        int brokenParts = Piese.Take(NrPiese).Count(piesa => !piesa.EFunctionala);
+
+        if (Status == MachineStatus.Maintenance || Conditie == MachineCondition.Critical)
+            return "CRITICAL: Maintenance is required immediately.";
+        if (brokenParts > 0)
+            return $"WARNING: {brokenParts} broken part(s) require attention.";
+        if (Conditie == MachineCondition.Worn || EstimateDaysUntilMaintenance() <= 7)
+            return $"WARNING: Preventive maintenance is due within {EstimateDaysUntilMaintenance()} day(s).";
+
+        return "HEALTHY: No maintenance alert.";
+    }
+
+    protected void RegisterProductionCycle()
+    {
+        ProductionCycles++;
     }
 
     public virtual void Start()
@@ -116,6 +162,7 @@ public abstract class Machine
     {
         Conditie = MachineCondition.Excellent;
         Status = MachineStatus.Stopped;
+        LastMaintenanceDate = DateTime.Now;
     }
 
     public abstract void Produce();
