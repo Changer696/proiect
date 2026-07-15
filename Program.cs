@@ -33,6 +33,7 @@ class Program
             Console.WriteLine("6. General Report");
             Console.WriteLine("7. Show Operation Logs");
             Console.WriteLine("8. Log out");
+            Console.WriteLine("9. Undo Last Operation");
             Console.WriteLine("0. Exit");
             Console.Write("Choose: ");
 
@@ -59,6 +60,8 @@ class Program
                 if (!stillRunning)
                     return;
             }
+            else if (alegere == "9")
+                UndoLastOperation();
             else if (alegere == "0")
                 running = false;
             else
@@ -84,6 +87,20 @@ class Program
             }
         }
         Console.WriteLine("=========================");
+    }
+
+   
+    static void UndoLastOperation()
+    {
+        if (UndoManager.TryUndoLast(out string description))
+        {
+            Console.WriteLine($"Undone: {description}");
+            Logging.Log(loggedInUser.Username, $"Undo: {description}");
+        }
+        else
+        {
+            Console.WriteLine("Nothing to undo.");
+        }
     }
 
     // Logout and re-authenticate. Returns true to continue running, false to exit application.
@@ -217,6 +234,12 @@ class Program
             if (loginManager.SaveEmployeeCredential(id, username, password, role))
             {
                 Console.WriteLine("Employee added successfully!");
+
+                UndoManager.Register($"Add employee {nume} ({id})", () =>
+                {
+                    fabrica.RemoveAngajatForUndo(angajat);
+                    loginManager.RemoveCredential(username);
+                });
             }
             else
             {
@@ -255,7 +278,10 @@ class Program
             if (m == null)
                 Console.WriteLine("Machine doesn't exist!");
             else
+            {
                 m.Stop();
+                UndoManager.Register($"Stop machine {serial}", () => m.Start());
+            }
         }
         else if (alegere == "4")
         {
@@ -270,7 +296,10 @@ class Program
             if (m == null)
                 Console.WriteLine("Machine doesn't exist!");
             else
+            {
                 m.Start();
+                UndoManager.Register($"Start machine {serial}", () => m.Stop());
+            }
 
         }
     }
@@ -582,7 +611,7 @@ class Program
         agent.VindeProdus(produs, cantitate, fabrica);
     }
 
-    
+
 
     static void DateDemo()
     {
@@ -605,8 +634,8 @@ class Program
         fabrica.AdaugaProdus(new WoodenCubes("MagicBlocks", 15, 30, 3, "S"));
         fabrica.AdaugaProdus(new Doll("Barbie", 12, 50, 7, "S"));
         fabrica.AdaugaProdus(new TedyBear("Barnie", 20, 60, 15, "M"));
-        fabrica.AdaugaProdus(new Ball("Football",13,50,5,"Normal"));
-        fabrica.AdaugaProdus(new Frisbee("OZN",10, 25, 7, "S"));
+        fabrica.AdaugaProdus(new Ball("Football", 13, 50, 5, "Normal"));
+        fabrica.AdaugaProdus(new Frisbee("OZN", 10, 25, 7, "S"));
 
         Console.WriteLine("Demo data loaded! Press Enter to continue...");
         Console.ReadLine();

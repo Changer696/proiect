@@ -24,7 +24,7 @@ public class Login
         LoadCredentials();
     }
 
-   
+
     private void LoadCredentials()
     {
         try
@@ -69,7 +69,7 @@ public class Login
         }
     }
 
-    
+
     public EmployeeCredential Authenticate(string username, string password)
     {
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
@@ -89,7 +89,7 @@ public class Login
         return null;
     }
 
-    
+
     public EmployeeCredential PromptLogin()
     {
         Console.WriteLine("\n========== SMART FACTORY LOGIN ==========");
@@ -116,7 +116,7 @@ public class Login
         }
     }
 
-    
+
     public EmployeeCredential LoginWithAttempts(int maxAttempts = 3)
     {
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
@@ -137,12 +137,12 @@ public class Login
         return null;
     }
 
-   
+
     public bool SaveEmployeeCredential(string employeeId, string username, string password, string role)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(employeeId) || string.IsNullOrWhiteSpace(username) || 
+            if (string.IsNullOrWhiteSpace(employeeId) || string.IsNullOrWhiteSpace(username) ||
                 string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(role))
             {
                 Console.WriteLine("Error: All credential fields must be provided!");
@@ -156,10 +156,10 @@ public class Login
             }
 
             string credentialLine = $"{employeeId};{username};{password};{role}";
-            
+
             // Append to file
             File.AppendAllText(CREDENTIALS_FILE, credentialLine + Environment.NewLine);
-            
+
             // Update in-memory dictionary
             var credential = new EmployeeCredential
             {
@@ -171,6 +171,34 @@ public class Login
             credentials[username] = credential;
 
             Console.WriteLine($"Credentials saved for employee {username} ({role})");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving credentials: {ex.Message}");
+            return false;
+        }
+    }
+
+    // Remove a saved credential (used by Undo, e.g. reversing "add employee").
+    // Rewrites employees.txt from the in-memory dictionary, since the file is
+    // otherwise only ever appended to.
+    public bool RemoveCredential(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username) || !credentials.ContainsKey(username))
+            return false;
+
+        credentials.Remove(username);
+        return RewriteCredentialsFile();
+    }
+
+    private bool RewriteCredentialsFile()
+    {
+        try
+        {
+            var lines = credentials.Values
+                .Select(c => $"{c.EmployeeId};{c.Username};{c.Password};{c.Role}");
+            File.WriteAllLines(CREDENTIALS_FILE, lines);
             return true;
         }
         catch (Exception ex)

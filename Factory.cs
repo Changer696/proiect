@@ -7,7 +7,7 @@ public class Factory
 {
     public string Nume;
 
-    
+
     private EmployeeRepository _employeeRepository = new EmployeeRepository();
     private MachineRepository _machineRepository = new MachineRepository();
     private ProductRepository _productRepository = new ProductRepository();
@@ -22,7 +22,7 @@ public class Factory
         Nume = nume;
     }
 
-    
+
 
     public bool AdaugaAngajat(Employee angajat)
     {
@@ -32,6 +32,13 @@ public class Factory
             Logging.Log(angajat.Id, $"Employee added: {angajat.Nume}");
         }
         return added;
+    }
+
+    // Removes an employee without printing messages, logging, or registering
+    // a new undo entry. Intended to be called only from inside an Undo action.
+    public bool RemoveAngajatForUndo(Employee angajat)
+    {
+        return _employeeRepository.Remove(angajat);
     }
 
     public void AfiseazaAngajati()
@@ -46,10 +53,16 @@ public class Factory
 
     public bool StergeAngajat(string id)
     {
-        if (_employeeRepository.RemoveById(id))
+        Employee angajat = _employeeRepository.FindById(id);
+
+        if (angajat != null && _employeeRepository.RemoveById(id))
         {
             Console.WriteLine("Employee successfully deleted!");
             Logging.Log(id, $"Employee removed: {id}");
+            UndoManager.Register($"Delete employee {angajat.Nume} ({id})", () =>
+            {
+                _employeeRepository.Add(angajat);
+            });
             return true;
         }
         else
@@ -62,7 +75,15 @@ public class Factory
 
     public bool AdaugaMasina(Machine masina)
     {
-        return _machineRepository.Add(masina);
+        bool added = _machineRepository.Add(masina);
+        if (added)
+        {
+            UndoManager.Register($"Add machine {masina.Nume}", () =>
+            {
+                _machineRepository.Remove(masina);
+            });
+        }
+        return added;
     }
 
     public void AfiseazaMasini()
@@ -80,6 +101,15 @@ public class Factory
     public bool AdaugaProdus(Product produs)
     {
         _productRepository.Add(produs);
+
+        if (produs != null)
+        {
+            UndoManager.Register($"Add product {produs.Nume}", () =>
+            {
+                _productRepository.Remove(produs);
+            });
+        }
+
         return true;
     }
 
@@ -93,7 +123,7 @@ public class Factory
         return _productRepository.FindByName(nume);
     }
 
-    
+
 
     public void CreazaComanda(string idManager, string serialMasina,
                                string produs, int cantitate, Priority prioritate)
@@ -125,6 +155,11 @@ public class Factory
 
         ProductionOrder comanda = manager.CreazaComanda(idComanda, masina, produs, cantitate);
         _orderRepository.Add(comanda);
+
+        UndoManager.Register($"Create order {idComanda} ({produs})", () =>
+        {
+            _orderRepository.Remove(comanda);
+        });
     }
 
     public void ExecutaComanda(string idOperator, string idComanda, int unitati)
@@ -214,6 +249,11 @@ public class Factory
         }
         produs.AdaugaStoc(cantitate);
         Console.WriteLine($"New stock added: {numeProdus} + {cantitate} pieces");
+
+        UndoManager.Register($"Add stock {cantitate}x {numeProdus}", () =>
+        {
+            produs.VindeStoc(cantitate);
+        });
     }
 
     public void VindeProdus(string idAgent, string numeProdus, int cantitate)
@@ -243,7 +283,7 @@ public class Factory
         agent.VindeProdus(produs, cantitate, this);
     }
 
-    
+
 
     public void AfiseazaRaportGeneral()
     {
@@ -257,7 +297,7 @@ public class Factory
         Console.WriteLine("");
     }
 
-    
+
 
     public void RecordSale(string productName, int quantity, decimal unitPrice)
     {
@@ -270,6 +310,13 @@ public class Factory
         {
             p.VindeStoc(quantity);
             Console.WriteLine("Sale recorded: " + quantity + "x " + productName + " = " + saleAmount + " RON");
+
+            UndoManager.Register($"Sale of {quantity}x {productName}", () =>
+            {
+                _totalRevenue -= saleAmount;
+                _totalSalesQuantity -= quantity;
+                p.AdaugaStoc(quantity);
+            });
         }
     }
 

@@ -9,6 +9,7 @@ Every important action should be recorded in an operation history file.
 - Product sold.
 - Machine repaired.
 - Employee added or removed.
+- Successful log out.
 
 Sample entries:
 
