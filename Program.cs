@@ -63,7 +63,7 @@ class Program
         Console.WriteLine("Good Bye!");
     }
 
-    
+
 
     static bool MeniuDirector()
     {
@@ -97,9 +97,9 @@ class Program
                 string choose = Console.ReadLine();
                 switch (choose)
                 {
-                    case "1":fabrica.AfiseazaComenzi(); break;
-                    case "2":fabrica.AfiseazaComenziSortedByPriority();break;
-                    default: Console.WriteLine("Choose one of this options");break;
+                    case "1": fabrica.AfiseazaComenzi(); break;
+                    case "2": fabrica.AfiseazaComenziSortedByPriority(); break;
+                    default: Console.WriteLine("Choose one of this options"); break;
                 }
 
                 break;
@@ -303,7 +303,7 @@ class Program
 
     static void ShowOperationLogs()
     {
-        
+
 
         Console.WriteLine("\n=== Operation History ===");
         string[] entries = Logging.GetAllEntries();
@@ -607,260 +607,260 @@ class Program
             VandeProdus();
         else if (alegere == "5")
             fabrica.AfiseazaAlerteInventar();
-
-    static void AdaugaStocProdus()
-    {
-        fabrica.AfiseazaProduse();
-        Console.Write("Product name: ");
-        string nume = Console.ReadLine();
-
-        Console.Write("Amount to add: ");
-        int cantitate = int.Parse(Console.ReadLine());
-
-        fabrica.AdaugaStocProduse(nume, cantitate);
     }
-
-    static void AdaugaProdus()
-    {
-        Console.Write("Name: ");
-        string nume = Console.ReadLine();
-        Console.Write("Production Cost: ");
-        decimal productionCost = decimal.Parse(Console.ReadLine());
-        Console.Write("Selling Price: ");
-        decimal sellingPrice = decimal.Parse(Console.ReadLine());
-        Console.Write("Initial Quantity: ");
-        int cantitate = int.Parse(Console.ReadLine());
-
-        Console.WriteLine("Product Type:");
-        Console.WriteLine("1. Wooden Cubes");
-        Console.WriteLine("2. Teddy Bear");
-        Console.WriteLine("3. FootBall");
-        Console.WriteLine("4. Doll");
-        Console.WriteLine("5. Frisbee");
-
-        Console.Write("Alege: ");
-        string tip = Console.ReadLine();
-
-        Product produs = null;
-
-        if (tip == "1")
+        static void AdaugaStocProdus()
         {
-            Console.Write("Size: ");
-            string marime = Console.ReadLine();
-            produs = new WoodenCubes(nume, productionCost, sellingPrice, cantitate, marime);
+            fabrica.AfiseazaProduse();
+            Console.Write("Product name: ");
+            string nume = Console.ReadLine();
+
+            Console.Write("Amount to add: ");
+            int cantitate = int.Parse(Console.ReadLine());
+
+            fabrica.AdaugaStocProduse(nume, cantitate);
         }
-        else if (tip == "2")
+
+        static void AdaugaProdus()
         {
-            Console.Write("Size: ");
-            string marime = Console.ReadLine();
-            produs = new Doll(nume, productionCost, sellingPrice, cantitate, marime);
+            Console.Write("Name: ");
+            string nume = Console.ReadLine();
+            Console.Write("Production Cost: ");
+            decimal productionCost = decimal.Parse(Console.ReadLine());
+            Console.Write("Selling Price: ");
+            decimal sellingPrice = decimal.Parse(Console.ReadLine());
+            Console.Write("Initial Quantity: ");
+            int cantitate = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Product Type:");
+            Console.WriteLine("1. Wooden Cubes");
+            Console.WriteLine("2. Teddy Bear");
+            Console.WriteLine("3. FootBall");
+            Console.WriteLine("4. Doll");
+            Console.WriteLine("5. Frisbee");
+
+            Console.Write("Alege: ");
+            string tip = Console.ReadLine();
+
+            Product produs = null;
+
+            if (tip == "1")
+            {
+                Console.Write("Size: ");
+                string marime = Console.ReadLine();
+                produs = new WoodenCubes(nume, productionCost, sellingPrice, cantitate, marime);
+            }
+            else if (tip == "2")
+            {
+                Console.Write("Size: ");
+                string marime = Console.ReadLine();
+                produs = new Doll(nume, productionCost, sellingPrice, cantitate, marime);
+            }
+            else if (tip == "3")
+            {
+                Console.Write("Size: ");
+                string marime = Console.ReadLine();
+                produs = new TedyBear(nume, productionCost, sellingPrice, cantitate, marime);
+            }
+            else if (tip == "4")
+            {
+                Console.Write("Size: ");
+                string marime = Console.ReadLine();
+                produs = new Ball(nume, productionCost, sellingPrice, cantitate, marime);
+            }
+            else if (tip == "5")
+            {
+                Console.Write("Size: ");
+                string marime = Console.ReadLine();
+                produs = new Frisbee(nume, productionCost, sellingPrice, cantitate, marime);
+            }
+            if (fabrica.AdaugaProdus(produs))
+                Console.WriteLine("Product added successfully!");
         }
-        else if (tip == "3")
+
+        static void VandeProdus()
         {
-            Console.Write("Size: ");
-            string marime = Console.ReadLine();
-            produs = new TedyBear(nume, productionCost, sellingPrice, cantitate, marime);
+            fabrica.AfiseazaAngajati();
+            Console.Write("ID Sales Agent: ");
+            string idAgent = Console.ReadLine();
+
+            fabrica.AfiseazaProduse();
+            Console.Write("Product Name: ");
+            string numeProdus = Console.ReadLine();
+
+            Console.Write("Selling Quantity: ");
+            int cantitate = int.Parse(Console.ReadLine());
+
+            fabrica.VindeProdus(idAgent, numeProdus, cantitate);
         }
-        else if (tip == "4")
+
+        // ===== MENIU PRODUCTIE =====
+
+        static void MeniuProductie()
         {
-            Console.Write("Size: ");
-            string marime = Console.ReadLine();
-            produs = new Ball(nume, productionCost, sellingPrice, cantitate, marime);
+            Console.WriteLine("\n--- PRODUCTIE ---");
+            Console.WriteLine("1. Creeaza comanda");
+            Console.WriteLine("2. Execute Order (manualy)");
+            Console.WriteLine("3. Execute the next priority order (auto)");
+            Console.WriteLine("4. Show orders");
+            Console.WriteLine("5. Show orders sorted by priority");
+            Console.Write("Alege: ");
+            string alegere = Console.ReadLine();
+
+            if (alegere == "1")
+                CreazaComanda();
+            else if (alegere == "2")
+                ExecutaComanda();
+            else if (alegere == "3")
+                ExecutaComanaPrioritara();
+            else if (alegere == "4")
+                fabrica.AfiseazaComenzi();
+            else if (alegere == "5")
+                fabrica.AfiseazaComenziSortedByPriority();
         }
-        else if (tip == "5")
+
+        static void CreazaComanda()
         {
-            Console.Write("Size: ");
-            string marime = Console.ReadLine();
-            produs = new Frisbee(nume, productionCost, sellingPrice, cantitate, marime);
+            fabrica.AfiseazaAngajati();
+            Console.Write("ID Production Manager: ");
+            string idManager = Console.ReadLine();
+
+            fabrica.AfiseazaMasini();
+            Console.Write("Serial number for a machine: ");
+            string serial = Console.ReadLine();
+
+            Console.Write("Product name to manufacture: ");
+            string produs = Console.ReadLine();
+
+            Console.Write("Target amount: ");
+            int cantitate = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Priority: 1.Low  2.Medium  3.High");
+            Console.Write("Choose: ");
+            string prio = Console.ReadLine();
+
+            Priority prioritate;
+            if (prio == "1")
+                prioritate = Priority.Low;
+            else if (prio == "3")
+                prioritate = Priority.High;
+            else
+                prioritate = Priority.Medium;
+
+            fabrica.CreazaComanda(idManager, serial, produs, cantitate, prioritate);
         }
-        if (fabrica.AdaugaProdus(produs))
-            Console.WriteLine("Product added successfully!");
-    }
 
-    static void VandeProdus()
-    {
-        fabrica.AfiseazaAngajati();
-        Console.Write("ID Sales Agent: ");
-        string idAgent = Console.ReadLine();
+        static void ExecutaComanda()
+        {
+            fabrica.AfiseazaAngajati();
+            Console.Write("ID MachineOperator: ");
+            string idOp = Console.ReadLine();
 
-        fabrica.AfiseazaProduse();
-        Console.Write("Product Name: ");
-        string numeProdus = Console.ReadLine();
-
-        Console.Write("Selling Quantity: ");
-        int cantitate = int.Parse(Console.ReadLine());
-
-        fabrica.VindeProdus(idAgent, numeProdus, cantitate);
-    }
-
-    // ===== MENIU PRODUCTIE =====
-
-    static void MeniuProductie()
-    {
-        Console.WriteLine("\n--- PRODUCTIE ---");
-        Console.WriteLine("1. Creeaza comanda");
-        Console.WriteLine("2. Execute Order (manualy)");
-        Console.WriteLine("3. Execute the next priority order (auto)");
-        Console.WriteLine("4. Show orders");
-        Console.WriteLine("5. Show orders sorted by priority");
-        Console.Write("Alege: ");
-        string alegere = Console.ReadLine();
-
-        if (alegere == "1")
-            CreazaComanda();
-        else if (alegere == "2")
-            ExecutaComanda();
-        else if (alegere == "3")
-            ExecutaComanaPrioritara();
-        else if (alegere == "4")
             fabrica.AfiseazaComenzi();
-        else if (alegere == "5")
-            fabrica.AfiseazaComenziSortedByPriority();
-    }
+            Console.Write("ID Order (ex: ORD1): ");
+            string idComanda = Console.ReadLine();
 
-    static void CreazaComanda()
-    {
-        fabrica.AfiseazaAngajati();
-        Console.Write("ID Production Manager: ");
-        string idManager = Console.ReadLine();
+            Console.Write("Units to prodce now: ");
+            int unitati = int.Parse(Console.ReadLine());
 
-        fabrica.AfiseazaMasini();
-        Console.Write("Serial number for a machine: ");
-        string serial = Console.ReadLine();
-
-        Console.Write("Product name to manufacture: ");
-        string produs = Console.ReadLine();
-
-        Console.Write("Target amount: ");
-        int cantitate = int.Parse(Console.ReadLine());
-
-        Console.WriteLine("Priority: 1.Low  2.Medium  3.High");
-        Console.Write("Choose: ");
-        string prio = Console.ReadLine();
-
-        Priority prioritate;
-        if (prio == "1")
-            prioritate = Priority.Low;
-        else if (prio == "3")
-            prioritate = Priority.High;
-        else
-            prioritate = Priority.Medium;
-
-        fabrica.CreazaComanda(idManager, serial, produs, cantitate, prioritate);
-    }
-
-    static void ExecutaComanda()
-    {
-        fabrica.AfiseazaAngajati();
-        Console.Write("ID MachineOperator: ");
-        string idOp = Console.ReadLine();
-
-        fabrica.AfiseazaComenzi();
-        Console.Write("ID Order (ex: ORD1): ");
-        string idComanda = Console.ReadLine();
-
-        Console.Write("Units to prodce now: ");
-        int unitati = int.Parse(Console.ReadLine());
-
-        fabrica.ExecutaComanda(idOp, idComanda, unitati);
-    }
-
-    static void ExecutaComanaPrioritara()
-    {
-        fabrica.AfiseazaAngajati();
-        Console.Write("ID MachineOperator: ");
-        string idOp = Console.ReadLine();
-
-        ProductionOrder nextOrder = fabrica.GetNextPriorityOrder(idOp);
-        if (nextOrder == null)
-        {
-            Console.WriteLine("Nu exista comenzi active sau operatorul nu este valid!");
-            return;
+            fabrica.ExecutaComanda(idOp, idComanda, unitati);
         }
 
-        Console.WriteLine("\nUrmatoarea comanda prioritara:");
-        nextOrder.Afiseaza();
-
-        Console.Write("Unitati de produs acum: ");
-        int unitati = int.Parse(Console.ReadLine());
-
-        fabrica.ExecutaComanda(idOp, nextOrder.Id, unitati);
-    }
-
-    static void MeniuVanzari()
-    {
-        Console.WriteLine("\n--- SALES ---");
-        Console.WriteLine("1. Sell Product");
-        Console.WriteLine("2. View Sales Report");
-        Console.WriteLine("3. View General Report");
-        Console.Write("Choose: ");
-        string alegere = Console.ReadLine();
-
-        if (alegere == "1")
-            VindeProdus();
-        else if (alegere == "2")
-            fabrica.AfiseazaRaportVanzari();
-        else if (alegere == "3")
-            fabrica.AfiseazaRaportGeneral();
-    }
-
-    static void VindeProdus()
-    {
-        fabrica.AfiseazaAngajati();
-        Console.Write("ID SalesAgent: ");
-        string idAgent = Console.ReadLine();
-
-        Employee ang = fabrica.GasesteAngajat(idAgent);
-        if (ang == null || !(ang is SalesAgent))
+        static void ExecutaComanaPrioritara()
         {
-            Console.WriteLine("Sales Agent not found!");
-            return;
+            fabrica.AfiseazaAngajati();
+            Console.Write("ID MachineOperator: ");
+            string idOp = Console.ReadLine();
+
+            ProductionOrder nextOrder = fabrica.GetNextPriorityOrder(idOp);
+            if (nextOrder == null)
+            {
+                Console.WriteLine("Nu exista comenzi active sau operatorul nu este valid!");
+                return;
+            }
+
+            Console.WriteLine("\nUrmatoarea comanda prioritara:");
+            nextOrder.Afiseaza();
+
+            Console.Write("Unitati de produs acum: ");
+            int unitati = int.Parse(Console.ReadLine());
+
+            fabrica.ExecutaComanda(idOp, nextOrder.Id, unitati);
         }
 
-        SalesAgent agent = (SalesAgent)ang;
-
-        fabrica.AfiseazaProduse();
-        Console.Write("Product name to sell: ");
-        string produsNume = Console.ReadLine();
-
-        Product produs = fabrica.GasesteProdus(produsNume);
-        if (produs == null)
+        static void MeniuVanzari()
         {
-            Console.WriteLine("Product not found!");
-            return;
+            Console.WriteLine("\n--- SALES ---");
+            Console.WriteLine("1. Sell Product");
+            Console.WriteLine("2. View Sales Report");
+            Console.WriteLine("3. View General Report");
+            Console.Write("Choose: ");
+            string alegere = Console.ReadLine();
+
+            if (alegere == "1")
+                VindeProdus();
+            else if (alegere == "2")
+                fabrica.AfiseazaRaportVanzari();
+            else if (alegere == "3")
+                fabrica.AfiseazaRaportGeneral();
         }
 
-        Console.Write("Quantity to sell: ");
-        int cantitate = int.Parse(Console.ReadLine());
+        static void VindeProdus()
+        {
+            fabrica.AfiseazaAngajati();
+            Console.Write("ID SalesAgent: ");
+            string idAgent = Console.ReadLine();
 
-        agent.VindeProdus(produs, cantitate, fabrica);
+            Employee ang = fabrica.GasesteAngajat(idAgent);
+            if (ang == null || !(ang is SalesAgent))
+            {
+                Console.WriteLine("Sales Agent not found!");
+                return;
+            }
+
+            SalesAgent agent = (SalesAgent)ang;
+
+            fabrica.AfiseazaProduse();
+            Console.Write("Product name to sell: ");
+            string produsNume = Console.ReadLine();
+
+            Product produs = fabrica.GasesteProdus(produsNume);
+            if (produs == null)
+            {
+                Console.WriteLine("Product not found!");
+                return;
+            }
+
+            Console.Write("Quantity to sell: ");
+            int cantitate = int.Parse(Console.ReadLine());
+
+            agent.VindeProdus(produs, cantitate, fabrica);
+        }
+
+        static void DateDemo()
+        {
+            fabrica.AdaugaAngajat(new Director("DIR001", "Alex Popescu", 8000, DateTime.Now.AddYears(-5)));
+            fabrica.AdaugaAngajat(new ProductionManager("PM001", "Maria Ionescu", 5500, DateTime.Now.AddYears(-3)));
+            fabrica.AdaugaAngajat(new Engineer("ENG001", "Ion Vasile", 5000, DateTime.Now.AddYears(-2)));
+            fabrica.AdaugaAngajat(new Technician("TH001", "Andrei Marin", 4000, DateTime.Now.AddYears(-1)));
+            fabrica.AdaugaAngajat(new MachineOperator("OP001", "Elena Dumitru", 3500, DateTime.Now.AddMonths(-8)));
+            fabrica.AdaugaAngajat(new SalesAgent("SA001", "Ioana Radu", 3300, DateTime.Now.AddMonths(-4)));
+
+            SewingMachine s1 = new SewingMachine("M001", "Juki Sewing", DateTime.Now.AddYears(-3));
+            s1.AdaugaPiesa(new MachinePart("Industrial Needle", "Needle"));
+            s1.AdaugaPiesa(new MachinePart("Polyester Thread", "Thread"));
+            fabrica.AdaugaMasina(s1);
+
+            CuttingMachine c1 = new CuttingMachine("M002", "Auto Cutter", DateTime.Now.AddYears(-2));
+            c1.AdaugaPiesa(new MachinePart("Steel Blade", "Blade"));
+            fabrica.AdaugaMasina(c1);
+
+            fabrica.AdaugaProdus(new WoodenCubes("MagicBlocks", 15, 30, 3, "S"));
+            fabrica.AdaugaProdus(new Doll("Barbie", 12, 50, 7, "S"));
+            fabrica.AdaugaProdus(new TedyBear("Barnie", 20, 60, 15, "M"));
+            fabrica.AdaugaProdus(new Ball("Football", 13, 50, 5, "Normal"));
+            fabrica.AdaugaProdus(new Frisbee("OZN", 10, 25, 7, "S"));
+
+            Console.WriteLine("Demo data loaded! Press Enter to continue...");
+            Console.ReadLine();
+        }
     }
-
-    static void DateDemo()
-    {
-        fabrica.AdaugaAngajat(new Director("DIR001", "Alex Popescu", 8000, DateTime.Now.AddYears(-5)));
-        fabrica.AdaugaAngajat(new ProductionManager("PM001", "Maria Ionescu", 5500, DateTime.Now.AddYears(-3)));
-        fabrica.AdaugaAngajat(new Engineer("ENG001", "Ion Vasile", 5000, DateTime.Now.AddYears(-2)));
-        fabrica.AdaugaAngajat(new Technician("TH001", "Andrei Marin", 4000, DateTime.Now.AddYears(-1)));
-        fabrica.AdaugaAngajat(new MachineOperator("OP001", "Elena Dumitru", 3500, DateTime.Now.AddMonths(-8)));
-        fabrica.AdaugaAngajat(new SalesAgent("SA001", "Ioana Radu", 3300, DateTime.Now.AddMonths(-4)));
-
-        SewingMachine s1 = new SewingMachine("M001", "Juki Sewing", DateTime.Now.AddYears(-3));
-        s1.AdaugaPiesa(new MachinePart("Industrial Needle", "Needle"));
-        s1.AdaugaPiesa(new MachinePart("Polyester Thread", "Thread"));
-        fabrica.AdaugaMasina(s1);
-
-        CuttingMachine c1 = new CuttingMachine("M002", "Auto Cutter", DateTime.Now.AddYears(-2));
-        c1.AdaugaPiesa(new MachinePart("Steel Blade", "Blade"));
-        fabrica.AdaugaMasina(c1);
-
-        fabrica.AdaugaProdus(new WoodenCubes("MagicBlocks", 15, 30, 3, "S"));
-        fabrica.AdaugaProdus(new Doll("Barbie", 12, 50, 7, "S"));
-        fabrica.AdaugaProdus(new TedyBear("Barnie", 20, 60, 15, "M"));
-        fabrica.AdaugaProdus(new Ball("Football", 13, 50, 5, "Normal"));
-        fabrica.AdaugaProdus(new Frisbee("OZN", 10, 25, 7, "S"));
-
-        Console.WriteLine("Demo data loaded! Press Enter to continue...");
-        Console.ReadLine();
-    }
-}
