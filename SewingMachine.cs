@@ -17,6 +17,7 @@ public class SewingMachine : Machine
         Console.WriteLine(Nume + " sews the material .");
         DegradeazaConditia();
         StareVerificarePiesa();
+        RegisterProductionCycle();
     }
 
     public override string RunDiagnostics()

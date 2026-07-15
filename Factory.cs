@@ -34,6 +34,14 @@ public class Factory
         return added;
     }
 
+    public bool EmployeeIdExists(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            return false;
+
+        return _employeeRepository.ExistsById(id);
+    }
+
     public void AfiseazaAngajati()
     {
         _employeeRepository.DisplayAll();
@@ -123,7 +131,7 @@ public class Factory
         string idComanda = "ORD" + _idComandaCounter;
         _idComandaCounter++;
 
-        ProductionOrder comanda = manager.CreazaComanda(idComanda, masina, produs, cantitate);
+        ProductionOrder comanda = manager.CreazaComanda(idComanda, masina, produs, cantitate, prioritate);
         _orderRepository.Add(comanda);
     }
 
@@ -254,6 +262,8 @@ public class Factory
         Console.WriteLine("Orders:  " + _orderRepository.Count);
         Console.WriteLine("Total Revenue: " + _totalRevenue + " RON");
         Console.WriteLine("Total Units Sold: " + _totalSalesQuantity);
+        Console.WriteLine("Machines requiring maintenance: " + GetMachinesRequiringMaintenance(7).Count);
+        Console.WriteLine("Products below stock threshold: " + GetLowStockProducts().Count);
         Console.WriteLine("");
     }
 
@@ -270,6 +280,7 @@ public class Factory
         {
             p.VindeStoc(quantity);
             Console.WriteLine("Sale recorded: " + quantity + "x " + productName + " = " + saleAmount + " RON");
+            DisplayInventoryAlert(p);
         }
     }
 
@@ -285,12 +296,93 @@ public class Factory
 
     public decimal CalculateProfit()
     {
-        decimal totalCost = 0;
-        foreach (var product in _productRepository.GetAll())
-        {
-            totalCost += product.ProductionCost * (1000 - product.Cantitate);
-        }
+        decimal totalCost = _productRepository
+            .GetAll()
+            .Sum(product => product.ProductionCost * (1000 - product.Cantitate));
+
         return _totalRevenue - totalCost;
+    }
+
+    public List<Machine> GetMachinesRequiringMaintenance(int daysAhead = 7)
+    {
+        return _machineRepository
+            .GetAll()
+            .Where(machine => machine.EstimateDaysUntilMaintenance() <= daysAhead)
+            .ToList();
+    }
+
+    public void AfiseazaMentenantaPredictiva(int daysAhead = 7)
+    {
+        List<Machine> machines = GetMachinesRequiringMaintenance(daysAhead);
+        Console.WriteLine("\n=== PREDICTIVE MAINTENANCE ===");
+
+        if (machines.Count == 0)
+        {
+            Console.WriteLine($"No machines require maintenance in the next {daysAhead} days.");
+            return;
+        }
+
+        machines.ForEach(machine => Console.WriteLine(
+            $"{machine.SerialNumber} - {machine.Nume}: maintenance due in {machine.EstimateDaysUntilMaintenance()} day(s)."));
+    }
+
+    public void AfiseazaDashboardEficienta()
+    {
+        List<Machine> machines = _machineRepository.GetAll();
+        Console.WriteLine("\n=== PRODUCTION EFFICIENCY DASHBOARD ===");
+
+        if (machines.Count == 0)
+        {
+            Console.WriteLine("There are no machines!");
+            return;
+        }
+
+        machines.ForEach(machine => Console.WriteLine(
+            $"{machine.SerialNumber} - {machine.Nume}: {machine.CalculateEfficiencyPercentage():F2}% efficiency, {machine.ProductionCycles} production cycle(s)."));
+        Console.WriteLine($"Average efficiency: {machines.Average(machine => machine.CalculateEfficiencyPercentage()):F2}%");
+    }
+
+    public void AfiseazaStareMasini()
+    {
+        List<Machine> machines = _machineRepository.GetAll();
+        Console.WriteLine("\n=== MACHINE HEALTH MONITORING ===");
+
+        if (machines.Count == 0)
+        {
+            Console.WriteLine("There are no machines!");
+            return;
+        }
+
+        machines.ForEach(machine => Console.WriteLine(
+            $"{machine.SerialNumber} - {machine.Nume} | {machine.Conditie} | {machine.GetHealthAlert()}"));
+    }
+
+    public List<Product> GetLowStockProducts(int threshold = 5)
+    {
+        return _productRepository
+            .GetAll()
+            .Where(product => product.Cantitate <= threshold)
+            .ToList();
+    }
+
+    public void AfiseazaAlerteInventar(int threshold = 5)
+    {
+        Console.WriteLine("\n=== INVENTORY ALERTS ===");
+        List<Product> products = GetLowStockProducts(threshold);
+
+        if (products.Count == 0)
+        {
+            Console.WriteLine($"All products are above the stock threshold of {threshold}.");
+            return;
+        }
+
+        products.ForEach(product => DisplayInventoryAlert(product, threshold));
+    }
+
+    private static void DisplayInventoryAlert(Product product, int threshold = 5)
+    {
+        if (product.Cantitate <= threshold)
+            Console.WriteLine($"ALERT: {product.Nume} stock is low ({product.Cantitate} remaining; threshold: {threshold}).");
     }
 
     public void AfiseazaRaportVanzari()
@@ -334,7 +426,6 @@ public class Factory
         if (!(angajat is MachineOperator))
             return null;
 
-        List<ProductionOrder> comenziSortate = _orderRepository.GetSortedByPriority();
-        return comenziSortate.FirstOrDefault();
+        return _orderRepository.GetNextByPriority();
     }
 }

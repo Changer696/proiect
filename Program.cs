@@ -303,6 +303,8 @@ class Program
 
     static void ShowOperationLogs()
     {
+        
+
         Console.WriteLine("\n=== Operation History ===");
         string[] entries = Logging.GetAllEntries();
         if (entries.Length == 0)
@@ -383,6 +385,12 @@ class Program
     {
         Console.Write("ID: ");
         string id = Console.ReadLine();
+        if (fabrica.EmployeeIdExists(id))
+        {
+            Console.WriteLine($"Employee ID {id} already exists. Please choose a unique ID.");
+            return;
+        }
+
         Console.Write("Name: ");
         string nume = Console.ReadLine();
         Console.Write("Salary: ");
@@ -467,6 +475,9 @@ class Program
         Console.WriteLine("3. Stop a machine");
         Console.WriteLine("4. Repare a machine");
         Console.WriteLine("5. Start a machine");
+        Console.WriteLine("6. Predictive maintenance");
+        Console.WriteLine("7. Production efficiency dashboard");
+        Console.WriteLine("8. Machine health monitoring");
         Console.Write("Choose: ");
         string alegere = Console.ReadLine();
 
@@ -503,6 +514,18 @@ class Program
                 Console.WriteLine("Machine doesn't exist!");
             else
                 m.Start();
+        }
+        else if (alegere == "6")
+        {
+            fabrica.AfiseazaMentenantaPredictiva();
+        }
+        else if (alegere == "7")
+        {
+            fabrica.AfiseazaDashboardEficienta();
+        }
+        else if (alegere == "8")
+        {
+            fabrica.AfiseazaStareMasini();
         }
     }
 
@@ -570,6 +593,7 @@ class Program
         Console.WriteLine("2. Show all products");
         Console.WriteLine("3. Add Stock ");
         Console.WriteLine("4. Sell a product");
+        Console.WriteLine("5. Inventory alerts");
         Console.Write("Choose: ");
         string alegere = Console.ReadLine();
 
@@ -581,7 +605,8 @@ class Program
             AdaugaStocProdus();
         else if (alegere == "4")
             VandeProdus();
-    }
+        else if (alegere == "5")
+            fabrica.AfiseazaAlerteInventar();
 
     static void AdaugaStocProdus()
     {

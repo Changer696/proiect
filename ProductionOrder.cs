@@ -14,7 +14,7 @@ public class ProductionOrder : IIdentifiable
     public DateTime DataCrearii;
 
     public ProductionOrder(string id, Machine masina, ProductionManager creatDe,
-                           string numeProdus, int cantitateTarget)
+                           string numeProdus, int cantitateTarget, Priority prioritate)
     {
         Id = id;
         Masina = masina;
@@ -23,6 +23,7 @@ public class ProductionOrder : IIdentifiable
         CantitateTarget = cantitateTarget;
         CantitateProdusa = 0;
         Status = ProductionOrderStatus.Created;
+        Prioritate = prioritate;
         DataCrearii = DateTime.Now;
     }
 
@@ -51,22 +52,6 @@ public class ProductionOrder : IIdentifiable
                 Logging.Log(CreatDe.Id, $"Produced {unitati} units for order {Id} ({NumeProdus})");
         }
     }
-    public void SetPriority()
-    {
-        if (CantitateTarget > 1 && CantitateTarget <= 5)
-        {
-            Prioritate = Priority.High;
-        }
-        else if (CantitateTarget > 5 && CantitateTarget < 10)
-        {
-            Prioritate = Priority.Medium;
-        }
-        else
-        {
-            Prioritate = Priority.Low;
-        }
-    }
-
     public void Afiseaza()
     {
         Console.WriteLine("[" + Id + "] " + NumeProdus +

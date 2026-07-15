@@ -8,12 +8,10 @@ public class ProductionManager : Employee
     }
 
     public ProductionOrder CreazaComanda(string idComanda, Machine masina,
-                                          string produs, int cantitate)
+                                          string produs, int cantitate, Priority prioritate)
     {
-        Console.WriteLine(Nume + " created the order " + idComanda + " for " + cantitate + " x " + produs);
-        ProductionOrder comanda = new ProductionOrder(idComanda, masina, this, produs, cantitate);
-        comanda.SetPriority();
-        return comanda;
+        Console.WriteLine(Nume + " created the " + prioritate + " priority order " + idComanda + " for " + cantitate + " x " + produs);
+        return new ProductionOrder(idComanda, masina, this, produs, cantitate, prioritate);
     }
 
     public override void PerformDuty()
