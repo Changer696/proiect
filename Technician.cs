@@ -31,7 +31,7 @@ public class Technician : Employee
         Logging.Log(Id, $"Repaired machine {masina.SerialNumber}");
         return true;
     }
-
+//com
     public override void PerformDuty()
     {
         Console.WriteLine(Nume + " (Technician) repares the machines.");
