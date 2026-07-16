@@ -14,7 +14,7 @@ namespace SmartFactorySimple
         public override string GetDescription()
         {
            
-            return "Doll:" + Nume + " " + Category + " Size " + Marime;
+            return Messages.ProductDescription(Messages.ProductTypeDoll, Nume, Category, Marime);
         }
     }
 }

@@ -9,7 +9,7 @@ public abstract class Product
         get { return sellingPrice; }
         set
         {
-            if (value < 0) throw new ArgumentException("The selling price can't be negative.");
+        if (value < 0) throw new ArgumentException(Messages.SellingPriceCannotBeNegative);
             sellingPrice = value;
         }
     }
@@ -18,7 +18,7 @@ public abstract class Product
         get { return productionCost; }
         set
         {
-            if (value < 0) throw new ArgumentException("The production cost can't be negative.");
+        if (value < 0) throw new ArgumentException(Messages.ProductionCostCannotBeNegative);
             productionCost = value;
         }
     }
@@ -27,7 +27,7 @@ public abstract class Product
         get { return quantity; }
         set
         {
-            if (value < 0) throw new ArgumentException("The quantity can't be negative.");
+        if (value < 0) throw new ArgumentException(Messages.QuantityCannotBeNegative);
             quantity = value;
         }
     }
@@ -47,7 +47,7 @@ public abstract class Product
     {
         if (cantitate < 0)
         {
-            Console.WriteLine("The quantity can't be negative!");
+            Console.WriteLine(Messages.QuantityCannotBeNegative);
             return;
         }
         Cantitate = Cantitate + cantitate;
@@ -56,7 +56,7 @@ public abstract class Product
     {
         if (cantitate > Cantitate)
         {
-            Console.WriteLine("Insufficient stock!");
+            Console.WriteLine(Messages.InsufficientStock);
             return;
         }
         Cantitate = Cantitate - cantitate;
@@ -64,7 +64,6 @@ public abstract class Product
     public abstract string GetDescription();
     public virtual void Afiseaza()
     {
-        Console.WriteLine("  " + GetDescription());
-        Console.WriteLine(" -Production Cost=" + ProductionCost + " -sellingPrice= " + SellingPrice + " -RON - Stock: " + Cantitate);
+        Console.WriteLine(Messages.ProductDisplay(GetDescription(), ProductionCost, SellingPrice, Cantitate));
     }
 }

@@ -11,11 +11,11 @@ public class Engineer : Employee
     public void Inspecteaza(Machine masina)
     {
         string rezultat = masina.RunDiagnostics();
-        Console.WriteLine(Nume + " (Engineer) inspected the  " + masina.Nume + ": " + rezultat);
+        Console.WriteLine(Messages.EngineerInspection(Nume, masina.Nume, rezultat));
     }
 
     public override void PerformDuty()
     {
-        Console.WriteLine(Nume + " (Engineer) inspects the machines.");
+        Console.WriteLine(Messages.EngineerDuty(Nume));
     }
 }

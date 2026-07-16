@@ -30,10 +30,10 @@ public class MachinePart
     {
         string status;
         if (EFunctionala)
-            status = "OK";
+            status = Messages.FunctionalPartStatus;
         else
-            status = "BROKEN";
+            status = Messages.BrokenPartStatus;
 
-        Console.WriteLine("  The piece: " + Nume + " | Type: " + Tip + " | Status: " + status);
+        Console.WriteLine(Messages.MachinePartStatus(Nume, Tip, status));
     }
 }

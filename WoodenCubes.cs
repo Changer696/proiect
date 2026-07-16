@@ -9,6 +9,6 @@ public class WoodenCubes : Product
     }
     public override string GetDescription()
     {
-        return "Wooden Cubes:" +Nume + " " + Category + " Size " + Marime ;
+        return Messages.ProductDescription(Messages.ProductTypeWoodenCubes, Nume, Category, Marime);
     }
 }
