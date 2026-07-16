@@ -326,7 +326,7 @@ public class Factory
             $"{machine.SerialNumber} - {machine.Nume}: maintenance due in {machine.EstimateDaysUntilMaintenance()} day(s)."));
     }
 
-    public void AfiseazaDashboardEficienta()
+    public void AfiseazaDashboardEficienta() 
     {
         List<Machine> machines = _machineRepository.GetAll();
         Console.WriteLine("\n=== PRODUCTION EFFICIENCY DASHBOARD ===");

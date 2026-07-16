@@ -94,11 +94,13 @@ class Program
                 Console.WriteLine("Production");
                 Console.WriteLine("1.Show Orders");
                 Console.WriteLine("2.Show Orders by priority");
+                Console.WriteLine("3.Show production efficiency dashboard");
                 string choose = Console.ReadLine();
                 switch (choose)
                 {
                     case "1":fabrica.AfiseazaComenzi(); break;
                     case "2":fabrica.AfiseazaComenziSortedByPriority();break;
+                    case "3":fabrica.AfiseazaDashboardEficienta(); break;
                     default: Console.WriteLine("Choose one of this options");break;
                 }
 
@@ -195,7 +197,9 @@ class Program
     {
         Console.WriteLine("1. Show all machines");
         Console.WriteLine("2. Repare a machine");
-        Console.WriteLine("3. Log out");
+        Console.WriteLine("3.Show when a machine may require maintenance ");
+        Console.WriteLine("4.Machine health monitoring");
+        Console.WriteLine("5. Log out");
         Console.WriteLine("0. Exit");
         Console.Write("Choose: ");
         string alegere = Console.ReadLine();
@@ -204,7 +208,9 @@ class Program
         {
             case "1": fabrica.AfiseazaMasini(); break;
             case "2": ReparaMasina(); break;
-            case "3": return Logout();
+            case "3": fabrica.AfiseazaMentenantaPredictiva(); break;
+            case "4": fabrica.AfiseazaStareMasini(); break;
+            case "5": return Logout();
             case "0": return false;
             default: Console.WriteLine("Invalid option!"); break;
         }
@@ -217,7 +223,9 @@ class Program
         Console.WriteLine("2. Repare a machine");
         Console.WriteLine("3. Stop a machine");
         Console.WriteLine("4. Start a machine");
-        Console.WriteLine("5. Log out");
+        Console.WriteLine("5.Show when a machine may require maintenance ");
+        Console.WriteLine("6.Machine health monitoring");
+        Console.WriteLine("7. Log out");
         Console.WriteLine("0. Exit");
         Console.Write("Choose: ");
         string alegere = Console.ReadLine();
@@ -254,7 +262,9 @@ class Program
                         m.Start();
                     break;
                 }
-            case "5": return Logout();
+            case "5": fabrica.AfiseazaMentenantaPredictiva(); break;
+            case "6": fabrica.AfiseazaStareMasini(); break;
+            case "7": return Logout();
             case "0": return false;
             default: Console.WriteLine("Invalid option!"); break;
         }
@@ -265,7 +275,10 @@ class Program
     {
         Console.WriteLine("1. Production");
         Console.WriteLine("2. Show all machines");
-        Console.WriteLine("3. Log out");
+        Console.WriteLine("3.Show when a machine may require maintenance ");
+        Console.WriteLine("4.Machine health monitoring");
+        Console.WriteLine("5. Log out");
+
         Console.WriteLine("0. Exit");
         Console.Write("Choose: ");
         string alegere = Console.ReadLine();
@@ -274,7 +287,9 @@ class Program
         {
             case "1": MeniuProductie(); break;
             case "2": fabrica.AfiseazaMasini(); break;
-            case "3": return Logout();
+            case "3": fabrica.AfiseazaMentenantaPredictiva(); break;
+            case "4": fabrica.AfiseazaStareMasini(); break;
+            case "5": return Logout();
             case "0": return false;
             default: Console.WriteLine("Invalid option!"); break;
         }
@@ -593,7 +608,8 @@ class Program
         Console.WriteLine("2. Show all products");
         Console.WriteLine("3. Add Stock ");
         Console.WriteLine("4. Sell a product");
-        Console.WriteLine("5. Inventory alerts");
+        Console.WriteLine("5.Show production efficiency dashboard");
+        Console.WriteLine("6. Inventory alerts");
         Console.Write("Choose: ");
         string alegere = Console.ReadLine();
 
@@ -606,7 +622,10 @@ class Program
         else if (alegere == "4")
             VandeProdus();
         else if (alegere == "5")
+            fabrica.AfiseazaDashboardEficienta();
+        else if (alegere == "6")
             fabrica.AfiseazaAlerteInventar();
+    }
 
     static void AdaugaStocProdus()
     {
