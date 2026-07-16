@@ -310,6 +310,25 @@ public class Factory
             .Where(machine => machine.EstimateDaysUntilMaintenance() <= daysAhead)
             .ToList();
     }
+    public void IncarcaMasini()
+    {
+        _machineRepository.LoadMachines();
+    }
+
+    public void IncarcaProduse()
+    {
+        _productRepository.LoadProducts();
+    }
+
+    public void SalveazaMasini()
+    {
+        _machineRepository.SaveAllMachines();
+    }
+
+    public void SalveazaProduse()
+    {
+        _productRepository.SaveAllProducts();
+    }
 
     public void AfiseazaMentenantaPredictiva(int daysAhead = 7)
     {
