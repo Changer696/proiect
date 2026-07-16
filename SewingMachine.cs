@@ -11,10 +11,10 @@ public class SewingMachine : Machine
     {
         if (Status != MachineStatus.Running)
         {
-            Console.WriteLine(Nume + " isn't started!");
+            Console.WriteLine(Messages.SewingMachineCannotProduce(Nume));
             return;
         }
-        Console.WriteLine(Nume + " sews the material .");
+        Console.WriteLine(Messages.SewingMachineProducing(Nume));
         DegradeazaConditia();
         StareVerificarePiesa();
         RegisterProductionCycle();
@@ -23,8 +23,8 @@ public class SewingMachine : Machine
     public override string RunDiagnostics()
     {
         if (Conditie == MachineCondition.Critical)
-            return "WARNING: The needle tension is irregular!";
+            return Messages.SewingMachineCriticalDiagnostic;
         else
-            return "Needle and thread checked. Working normally.";
+            return Messages.SewingMachineNormalDiagnostic;
     }
 }

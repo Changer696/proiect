@@ -13,7 +13,7 @@ public class Technician : Employee
     {
         if (masina.Status == MachineStatus.Running)
         {
-            Console.WriteLine(Nume + " he can't fix a running machine!");
+            Console.WriteLine(Messages.TechnicianCannotRepair(Nume));
             return false;
         }
 
@@ -22,18 +22,18 @@ public class Technician : Employee
             if (!masina.Piese[i].EFunctionala)
             {
                 masina.Piese[i].Inlocuieste();
-                Console.WriteLine("Part " + masina.Piese[i].Nume + " was replaced.");
+                Console.WriteLine(Messages.PartReplaced(masina.Piese[i].Nume));
             }
         }
 
         masina.RestoreazaConditia();
-        Console.WriteLine(Nume + " fixed the machine " + masina.Nume);
-        Logging.Log(Id, $"Repaired machine {masina.SerialNumber}");
+        Console.WriteLine(Messages.TechnicianRepaired(Nume, masina.Nume));
+        Logging.Log(Id, Messages.MachineRepairedLog(masina.SerialNumber));
         return true;
     }
-//com
+
     public override void PerformDuty()
     {
-        Console.WriteLine(Nume + " (Technician) repares the machines.");
+        Console.WriteLine(Messages.TechnicianDuty(Nume));
     }
 }

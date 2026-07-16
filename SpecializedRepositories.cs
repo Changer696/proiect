@@ -12,7 +12,7 @@ public class EmployeeRepository : RepositoryWithId<Employee>
 
         if (ExistsById(employee.Id))
         {
-            Console.WriteLine($"There is already an employee with the ID {employee.Id}");
+            Console.WriteLine(Messages.EmployeeAlreadyExists(employee.Id));
             return false;
         }
 
@@ -23,11 +23,11 @@ public class EmployeeRepository : RepositoryWithId<Employee>
     {
         if (_items.Count == 0)
         {
-            Console.WriteLine("There are no employees!");
+            Console.WriteLine(Messages.NoEmployees);
             return;
         }
 
-        Console.WriteLine("=== EMPLOYEES ===");
+        Console.WriteLine(Messages.EmployeesHeader);
         foreach (var employee in _items)
         {
             employee.Afiseaza();
@@ -65,7 +65,7 @@ public class MachineRepository : Repository<Machine>
 
         if (ExistsBySerialNumber(machine.SerialNumber))
         {
-            Console.WriteLine($"There is already a machine with the serial number {machine.SerialNumber}");
+            Console.WriteLine(Messages.MachineAlreadyExists(machine.SerialNumber));
             return false;
         }
 
@@ -76,11 +76,11 @@ public class MachineRepository : Repository<Machine>
     {
         if (_items.Count == 0)
         {
-            Console.WriteLine("There are no machines!");
+            Console.WriteLine(Messages.NoMachines);
             return;
         }
 
-        Console.WriteLine("=== MACHINES ===");
+        Console.WriteLine(Messages.MachinesHeader);
         foreach (var machine in _items)
         {
             machine.Afiseaza();
@@ -115,11 +115,11 @@ public class ProductRepository : Repository<Product>
     {
         if (_items.Count == 0)
         {
-            Console.WriteLine("There are no products!");
+            Console.WriteLine(Messages.NoProducts);
             return;
         }
 
-        Console.WriteLine("=== PRODUCTS ===");
+        Console.WriteLine(Messages.ProductsHeader);
         foreach (var product in _items)
         {
             product.Afiseaza();
@@ -147,11 +147,11 @@ public class ProductionOrderRepository : RepositoryWithId<ProductionOrder>
     {
         if (_items.Count == 0)
         {
-            Console.WriteLine("There are no orders!");
+            Console.WriteLine(Messages.NoOrders);
             return;
         }
 
-        Console.WriteLine("=== ORDERS ===");
+        Console.WriteLine(Messages.OrdersHeader);
         foreach (var order in _items)
         {
             order.Afiseaza();

@@ -10,14 +10,11 @@ public class Director : Employee
 
     public override void PerformDuty()
     {
-        Console.WriteLine(Nume + " (The director) checks the factory reports.");
+        Console.WriteLine(Messages.DirectorDuty(Nume));
     }
 
     public override void Afiseaza()
     {
-        Console.WriteLine("[" + Id + "] " + Nume +
-                          " - Director" +
-                          " - Salary " + Salariu +
-                          " - Perios of Activity: " + GetVechimeZile() + " days");
+        Console.WriteLine(Messages.DirectorDisplay(Id, Nume, Salariu, GetVechimeZile()));
     }
 }

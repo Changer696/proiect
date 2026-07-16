@@ -31,7 +31,7 @@ public class ProductionOrder : IIdentifiable
     {
         if (Status == ProductionOrderStatus.Completed)
         {
-            Console.WriteLine("The order is already completed!");
+            Console.WriteLine(Messages.OrderAlreadyCompleted);
             return;
         }
         CantitateProdusa = CantitateProdusa + unitati;
@@ -40,27 +40,21 @@ public class ProductionOrder : IIdentifiable
         {
             CantitateProdusa = CantitateTarget;
             Status = ProductionOrderStatus.Completed;
-            Console.WriteLine("Order " + Id + " COMPLETED!");
+            Console.WriteLine(Messages.OrderCompleted(Id));
             if (CreatDe != null)
-                Logging.Log(CreatDe.Id, $"Produced {unitati} units for order {Id} ({NumeProdus}) - completed");
+                Logging.Log(CreatDe.Id, Messages.ProductionLogged(unitati, Id, NumeProdus, true));
         }
         else
         {
             Status = ProductionOrderStatus.InProgress;
-            Console.WriteLine("Progres " + Id + ": " + CantitateProdusa + "/" + CantitateTarget);
+            Console.WriteLine(Messages.OrderProgress(Id, CantitateProdusa, CantitateTarget));
             if (CreatDe != null)
-                Logging.Log(CreatDe.Id, $"Produced {unitati} units for order {Id} ({NumeProdus})");
+                Logging.Log(CreatDe.Id, Messages.ProductionLogged(unitati, Id, NumeProdus));
         }
     }
     public void Afiseaza()
     {
-        Console.WriteLine("[" + Id + "] " + NumeProdus +
-                          " x" + CantitateTarget +
-                          " | Product: " + CantitateProdusa +
-                          " | Status: " + Status +
-                          " | Prioritate: " + Prioritate +
-                          " | Manager: " + CreatDe.Nume +
-                          " | Machine: " + Masina.SerialNumber +
-                          " | Date: " + DataCrearii.ToString("yyyy-MM-dd"));
+        Console.WriteLine(Messages.OrderDisplay(Id, NumeProdus, CantitateTarget, CantitateProdusa, Status,
+            Prioritate, CreatDe.Nume, Masina.SerialNumber, DataCrearii));
     }
 }

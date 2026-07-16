@@ -23,12 +23,12 @@ class Program
         bool running = true;
         while (running)
         {
-            Console.WriteLine("\n========== SMART FACTORY ===========");
-            Console.WriteLine($"Logged in as: {loggedInUser.Username} ({loggedInUser.Role})");
+            Console.WriteLine(Messages.MainTitle);
+            Console.WriteLine(Messages.LoggedInAs(loggedInUser.Username, loggedInUser.Role));
             EmployeeRole rolCurent;
             if (!Enum.TryParse(loggedInUser.Role, out rolCurent))
             {
-                Console.WriteLine("Rol necunoscut in baza de date!");
+                Console.WriteLine(Messages.UnknownRoleInDatabase);
                 return;
             }
 
@@ -54,29 +54,21 @@ class Program
                     running = MeniuSalesAgent();
                     break;
                 default:
-                    Console.WriteLine("Rol necunoscut!");
+                    Console.WriteLine(Messages.UnknownRole);
                     running = false;
                     break;
             }
         }
 
-        Console.WriteLine("Good Bye!");
+        Console.WriteLine(Messages.Goodbye);
     }
 
 
 
     static bool MeniuDirector()
     {
-        Console.WriteLine("1. Employees");
-        Console.WriteLine("2. Machines");
-        Console.WriteLine("3. Products");
-        Console.WriteLine("4. Production");
-        Console.WriteLine("5. Sales");
-        Console.WriteLine("6. General Report");
-        Console.WriteLine("7. Show Operation Logs");
-        Console.WriteLine("8. Log out");
-        Console.WriteLine("0. Exit");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.DirectorMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         switch (alegere)
@@ -84,37 +76,32 @@ class Program
             case "1": MeniuAngajati(); break;
             case "2":
                 fabrica.AfiseazaMasini();
-                Console.WriteLine("He can only see the machines");
+                Console.WriteLine(Messages.ViewOnlyMachines);
                 break;
             case "3":
                 fabrica.AfiseazaProduse();
-                Console.WriteLine("He can only see the products");
+                Console.WriteLine(Messages.ViewOnlyProducts);
                 break;
             case "4":
-                Console.WriteLine("Production");
-                Console.WriteLine("1.Show Orders");
-                Console.WriteLine("2.Show Orders by priority");
-                Console.WriteLine("3.Show production efficiency dashboard");
+                Console.WriteLine(Messages.DirectorProductionMenu);
                 string choose = Console.ReadLine();
                 switch (choose)
                 {
                     case "1":fabrica.AfiseazaComenzi(); break;
                     case "2":fabrica.AfiseazaComenziSortedByPriority();break;
                     case "3":fabrica.AfiseazaDashboardEficienta(); break;
-                    default: Console.WriteLine("Choose one of this options");break;
+                    default: Console.WriteLine(Messages.ChooseOneOption);break;
                 }
 
                 break;
             case "5":
-                Console.WriteLine("Sales");
-                Console.WriteLine("1.View Sales Report");
-                Console.WriteLine("2.View General Report");
+                Console.WriteLine(Messages.DirectorSalesMenu);
                 string opt = Console.ReadLine();
                 switch (opt)
                 {
                     case "1": fabrica.AfiseazaRaportVanzari(); break;
                     case "2": fabrica.AfiseazaRaportGeneral(); break;
-                    default: Console.WriteLine("Choose one of this options"); break;
+                    default: Console.WriteLine(Messages.ChooseOneOption); break;
                 }
 
                 break;
@@ -122,21 +109,15 @@ class Program
             case "7": ShowOperationLogs(); break;
             case "8": return Logout();
             case "0": return false;
-            default: Console.WriteLine("Invalid option!"); break;
+            default: Console.WriteLine(Messages.InvalidOption); break;
         }
         return true;
     }
 
     static bool MeniuProductionManager()
     {
-        Console.WriteLine("1. Show all employees");
-        Console.WriteLine("2. Machines");
-        Console.WriteLine("3. Products");
-        Console.WriteLine("4. Production");
-        Console.WriteLine("5. General Report");
-        Console.WriteLine("6. Log out");
-        Console.WriteLine("0. Exit");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.ProductionManagerMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         switch (alegere)
@@ -148,18 +129,14 @@ class Program
             case "5": fabrica.AfiseazaRaportGeneral(); break;
             case "6": return Logout();
             case "0": return false;
-            default: Console.WriteLine("Invalid option!"); break;
+            default: Console.WriteLine(Messages.InvalidOption); break;
         }
         return true;
     }
     static void MeniuMasiniProductionManager()
     {
-        Console.WriteLine("\n--- MACHINES ---");
-        Console.WriteLine("1. Add a machine");
-        Console.WriteLine("2. Show all");
-        Console.WriteLine("3. Stop a machine");
-        Console.WriteLine("4. Start a machine");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.ProductionManagerMachinesMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         if (alegere == "1")
@@ -173,35 +150,30 @@ class Program
         else if (alegere == "3")
         {
             fabrica.AfiseazaMasini();
-            Console.Write("Serial number for the machine you want to stop: ");
+            Console.Write(Messages.StopMachinePrompt);
             string serial = Console.ReadLine();
             Machine m = fabrica.GasesteMasina(serial);
             if (m == null)
-                Console.WriteLine("Machine doesn't exist!");
+                Console.WriteLine(Messages.MachineDoesNotExist);
             else
                 m.Stop();
         }
         else if (alegere == "4")
         {
             fabrica.AfiseazaMasini();
-            Console.Write("Serial number for the machine you want to start: ");
+            Console.Write(Messages.StartMachinePrompt);
             string serial = Console.ReadLine();
             Machine m = fabrica.GasesteMasina(serial);
             if (m == null)
-                Console.WriteLine("Machine doesn't exist!");
+                Console.WriteLine(Messages.MachineDoesNotExist);
             else
                 m.Start();
         }
     }
     static bool MeniuEngineer()
     {
-        Console.WriteLine("1. Show all machines");
-        Console.WriteLine("2. Repare a machine");
-        Console.WriteLine("3.Show when a machine may require maintenance ");
-        Console.WriteLine("4.Machine health monitoring");
-        Console.WriteLine("5. Log out");
-        Console.WriteLine("0. Exit");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.EngineerMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         switch (alegere)
@@ -212,22 +184,15 @@ class Program
             case "4": fabrica.AfiseazaStareMasini(); break;
             case "5": return Logout();
             case "0": return false;
-            default: Console.WriteLine("Invalid option!"); break;
+            default: Console.WriteLine(Messages.InvalidOption); break;
         }
         return true;
     }
 
     static bool MeniuTechnician()
     {
-        Console.WriteLine("1. Show all machines");
-        Console.WriteLine("2. Repare a machine");
-        Console.WriteLine("3. Stop a machine");
-        Console.WriteLine("4. Start a machine");
-        Console.WriteLine("5.Show when a machine may require maintenance ");
-        Console.WriteLine("6.Machine health monitoring");
-        Console.WriteLine("7. Log out");
-        Console.WriteLine("0. Exit");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.TechnicianMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         switch (alegere)
@@ -241,11 +206,11 @@ class Program
             case "3":
                 {
                     fabrica.AfiseazaMasini();
-                    Console.Write("Serial number for the machine you want to stop: ");
+                    Console.Write(Messages.StopMachinePrompt);
                     string serial = Console.ReadLine();
                     Machine m = fabrica.GasesteMasina(serial);
                     if (m == null)
-                        Console.WriteLine("Machine doesn't exist!");
+                        Console.WriteLine(Messages.MachineDoesNotExist);
                     else
                         m.Stop();
                     break;
@@ -253,11 +218,11 @@ class Program
             case "4":
                 {
                     fabrica.AfiseazaMasini();
-                    Console.Write("Serial number for the machine you want to start: ");
+                    Console.Write(Messages.StartMachinePrompt);
                     string serial = Console.ReadLine();
                     Machine m = fabrica.GasesteMasina(serial);
                     if (m == null)
-                        Console.WriteLine("Machine doesn't exist!");
+                        Console.WriteLine(Messages.MachineDoesNotExist);
                     else
                         m.Start();
                     break;
@@ -266,21 +231,15 @@ class Program
             case "6": fabrica.AfiseazaStareMasini(); break;
             case "7": return Logout();
             case "0": return false;
-            default: Console.WriteLine("Invalid option!"); break;
+            default: Console.WriteLine(Messages.InvalidOption); break;
         }
         return true;
     }
 
     static bool MeniuMachineOperator()
     {
-        Console.WriteLine("1. Production");
-        Console.WriteLine("2. Show all machines");
-        Console.WriteLine("3.Show when a machine may require maintenance ");
-        Console.WriteLine("4.Machine health monitoring");
-        Console.WriteLine("5. Log out");
-
-        Console.WriteLine("0. Exit");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.MachineOperatorMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         switch (alegere)
@@ -291,18 +250,15 @@ class Program
             case "4": fabrica.AfiseazaStareMasini(); break;
             case "5": return Logout();
             case "0": return false;
-            default: Console.WriteLine("Invalid option!"); break;
+            default: Console.WriteLine(Messages.InvalidOption); break;
         }
         return true;
     }
 
     static bool MeniuSalesAgent()
     {
-        Console.WriteLine("1. Sales");
-        Console.WriteLine("2. Show all products");
-        Console.WriteLine("3. Log out");
-        Console.WriteLine("0. Exit");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.SalesAgentMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         switch (alegere)
@@ -311,7 +267,7 @@ class Program
             case "2": fabrica.AfiseazaProduse(); break;
             case "3": return Logout();
             case "0": return false;
-            default: Console.WriteLine("Invalid option!"); break;
+            default: Console.WriteLine(Messages.InvalidOption); break;
         }
         return true;
     }
@@ -320,11 +276,11 @@ class Program
     {
 
 
-        Console.WriteLine("\n=== Operation History ===");
+        Console.WriteLine(Messages.OperationHistoryTitle);
         string[] entries = Logging.GetAllEntries();
         if (entries.Length == 0)
         {
-            Console.WriteLine("No operation logs available.");
+            Console.WriteLine(Messages.NoOperationLogs);
         }
         else
         {
@@ -333,26 +289,26 @@ class Program
                 Console.WriteLine(entry);
             }
         }
-        Console.WriteLine("=========================");
+        Console.WriteLine(Messages.OperationHistoryEnd);
     }
 
     // Logout and re-authenticate. Returns true to continue running, false to exit application.
     static bool Logout()
     {
-        Console.WriteLine("\nLogging out...");
+        Console.WriteLine(Messages.LoggingOut);
         if (loggedInUser != null)
         {
-            Logging.Log(loggedInUser.Username, "User logged out");
+        Logging.Log(loggedInUser.Username, Messages.UserLoggedOutLog());
         }
 
         loggedInUser = loginManager.LoginWithAttempts(3);
         if (loggedInUser == null)
         {
-            Console.WriteLine("Authentication failed. Exiting application.");
+            Console.WriteLine(Messages.AuthenticationFailed);
             return false;
         }
 
-        Console.WriteLine($"Successfully logged in as: {loggedInUser.Username} ({loggedInUser.Role})");
+        Console.WriteLine(Messages.SuccessfullyLoggedIn(loggedInUser.Username, loggedInUser.Role));
         return true;
     }
 
@@ -360,12 +316,8 @@ class Program
 
     static void MeniuAngajati()
     {
-        Console.WriteLine("\n--- Employees ---");
-        Console.WriteLine("1. Add employee");
-        Console.WriteLine("2. Show all employees");
-        Console.WriteLine("3. Delete employee");
-        Console.WriteLine("4. The employee is doing their duty");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.EmployeesMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         if (alegere == "1")
@@ -379,18 +331,18 @@ class Program
         else if (alegere == "3")
         {
             fabrica.AfiseazaAngajati();
-            Console.Write("Employee ID to delete: ");
+            Console.Write(Messages.EmployeeIdPrompt);
             string id = Console.ReadLine();
             fabrica.StergeAngajat(id);
         }
         else if (alegere == "4")
         {
             fabrica.AfiseazaAngajati();
-            Console.Write("ID employee: ");
+            Console.Write(Messages.IdEmployeePrompt);
             string id = Console.ReadLine();
             Employee ang = fabrica.GasesteAngajat(id);
             if (ang == null)
-                Console.WriteLine("Employee doesn't exist!");
+                Console.WriteLine(Messages.EmployeeDoesNotExist);
             else
                 ang.PerformDuty();
         }
@@ -398,27 +350,21 @@ class Program
 
     static void AdaugaAngajat()
     {
-        Console.Write("ID: ");
+        Console.Write(Messages.IdPrompt);
         string id = Console.ReadLine();
         if (fabrica.EmployeeIdExists(id))
         {
-            Console.WriteLine($"Employee ID {id} already exists. Please choose a unique ID.");
+            Console.WriteLine(Messages.EmployeeIdAlreadyExists(id));
             return;
         }
 
-        Console.Write("Name: ");
+        Console.Write(Messages.NamePrompt);
         string nume = Console.ReadLine();
-        Console.Write("Salary: ");
+        Console.Write(Messages.SalaryPrompt);
         decimal salariu = decimal.Parse(Console.ReadLine());
 
-        Console.WriteLine("Employee Type:");
-        Console.WriteLine("1. Director");
-        Console.WriteLine("2. ProductionManager");
-        Console.WriteLine("3. Engineer");
-        Console.WriteLine("4. Technician");
-        Console.WriteLine("5. MachineOperator");
-        Console.WriteLine("6. SalesAgent");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.EmployeeTypesMenu);
+        Console.Write(Messages.Choose);
         string tip = Console.ReadLine();
 
         Employee angajat = null;
@@ -456,14 +402,14 @@ class Program
         }
         else
         {
-            Console.WriteLine("Invalid user!");
+            Console.WriteLine(Messages.InvalidUser);
             return;
         }
 
         // Ask for login credentials
-        Console.Write("Username for login: ");
+        Console.Write(Messages.UsernameForLoginPrompt);
         string username = Console.ReadLine();
-        Console.Write("Password for login: ");
+        Console.Write(Messages.PasswordForLoginPrompt);
         string password = Console.ReadLine();
 
         if (fabrica.AdaugaAngajat(angajat))
@@ -471,11 +417,11 @@ class Program
             // Save credentials to file
             if (loginManager.SaveEmployeeCredential(id, username, password, role))
             {
-                Console.WriteLine("Employee added successfully!");
+                Console.WriteLine(Messages.EmployeeAdded);
             }
             else
             {
-                Console.WriteLine("Employee added but failed to save credentials!");
+                Console.WriteLine(Messages.EmployeeAddedCredentialsFailed);
             }
         }
     }
@@ -484,16 +430,8 @@ class Program
 
     static void MeniuMasini()
     {
-        Console.WriteLine("\n--- MACHINES ---");
-        Console.WriteLine("1. Add a machine");
-        Console.WriteLine("2. Show all");
-        Console.WriteLine("3. Stop a machine");
-        Console.WriteLine("4. Repare a machine");
-        Console.WriteLine("5. Start a machine");
-        Console.WriteLine("6. Predictive maintenance");
-        Console.WriteLine("7. Production efficiency dashboard");
-        Console.WriteLine("8. Machine health monitoring");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.MachinesMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         if (alegere == "1")
@@ -507,11 +445,11 @@ class Program
         else if (alegere == "3")
         {
             fabrica.AfiseazaMasini();
-            Console.Write("Serial number for the machine you want to stop: ");
+            Console.Write(Messages.StopMachinePrompt);
             string serial = Console.ReadLine();
             Machine m = fabrica.GasesteMasina(serial);
             if (m == null)
-                Console.WriteLine("Machine doesn't exist!");
+                Console.WriteLine(Messages.MachineDoesNotExist);
             else
                 m.Stop();
         }
@@ -522,11 +460,11 @@ class Program
         else if (alegere == "5")
         {
             fabrica.AfiseazaMasini();
-            Console.Write("Serial number for the machine you want to start: ");
+            Console.Write(Messages.StartMachinePrompt);
             string serial = Console.ReadLine();
             Machine m = fabrica.GasesteMasina(serial);
             if (m == null)
-                Console.WriteLine("Machine doesn't exist!");
+                Console.WriteLine(Messages.MachineDoesNotExist);
             else
                 m.Start();
         }
@@ -546,15 +484,13 @@ class Program
 
     static void AdaugaMasina()
     {
-        Console.Write("Serial number: ");
+        Console.Write(Messages.SerialNumberPrompt);
         string serial = Console.ReadLine();
-        Console.Write("Name: ");
+        Console.Write(Messages.NamePrompt);
         string nume = Console.ReadLine();
 
-        Console.WriteLine("Machine type:");
-        Console.WriteLine("1. SewingMachine");
-        Console.WriteLine("2. CuttingMachine");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.MachineTypesMenu);
+        Console.Write(Messages.Choose);
         string tip = Console.ReadLine();
 
         Machine masina = null;
@@ -565,35 +501,35 @@ class Program
             masina = new CuttingMachine(serial, nume, DateTime.Now);
         else
         {
-            Console.WriteLine("Invalid user!");
+            Console.WriteLine(Messages.InvalidUser);
             return;
         }
 
-        Console.Write("Add a part? (yes/no): ");
+        Console.Write(Messages.AddPartPrompt);
         string raspuns = Console.ReadLine();
         if (raspuns == "da")
         {
-            Console.Write("Part name: ");
+            Console.Write(Messages.PartNamePrompt);
             string numePiesa = Console.ReadLine();
-            Console.Write("Type of part (Engine/Needle/Blade): ");
+            Console.Write(Messages.PartTypePrompt);
             string tipPiesa = Console.ReadLine();
             masina.AdaugaPiesa(new MachinePart(numePiesa, tipPiesa));
         }
 
         if (fabrica.AdaugaMasina(masina))
-            Console.WriteLine("Car added successfully!");
+            Console.WriteLine(Messages.MachineAdded);
     }
 
     static void ReparaMasina()
     {
         fabrica.AfiseazaAngajati();
-        Console.Write("ID Technician: ");
+        Console.Write(Messages.TechnicianIdPrompt);
         string idTeh = Console.ReadLine();
-        Console.Write("ID Engineer: ");
+        Console.Write(Messages.EngineerIdPrompt);
         string idEng = Console.ReadLine();
 
         fabrica.AfiseazaMasini();
-        Console.Write("Serial masina: ");
+        Console.Write(Messages.MachineSerialPrompt);
         string serial = Console.ReadLine();
 
         fabrica.ReparaMasina(idTeh, idEng, serial);
@@ -603,14 +539,8 @@ class Program
 
     static void MeniuProduse()
     {
-        Console.WriteLine("\n--- PRODUCTS ---");
-        Console.WriteLine("1. Add a product");
-        Console.WriteLine("2. Show all products");
-        Console.WriteLine("3. Add Stock ");
-        Console.WriteLine("4. Sell a product");
-        Console.WriteLine("5.Show production efficiency dashboard");
-        Console.WriteLine("6. Inventory alerts");
-        Console.Write("Choose: ");
+        Console.WriteLine(Messages.ProductsMenu);
+        Console.Write(Messages.Choose);
         string alegere = Console.ReadLine();
 
         if (alegere == "1")
@@ -630,10 +560,10 @@ class Program
     static void AdaugaStocProdus()
     {
         fabrica.AfiseazaProduse();
-        Console.Write("Product name: ");
+        Console.Write(Messages.ProductNamePrompt);
         string nume = Console.ReadLine();
 
-            Console.Write("Amount to add: ");
+            Console.Write(Messages.AmountToAddPrompt);
             int cantitate = int.Parse(Console.ReadLine());
 
             fabrica.AdaugaStocProduse(nume, cantitate);
@@ -641,72 +571,66 @@ class Program
 
         static void AdaugaProdus()
         {
-            Console.Write("Name: ");
+            Console.Write(Messages.NamePrompt);
             string nume = Console.ReadLine();
-            Console.Write("Production Cost: ");
+            Console.Write(Messages.ProductionCostPrompt);
             decimal productionCost = decimal.Parse(Console.ReadLine());
-            Console.Write("Selling Price: ");
+            Console.Write(Messages.SellingPricePrompt);
             decimal sellingPrice = decimal.Parse(Console.ReadLine());
-            Console.Write("Initial Quantity: ");
+            Console.Write(Messages.InitialQuantityPrompt);
             int cantitate = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Product Type:");
-            Console.WriteLine("1. Wooden Cubes");
-            Console.WriteLine("2. Teddy Bear");
-            Console.WriteLine("3. FootBall");
-            Console.WriteLine("4. Doll");
-            Console.WriteLine("5. Frisbee");
-
-            Console.Write("Alege: ");
+            Console.WriteLine(Messages.ProductTypesMenu);
+            Console.Write(Messages.Choose);
             string tip = Console.ReadLine();
 
             Product produs = null;
 
             if (tip == "1")
             {
-                Console.Write("Size: ");
+                Console.Write(Messages.SizePrompt);
                 string marime = Console.ReadLine();
                 produs = new WoodenCubes(nume, productionCost, sellingPrice, cantitate, marime);
             }
             else if (tip == "2")
             {
-                Console.Write("Size: ");
+                Console.Write(Messages.SizePrompt);
                 string marime = Console.ReadLine();
                 produs = new Doll(nume, productionCost, sellingPrice, cantitate, marime);
             }
             else if (tip == "3")
             {
-                Console.Write("Size: ");
+                Console.Write(Messages.SizePrompt);
                 string marime = Console.ReadLine();
                 produs = new TedyBear(nume, productionCost, sellingPrice, cantitate, marime);
             }
             else if (tip == "4")
             {
-                Console.Write("Size: ");
+                Console.Write(Messages.SizePrompt);
                 string marime = Console.ReadLine();
                 produs = new Ball(nume, productionCost, sellingPrice, cantitate, marime);
             }
             else if (tip == "5")
             {
-                Console.Write("Size: ");
+                Console.Write(Messages.SizePrompt);
                 string marime = Console.ReadLine();
                 produs = new Frisbee(nume, productionCost, sellingPrice, cantitate, marime);
             }
             if (fabrica.AdaugaProdus(produs))
-                Console.WriteLine("Product added successfully!");
+                Console.WriteLine(Messages.ProductAdded);
         }
 
         static void VandeProdus()
         {
             fabrica.AfiseazaAngajati();
-            Console.Write("ID Sales Agent: ");
+            Console.Write(Messages.SalesAgentIdPrompt);
             string idAgent = Console.ReadLine();
 
             fabrica.AfiseazaProduse();
-            Console.Write("Product Name: ");
+            Console.Write(Messages.ProductNamePrompt);
             string numeProdus = Console.ReadLine();
 
-            Console.Write("Selling Quantity: ");
+            Console.Write(Messages.SellingQuantityPrompt);
             int cantitate = int.Parse(Console.ReadLine());
 
             fabrica.VindeProdus(idAgent, numeProdus, cantitate);
@@ -716,13 +640,8 @@ class Program
 
         static void MeniuProductie()
         {
-            Console.WriteLine("\n--- PRODUCTIE ---");
-            Console.WriteLine("1. Creeaza comanda");
-            Console.WriteLine("2. Execute Order (manualy)");
-            Console.WriteLine("3. Execute the next priority order (auto)");
-            Console.WriteLine("4. Show orders");
-            Console.WriteLine("5. Show orders sorted by priority");
-            Console.Write("Alege: ");
+        Console.WriteLine(Messages.ProductionMenu);
+        Console.Write(Messages.Choose);
             string alegere = Console.ReadLine();
 
             if (alegere == "1")
@@ -740,21 +659,21 @@ class Program
         static void CreazaComanda()
         {
             fabrica.AfiseazaAngajati();
-            Console.Write("ID Production Manager: ");
+            Console.Write(Messages.ProductionManagerIdPrompt);
             string idManager = Console.ReadLine();
 
             fabrica.AfiseazaMasini();
-            Console.Write("Serial number for a machine: ");
+            Console.Write(Messages.MachineForOrderPrompt);
             string serial = Console.ReadLine();
 
-            Console.Write("Product name to manufacture: ");
+            Console.Write(Messages.ProductToManufacturePrompt);
             string produs = Console.ReadLine();
 
-            Console.Write("Target amount: ");
+            Console.Write(Messages.TargetAmountPrompt);
             int cantitate = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Priority: 1.Low  2.Medium  3.High");
-            Console.Write("Choose: ");
+            Console.WriteLine(Messages.PriorityMenu);
+            Console.Write(Messages.Choose);
             string prio = Console.ReadLine();
 
             Priority prioritate;
@@ -771,14 +690,14 @@ class Program
         static void ExecutaComanda()
         {
             fabrica.AfiseazaAngajati();
-            Console.Write("ID MachineOperator: ");
+            Console.Write(Messages.MachineOperatorIdPrompt);
             string idOp = Console.ReadLine();
 
             fabrica.AfiseazaComenzi();
-            Console.Write("ID Order (ex: ORD1): ");
+            Console.Write(Messages.OrderIdPrompt);
             string idComanda = Console.ReadLine();
 
-            Console.Write("Units to prodce now: ");
+            Console.Write(Messages.UnitsToProducePrompt);
             int unitati = int.Parse(Console.ReadLine());
 
             fabrica.ExecutaComanda(idOp, idComanda, unitati);
@@ -787,20 +706,20 @@ class Program
         static void ExecutaComanaPrioritara()
         {
             fabrica.AfiseazaAngajati();
-            Console.Write("ID MachineOperator: ");
+            Console.Write(Messages.MachineOperatorIdPrompt);
             string idOp = Console.ReadLine();
 
             ProductionOrder nextOrder = fabrica.GetNextPriorityOrder(idOp);
             if (nextOrder == null)
             {
-                Console.WriteLine("Nu exista comenzi active sau operatorul nu este valid!");
+                Console.WriteLine(Messages.NoActiveOrder);
                 return;
             }
 
-            Console.WriteLine("\nUrmatoarea comanda prioritara:");
+            Console.WriteLine(Messages.NextPriorityOrder);
             nextOrder.Afiseaza();
 
-            Console.Write("Unitati de produs acum: ");
+            Console.Write(Messages.PriorityUnitsPrompt);
             int unitati = int.Parse(Console.ReadLine());
 
             fabrica.ExecutaComanda(idOp, nextOrder.Id, unitati);
@@ -808,11 +727,8 @@ class Program
 
         static void MeniuVanzari()
         {
-            Console.WriteLine("\n--- SALES ---");
-            Console.WriteLine("1. Sell Product");
-            Console.WriteLine("2. View Sales Report");
-            Console.WriteLine("3. View General Report");
-            Console.Write("Choose: ");
+        Console.WriteLine(Messages.SalesMenu);
+        Console.Write(Messages.Choose);
             string alegere = Console.ReadLine();
 
             if (alegere == "1")
@@ -826,30 +742,30 @@ class Program
         static void VindeProdus()
         {
             fabrica.AfiseazaAngajati();
-            Console.Write("ID SalesAgent: ");
+            Console.Write(Messages.SalesAgentIdPrompt);
             string idAgent = Console.ReadLine();
 
             Employee ang = fabrica.GasesteAngajat(idAgent);
             if (ang == null || !(ang is SalesAgent))
             {
-                Console.WriteLine("Sales Agent not found!");
+                Console.WriteLine(Messages.SalesAgentNotFound);
                 return;
             }
 
             SalesAgent agent = (SalesAgent)ang;
 
             fabrica.AfiseazaProduse();
-            Console.Write("Product name to sell: ");
+            Console.Write(Messages.ProductToSellPrompt);
             string produsNume = Console.ReadLine();
 
             Product produs = fabrica.GasesteProdus(produsNume);
             if (produs == null)
             {
-                Console.WriteLine("Product not found!");
+                Console.WriteLine(Messages.ProductDoesNotExist);
                 return;
             }
 
-            Console.Write("Quantity to sell: ");
+            Console.Write(Messages.QuantityToSellPrompt);
             int cantitate = int.Parse(Console.ReadLine());
 
             agent.VindeProdus(produs, cantitate, fabrica);
@@ -879,7 +795,7 @@ class Program
             fabrica.AdaugaProdus(new Ball("Football", 13, 50, 5, "Normal"));
             fabrica.AdaugaProdus(new Frisbee("OZN", 10, 25, 7, "S"));
 
-            Console.WriteLine("Demo data loaded! Press Enter to continue...");
+            Console.WriteLine(Messages.DemoLoaded);
             Console.ReadLine();
         }
     }

@@ -10,7 +10,7 @@ public class TedyBear : Product
     public override string GetDescription()
     {
         
-        return "Teddy Bear:" + Nume + " " + Category + " Size " + Marime;
+        return Messages.ProductDescription(Messages.TeddyBearProductType, Nume, Category, Marime);
     }
 }
 

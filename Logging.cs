@@ -30,7 +30,7 @@ namespace SmartFactorySimple
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Logging failed: {ex.Message}");
+                Console.Error.WriteLine(Messages.LoggingFailed(ex.Message));
             }
         }
 

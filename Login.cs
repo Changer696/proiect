@@ -31,7 +31,7 @@ public class Login
         {
             if (!File.Exists(CREDENTIALS_FILE))
             {
-                Console.WriteLine($"Error: {CREDENTIALS_FILE} not found. Please ensure the file exists.");
+                Console.WriteLine(Messages.FileNotFound(CREDENTIALS_FILE));
                 return;
             }
 
@@ -46,7 +46,7 @@ public class Login
                 string[] parts = line.Split(';');
                 if (parts.Length != 4)
                 {
-                    Console.WriteLine($"Warning: Invalid line format: {line}");
+                    Console.WriteLine(Messages.InvalidCredentialLine(line));
                     continue;
                 }
 
@@ -61,11 +61,11 @@ public class Login
                 credentials[credential.Username] = credential;
             }
 
-            Console.WriteLine($"Loaded {credentials.Count} employee credentials.");
+            Console.WriteLine(Messages.CredentialsLoaded(credentials.Count));
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading credentials: {ex.Message}");
+            Console.WriteLine(Messages.CredentialsLoadFailed(ex.Message));
         }
     }
 
@@ -92,26 +92,26 @@ public class Login
     
     public EmployeeCredential PromptLogin()
     {
-        Console.WriteLine("\n========== SMART FACTORY LOGIN ==========");
-        Console.Write("Username: ");
+        Console.WriteLine(Messages.LoginTitle);
+        Console.Write(Messages.UsernamePrompt);
         string username = Console.ReadLine();
 
-        Console.Write("Password: ");
+        Console.Write(Messages.PasswordPrompt);
         string password = ReadPassword();
 
         EmployeeCredential credential = Authenticate(username, password);
 
         if (credential != null)
         {
-            Console.WriteLine($"\nWelcome {username}! Role: {credential.Role}\n");
-            Logging.Log(credential.Username, "Successful login");
+            Console.WriteLine(Messages.Welcome(username, credential.Role));
+                Logging.Log(credential.Username, Messages.SuccessfulLoginLog());
             return credential;
         }
         else
         {
-            Console.WriteLine("\nInvalid username or password!\n");
-            var userForLog = string.IsNullOrWhiteSpace(username) ? "unknown" : username;
-            Logging.Log(userForLog, "Failed login attempt");
+            Console.WriteLine(Messages.InvalidCredentials);
+            var userForLog = string.IsNullOrWhiteSpace(username) ? Messages.UnknownUser : username;
+            Logging.Log(userForLog, Messages.FailedLoginAttemptLog());
             return null;
         }
     }
@@ -129,11 +129,11 @@ public class Login
 
             if (attempt < maxAttempts)
             {
-                Console.WriteLine($"Attempt {attempt} failed. {maxAttempts - attempt} attempts remaining.\n");
+                Console.WriteLine(Messages.LoginAttemptFailed(attempt, maxAttempts - attempt));
             }
         }
 
-        Console.WriteLine("Login failed after maximum attempts. Exiting...");
+        Console.WriteLine(Messages.LoginFailed);
         return null;
     }
 
@@ -145,13 +145,13 @@ public class Login
             if (string.IsNullOrWhiteSpace(employeeId) || string.IsNullOrWhiteSpace(username) || 
                 string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(role))
             {
-                Console.WriteLine("Error: All credential fields must be provided!");
+                Console.WriteLine(Messages.CredentialFieldsRequired());
                 return false;
             }
 
             if (credentials.ContainsKey(username))
             {
-                Console.WriteLine($"Error: Username '{username}' already exists!");
+                Console.WriteLine(Messages.UsernameAlreadyExists(username));
                 return false;
             }
 
@@ -170,12 +170,12 @@ public class Login
             };
             credentials[username] = credential;
 
-            Console.WriteLine($"Credentials saved for employee {username} ({role})");
+            Console.WriteLine(Messages.CredentialsSaved(username, role));
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving credentials: {ex.Message}");
+            Console.WriteLine(Messages.CredentialsSaveFailed(ex.Message));
             return false;
         }
     }
@@ -199,13 +199,13 @@ public class Login
                 {
                     pwd.Length--;
                     // move cursor back, write space, move back again
-                    Console.Write("\b \b");
+                    Console.Write(Messages.PasswordMaskBackspace);
                 }
             }
             else if (!char.IsControl(key.KeyChar))
             {
                 pwd.Append(key.KeyChar);
-                Console.Write("*");
+                    Console.Write(Messages.PasswordMaskCharacter);
             }
         }
 

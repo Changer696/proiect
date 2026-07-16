@@ -29,7 +29,7 @@ public class Factory
         bool added = _employeeRepository.Add(angajat);
         if (added)
         {
-            Logging.Log(angajat.Id, $"Employee added: {angajat.Nume}");
+            Logging.Log(angajat.Id, Messages.EmployeeAddedLog(angajat.Nume));
         }
         return added;
     }
@@ -56,13 +56,13 @@ public class Factory
     {
         if (_employeeRepository.RemoveById(id))
         {
-            Console.WriteLine("Employee successfully deleted!");
-            Logging.Log(id, $"Employee removed: {id}");
+            Console.WriteLine(Messages.EmployeeDeleted());
+            Logging.Log(id, Messages.EmployeeRemovedLog(id));
             return true;
         }
         else
         {
-            Console.WriteLine("The employee doesn't exist!");
+            Console.WriteLine(Messages.EmployeeDoesNotExist);
             return false;
         }
     }
@@ -109,13 +109,13 @@ public class Factory
         Employee angajat = GasesteAngajat(idManager);
         if (angajat == null)
         {
-            Console.WriteLine("The employee doesn't exist!");
+            Console.WriteLine(Messages.EmployeeDoesNotExist);
             return;
         }
 
         if (!(angajat is ProductionManager))
         {
-            Console.WriteLine(angajat.Nume + " is not ProductionManager!");
+            Console.WriteLine(Messages.NotProductionManager(angajat.Nume));
             return;
         }
 
@@ -124,11 +124,11 @@ public class Factory
         Machine masina = GasesteMasina(serialMasina);
         if (masina == null)
         {
-            Console.WriteLine("Machine doesn't exist!");
+            Console.WriteLine(Messages.MachineDoesNotExist);
             return;
         }
 
-        string idComanda = "ORD" + _idComandaCounter;
+        string idComanda = Messages.OrderIdPrefix + _idComandaCounter;
         _idComandaCounter++;
 
         ProductionOrder comanda = manager.CreazaComanda(idComanda, masina, produs, cantitate, prioritate);
@@ -140,13 +140,13 @@ public class Factory
         Employee angajat = GasesteAngajat(idOperator);
         if (angajat == null)
         {
-            Console.WriteLine("Employee doesn't exist!");
+            Console.WriteLine(Messages.EmployeeDoesNotExist);
             return;
         }
 
         if (!(angajat is MachineOperator))
         {
-            Console.WriteLine(angajat.Nume + " is not MachineOperator!");
+            Console.WriteLine(Messages.NotMachineOperator(angajat.Nume));
             return;
         }
 
@@ -156,7 +156,7 @@ public class Factory
 
         if (comanda == null)
         {
-            Console.WriteLine("Order doesn't exist!");
+            Console.WriteLine(Messages.OrderDoesNotExist);
             return;
         }
 
@@ -165,7 +165,7 @@ public class Factory
         if (comanda.Masina.Status == MachineStatus.Running)
         {
             comanda.InregistreazaProductie(unitati);
-            Logging.Log(idOperator, $"Produced {unitati} units for order {idComanda} ({comanda.NumeProdus})");
+            Logging.Log(idOperator, Messages.ProductionLogged(unitati, idComanda, comanda.NumeProdus));
         }
     }
 
@@ -176,19 +176,19 @@ public class Factory
 
         if (a1 == null || a2 == null)
         {
-            Console.WriteLine("One of the employees doesn't exist!");
+            Console.WriteLine(Messages.EmployeesDoNotExist);
             return;
         }
 
         if (a1 is not Technician)
         {
-            Console.WriteLine(a1.Nume + " is not a Technician!");
+            Console.WriteLine(Messages.NotTechnician(a1.Nume));
             return;
         }
 
         if (a2 is not Engineer)
         {
-            Console.WriteLine(a2.Nume + " is not a Engineer!");
+            Console.WriteLine(Messages.NotEngineer(a2.Nume));
             return;
         }
 
@@ -198,13 +198,13 @@ public class Factory
         Machine masina = GasesteMasina(serial);
         if (masina == null)
         {
-            Console.WriteLine("Machine doesn't exist!");
+            Console.WriteLine(Messages.MachineDoesNotExist);
             return;
         }
 
         if (masina.Status == MachineStatus.Running)
         {
-            Console.WriteLine("Stop the car before the repair!");
+            Console.WriteLine(Messages.StopMachineBeforeRepair);
             return;
         }
 
@@ -217,11 +217,11 @@ public class Factory
         Product produs = GasesteProdus(numeProdus);
         if (produs == null)
         {
-            Console.WriteLine("There is no such product");
+            Console.WriteLine(Messages.ProductDoesNotExistForStock);
             return;
         }
         produs.AdaugaStoc(cantitate);
-        Console.WriteLine($"New stock added: {numeProdus} + {cantitate} pieces");
+        Console.WriteLine(Messages.StockAdded(numeProdus, cantitate));
     }
 
     public void VindeProdus(string idAgent, string numeProdus, int cantitate)
@@ -229,13 +229,13 @@ public class Factory
         Employee angajat = GasesteAngajat(idAgent);
         if (angajat == null)
         {
-            Console.WriteLine("Employee doesn't exist!");
+            Console.WriteLine(Messages.EmployeeDoesNotExist);
             return;
         }
 
         if (!(angajat is SalesAgent))
         {
-            Console.WriteLine(angajat.Nume + " is not a SalesAgent!");
+            Console.WriteLine(Messages.NotSalesAgent(angajat.Nume));
             return;
         }
 
@@ -244,7 +244,7 @@ public class Factory
         Product produs = GasesteProdus(numeProdus);
         if (produs == null)
         {
-            Console.WriteLine("Product doesn't exist!");
+            Console.WriteLine(Messages.ProductDoesNotExist);
             return;
         }
 
@@ -255,16 +255,9 @@ public class Factory
 
     public void AfiseazaRaportGeneral()
     {
-        Console.WriteLine("\n=== REPORT: " + Nume + " ===");
-        Console.WriteLine("Employees: " + _employeeRepository.Count);
-        Console.WriteLine("Machines:   " + _machineRepository.Count);
-        Console.WriteLine("Products:  " + _productRepository.Count);
-        Console.WriteLine("Orders:  " + _orderRepository.Count);
-        Console.WriteLine("Total Revenue: " + _totalRevenue + " RON");
-        Console.WriteLine("Total Units Sold: " + _totalSalesQuantity);
-        Console.WriteLine("Machines requiring maintenance: " + GetMachinesRequiringMaintenance(7).Count);
-        Console.WriteLine("Products below stock threshold: " + GetLowStockProducts().Count);
-        Console.WriteLine("");
+        Console.WriteLine(Messages.FactoryReport(Nume, _employeeRepository.Count, _machineRepository.Count,
+            _productRepository.Count, _orderRepository.Count, _totalRevenue, _totalSalesQuantity,
+            GetMachinesRequiringMaintenance(7).Count, GetLowStockProducts().Count));
     }
 
     
@@ -279,7 +272,7 @@ public class Factory
         if (p != null)
         {
             p.VindeStoc(quantity);
-            Console.WriteLine("Sale recorded: " + quantity + "x " + productName + " = " + saleAmount + " RON");
+            Console.WriteLine(Messages.SaleRecorded(quantity, productName, saleAmount));
             DisplayInventoryAlert(p);
         }
     }
@@ -314,47 +307,47 @@ public class Factory
     public void AfiseazaMentenantaPredictiva(int daysAhead = 7)
     {
         List<Machine> machines = GetMachinesRequiringMaintenance(daysAhead);
-        Console.WriteLine("\n=== PREDICTIVE MAINTENANCE ===");
+        Console.WriteLine(Messages.PredictiveMaintenanceTitle);
 
         if (machines.Count == 0)
         {
-            Console.WriteLine($"No machines require maintenance in the next {daysAhead} days.");
+            Console.WriteLine(Messages.NoMaintenanceRequired(daysAhead));
             return;
         }
 
         machines.ForEach(machine => Console.WriteLine(
-            $"{machine.SerialNumber} - {machine.Nume}: maintenance due in {machine.EstimateDaysUntilMaintenance()} day(s)."));
+            Messages.MaintenanceDue(machine.SerialNumber, machine.Nume, machine.EstimateDaysUntilMaintenance())));
     }
 
     public void AfiseazaDashboardEficienta() 
     {
         List<Machine> machines = _machineRepository.GetAll();
-        Console.WriteLine("\n=== PRODUCTION EFFICIENCY DASHBOARD ===");
+        Console.WriteLine(Messages.EfficiencyTitle);
 
         if (machines.Count == 0)
         {
-            Console.WriteLine("There are no machines!");
+            Console.WriteLine(Messages.NoMachines);
             return;
         }
 
         machines.ForEach(machine => Console.WriteLine(
-            $"{machine.SerialNumber} - {machine.Nume}: {machine.CalculateEfficiencyPercentage():F2}% efficiency, {machine.ProductionCycles} production cycle(s)."));
-        Console.WriteLine($"Average efficiency: {machines.Average(machine => machine.CalculateEfficiencyPercentage()):F2}%");
+            Messages.MachineEfficiency(machine.SerialNumber, machine.Nume, machine.CalculateEfficiencyPercentage(), machine.ProductionCycles)));
+        Console.WriteLine(Messages.AverageEfficiency(machines.Average(machine => machine.CalculateEfficiencyPercentage())));
     }
 
     public void AfiseazaStareMasini()
     {
         List<Machine> machines = _machineRepository.GetAll();
-        Console.WriteLine("\n=== MACHINE HEALTH MONITORING ===");
+        Console.WriteLine(Messages.HealthMonitoringTitle);
 
         if (machines.Count == 0)
         {
-            Console.WriteLine("There are no machines!");
+            Console.WriteLine(Messages.NoMachines);
             return;
         }
 
         machines.ForEach(machine => Console.WriteLine(
-            $"{machine.SerialNumber} - {machine.Nume} | {machine.Conditie} | {machine.GetHealthAlert()}"));
+            Messages.MachineHealth(machine.SerialNumber, machine.Nume, machine.Conditie, machine.GetHealthAlert())));
     }
 
     public List<Product> GetLowStockProducts(int threshold = 5)
@@ -367,12 +360,12 @@ public class Factory
 
     public void AfiseazaAlerteInventar(int threshold = 5)
     {
-        Console.WriteLine("\n=== INVENTORY ALERTS ===");
+        Console.WriteLine(Messages.InventoryAlertsTitle);
         List<Product> products = GetLowStockProducts(threshold);
 
         if (products.Count == 0)
         {
-            Console.WriteLine($"All products are above the stock threshold of {threshold}.");
+            Console.WriteLine(Messages.AllProductsAboveThreshold(threshold));
             return;
         }
 
@@ -382,17 +375,12 @@ public class Factory
     private static void DisplayInventoryAlert(Product product, int threshold = 5)
     {
         if (product.Cantitate <= threshold)
-            Console.WriteLine($"ALERT: {product.Nume} stock is low ({product.Cantitate} remaining; threshold: {threshold}).");
+            Console.WriteLine(Messages.LowStock(product.Nume, product.Cantitate, threshold));
     }
 
     public void AfiseazaRaportVanzari()
     {
-        Console.WriteLine("\n=== SALES REPORT: " + Nume + " ===");
-        Console.WriteLine("Total Revenue: " + _totalRevenue + " RON");
-        Console.WriteLine("Total Units Sold: " + _totalSalesQuantity);
-        Console.WriteLine("Average Price Per Unit: " + (_totalSalesQuantity > 0 ? (_totalRevenue / _totalSalesQuantity).ToString("F2") : "N/A") + " RON");
-        Console.WriteLine("Estimated Profit: " + CalculateProfit() + " RON");
-        Console.WriteLine("");
+        Console.WriteLine(Messages.SalesReport(Nume, _totalRevenue, _totalSalesQuantity, CalculateProfit()));
     }
 
     public void AfiseazaComenzi()
@@ -406,11 +394,11 @@ public class Factory
 
         if (comenziSortate.Count == 0)
         {
-            Console.WriteLine("There are no orders!");
+            Console.WriteLine(Messages.NoOrders);
             return;
         }
 
-        Console.WriteLine("=== Orders sorted by priority ===");
+        Console.WriteLine(Messages.OrdersSortedByPriority);
         foreach (var comanda in comenziSortate)
         {
             comanda.Afiseaza();
