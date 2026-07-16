@@ -18,7 +18,7 @@ class Program
             return; // Exit if authentication fails
         }
 
-        DateDemo();
+        //DateDemo();
         // Load persisted orders from orders.txt if present
         fabrica.LoadOrdersFromFile();
         fabrica.IncarcaMasini();
@@ -870,7 +870,7 @@ class Program
             agent.VindeProdus(produs, cantitate, fabrica);
         }
 
-        static void DateDemo()
+        /*static void DateDemo()
         {
             fabrica.AdaugaAngajat(new Director("DIR001", "Alex Popescu", 8000, DateTime.Now.AddYears(-5)));
             fabrica.AdaugaAngajat(new ProductionManager("PM001", "Maria Ionescu", 5500, DateTime.Now.AddYears(-3)));
@@ -897,4 +897,5 @@ class Program
             Console.WriteLine("Demo data loaded! Press Enter to continue...");
             Console.ReadLine();
         }
+        */
     }
