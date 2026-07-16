@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using SmartFactorySimple;
 
 public class Factory
@@ -20,6 +21,147 @@ public class Factory
     public Factory(string nume)
     {
         Nume = nume;
+    }
+
+    // File where orders are persisted. Search for orders.txt in app base dir and up to 4 parent folders.
+    private string OrdersFilePath
+    {
+        get
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string candidate = Path.Combine(baseDir, "orders.txt");
+            if (File.Exists(candidate)) return candidate;
+
+            var dir = new DirectoryInfo(baseDir);
+            for (int i = 0; i < 5 && dir != null; i++)
+            {
+                candidate = Path.Combine(dir.FullName, "orders.txt");
+                if (File.Exists(candidate)) return candidate;
+                dir = dir.Parent;
+            }
+
+            // fallback to baseDir path (file may be created there)
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "orders.txt");
+        }
+    }
+
+    // Load orders from orders.txt. Expects lines in the format:
+    // Id;MachineSerial;ProductName;Quantity;Priority;Status;CreatedBy;CreatedAt
+    public void LoadOrdersFromFile()
+    {
+        try
+        {
+            if (!File.Exists(OrdersFilePath))
+                return;
+
+            string[] lines = File.ReadAllLines(OrdersFilePath);
+            int maxIdSeen = 0;
+            foreach (var raw in lines)
+            {
+                var line = raw.Trim();
+                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                    continue;
+
+                var parts = line.Split(';');
+                if (parts.Length < 8)
+                {
+                    Console.WriteLine($"Warning: invalid order line: {line}");
+                    continue;
+                }
+
+                string id = parts[0].Trim();
+                string machineSerial = parts[1].Trim();
+                string productName = parts[2].Trim();
+                if (!int.TryParse(parts[3].Trim(), out int qty))
+                    qty = 0;
+
+                if (!Enum.TryParse(parts[4].Trim(), true, out Priority prioritate))
+                    prioritate = Priority.Medium;
+
+                if (!Enum.TryParse(parts[5].Trim(), true, out ProductionOrderStatus status))
+                    status = ProductionOrderStatus.Created;
+
+                string createdBy = parts[6].Trim();
+                DateTime createdAt = DateTime.Now;
+                DateTime.TryParse(parts[7].Trim(), out createdAt);
+
+                Machine masina = GasesteMasina(machineSerial);
+                Employee emp = GasesteAngajat(createdBy);
+                ProductionManager manager = emp as ProductionManager;
+
+                if (masina == null || manager == null)
+                {
+                    // can't construct a valid order without machine and manager; skip
+                    Console.WriteLine($"Skipping order {id}: missing machine or manager");
+                    continue;
+                }
+
+                // if order already exists, update its properties, otherwise create new
+                var existing = _orderRepository.FindById(id);
+                if (existing != null)
+                {
+                    existing.Masina = masina;
+                    existing.NumeProdus = productName;
+                    existing.CantitateTarget = qty;
+                    existing.Prioritate = prioritate;
+                    existing.Status = status;
+                    existing.DataCrearii = createdAt;
+                }
+                else
+                {
+                    var order = new ProductionOrder(id, masina, manager, productName, qty, prioritate);
+                    order.Status = status;
+                    order.CantitateProdusa = 0; // we don't persist produced amount in file currently
+                    order.DataCrearii = createdAt;
+
+                    _orderRepository.Add(order);
+                }
+                // track numeric suffix of ORD... ids so we can continue numbering
+                if (id.StartsWith("ORD", StringComparison.OrdinalIgnoreCase))
+                {
+                    string numPart = id.Substring(3);
+                    if (int.TryParse(numPart, out int parsed))
+                    {
+                        if (parsed > maxIdSeen) maxIdSeen = parsed;
+                    }
+                }
+            }
+
+            // ensure next generated id is higher than any existing one
+            if (maxIdSeen > 0)
+            {
+                _idComandaCounter = maxIdSeen + 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load orders: {ex.Message}");
+        }
+    }
+
+    // Persist all orders to orders.txt (overwrites file)
+    public void SaveOrdersToFile()
+    {
+        try
+        {
+            var orders = _orderRepository.GetAll();
+            List<string> lines = new List<string>();
+            lines.Add("# Production Orders");
+            lines.Add("# Format: Id;MachineSerial;ProductName;Quantity;Priority;Status;CreatedBy;CreatedAt");
+            foreach (var o in orders)
+            {
+                string createdBy = o.CreatDe != null ? o.CreatDe.Id : "";
+                string createdAt = o.DataCrearii.ToString("s");
+                string line = string.Join(";", o.Id, o.Masina?.SerialNumber ?? "", o.NumeProdus, o.CantitateTarget.ToString(), o.Prioritate.ToString(), o.Status.ToString(), createdBy, createdAt);
+                lines.Add(line);
+            }
+
+            File.WriteAllLines(OrdersFilePath, lines);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to save orders: {ex.Message}");
+        }
     }
 
     
@@ -130,9 +272,11 @@ public class Factory
 
         string idComanda = "ORD" + _idComandaCounter;
         _idComandaCounter++;
-
+        // Create order with priority, add to repository, log and persist
         ProductionOrder comanda = manager.CreazaComanda(idComanda, masina, produs, cantitate, prioritate);
         _orderRepository.Add(comanda);
+        Logging.Log(idManager, $"Order created: {idComanda} ({produs}) qty={cantitate} priority={prioritate}");
+        SaveOrdersToFile();
     }
 
     public void ExecutaComanda(string idOperator, string idComanda, int unitati)
@@ -438,6 +582,9 @@ public class Factory
 
     public ProductionOrder GetNextPriorityOrder(string idOperator)
     {
+        // reload orders to make sure we consider persisted orders
+        LoadOrdersFromFile();
+
         Employee angajat = GasesteAngajat(idOperator);
         if (angajat == null)
             return null;

@@ -19,6 +19,8 @@ class Program
         }
 
         DateDemo();
+        // Load persisted orders from orders.txt if present
+        fabrica.LoadOrdersFromFile();
         fabrica.IncarcaMasini();
         fabrica.IncarcaProduse();
 
