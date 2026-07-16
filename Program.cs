@@ -19,6 +19,10 @@ class Program
         }
 
         DateDemo();
+        // Load persisted orders from orders.txt if present
+        fabrica.LoadOrdersFromFile();
+        fabrica.IncarcaMasini();
+        fabrica.IncarcaProduse();
 
         bool running = true;
         while (running)
@@ -60,7 +64,10 @@ class Program
             }
         }
 
-        Console.WriteLine(Messages.Goodbye);
+        Console.WriteLine("Good Bye!");
+        Console.WriteLine("Se salveaza masinile si produsele...");
+        fabrica.SalveazaMasini();
+        fabrica.SalveazaProduse();
     }
 
 
@@ -507,7 +514,7 @@ class Program
 
         Console.Write(Messages.AddPartPrompt);
         string raspuns = Console.ReadLine();
-        if (raspuns == "da")
+        if (raspuns == "yes")
         {
             Console.Write(Messages.PartNamePrompt);
             string numePiesa = Console.ReadLine();
@@ -517,7 +524,11 @@ class Program
         }
 
         if (fabrica.AdaugaMasina(masina))
-            Console.WriteLine(Messages.MachineAdded);
+        {
+            Console.WriteLine("Car added successfully!");
+            // Save immediately so added machines are persisted even if the program is closed unexpectedly
+            fabrica.SalveazaMasini();
+        }
     }
 
     static void ReparaMasina()
@@ -617,7 +628,11 @@ class Program
                 produs = new Frisbee(nume, productionCost, sellingPrice, cantitate, marime);
             }
             if (fabrica.AdaugaProdus(produs))
-                Console.WriteLine(Messages.ProductAdded);
+            {
+                Console.WriteLine("Product added successfully!");
+                // Persist products immediately
+                fabrica.SalveazaProduse();
+            }
         }
 
         static void VandeProdus()

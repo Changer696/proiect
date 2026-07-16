@@ -1,5 +1,7 @@
+using SmartFactorySimple;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 
@@ -38,6 +40,8 @@ public class EmployeeRepository : RepositoryWithId<Employee>
 
 public class MachineRepository : Repository<Machine>
 {
+    private readonly string MACHINES_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "machines.txt");
+
     public Machine FindBySerialNumber(string serialNumber)
     {
         return _items.FirstOrDefault(m => m.SerialNumber == serialNumber);
@@ -86,6 +90,134 @@ public class MachineRepository : Repository<Machine>
             machine.Afiseaza();
         }
     }
+
+    // ---------- SALVARE ----------
+
+    public bool SaveAllMachines()
+    {
+        try
+        {
+            var lines = _items.Select(SerializeMachine);
+            File.WriteAllLines(MACHINES_FILE, lines);
+            Console.WriteLine($"Saved {_items.Count} machines.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving machines: {ex.Message}");
+            return false;
+        }
+    }
+
+    private string SerializeMachine(Machine m)
+    {
+        string tip = m.GetType().Name;
+        string lastMaint = m.LastMaintenanceDate?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+
+        string pieseSerializate = string.Join("~", m.Piese.Take(m.NrPiese).Select(p =>
+            $"{p.Nume},{p.Tip},{p.EFunctionala},{p.DataInstalarii:yyyy-MM-dd HH:mm:ss}"));
+
+        return string.Join(";",
+            tip,
+            m.SerialNumber,
+            m.Nume,
+            m.Status,
+            m.Conditie,
+            m.DataFabricatiei.ToString("yyyy-MM-dd HH:mm:ss"),
+            m.ProductionCycles,
+            lastMaint,
+            pieseSerializate);
+    }
+
+    // ---------- INCARCARE ----------
+
+    public void LoadMachines()
+    {
+        Clear(); // golim ce era deja in _items, ca sa nu duplicam la reincarcare
+
+        if (!File.Exists(MACHINES_FILE))
+        {
+            Console.WriteLine($"Error: {MACHINES_FILE} not found.");
+            return;
+        }
+
+        string[] lines = File.ReadAllLines(MACHINES_FILE);
+
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                continue;
+
+            string[] parts = line.Split(';');
+            if (parts.Length != 9)
+            {
+                Console.WriteLine($"Warning: Invalid line format: {line}");
+                continue;
+            }
+
+            try
+            {
+                string tip = parts[0].Trim();
+                string serial = parts[1].Trim();
+                string nume = parts[2].Trim();
+                var status = Enum.Parse<MachineStatus>(parts[3].Trim());
+                var conditie = Enum.Parse<MachineCondition>(parts[4].Trim());
+                var dataFab = DateTime.Parse(parts[5].Trim());
+                int cicluri = int.Parse(parts[6].Trim());
+                DateTime? lastMaint = string.IsNullOrWhiteSpace(parts[7])
+                    ? null
+                    : DateTime.Parse(parts[7].Trim());
+                string pieseRaw = parts[8].Trim();
+
+                Machine masina = CreeazaMasina(tip, serial, nume, dataFab);
+                if (masina == null)
+                {
+                    Console.WriteLine($"Warning: Unknown machine type '{tip}'");
+                    continue;
+                }
+
+                masina.Status = status;
+                masina.Conditie = conditie;
+                masina.RestoreState(cicluri, lastMaint);
+
+                if (!string.IsNullOrWhiteSpace(pieseRaw))
+                {
+                    foreach (string piesaStr in pieseRaw.Split('~'))
+                    {
+                        string[] pp = piesaStr.Split(',');
+                        if (pp.Length != 4) continue;
+
+                        var piesa = new MachinePart(pp[0].Trim(), pp[1].Trim())
+                        {
+                            EFunctionala = bool.Parse(pp[2].Trim()),
+                            DataInstalarii = DateTime.Parse(pp[3].Trim())
+                        };
+                        masina.AdaugaPiesa(piesa);
+                    }
+                }
+
+                Add(masina);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Warning: Could not parse line '{line}': {ex.Message}");
+            }
+        }
+
+        Console.WriteLine($"Loaded {_items.Count} machines.");
+    }
+
+    // ---------- FACTORY ----------
+
+    private Machine CreeazaMasina(string tip, string serial, string nume, DateTime dataFab)
+    {
+        return tip switch
+        {
+            "SewingMachine" => new SewingMachine(serial, nume, dataFab),
+            "CuttingMachine" => new CuttingMachine(serial, nume, dataFab),
+            _ => null
+        };
+    }
 }
 
 
@@ -110,7 +242,6 @@ public class ProductRepository : Repository<Product>
         }
         return false;
     }
-
     public void DisplayAll()
     {
         if (_items.Count == 0)
@@ -124,6 +255,114 @@ public class ProductRepository : Repository<Product>
         {
             product.Afiseaza();
         }
+    }
+
+    private readonly string PRODUCTS_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "products.txt");
+
+    // ---------- SAVE / LOAD ----------
+
+    public bool SaveAllProducts()
+    {
+        try
+        {
+            var lines = _items.Select(SerializeProduct);
+            File.WriteAllLines(PRODUCTS_FILE, lines);
+            Console.WriteLine($"Saved {_items.Count} products.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving products: {ex.Message}");
+            return false;
+        }
+    }
+
+    private string SerializeProduct(Product p)
+    {
+        string tip = p.GetType().Name;
+        // marime is a common extra property for derived products; reflect if present
+        string marime = "";
+        var prop = p.GetType().GetField("Marime");
+        if (prop != null)
+        {
+            var val = prop.GetValue(p);
+            marime = val?.ToString() ?? "";
+        }
+
+        return string.Join(";",
+            tip,
+            p.Nume,
+            p.Category,
+            p.ProductionCost.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            p.SellingPrice.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            p.Cantitate,
+            marime);
+    }
+
+    public void LoadProducts()
+    {
+        Clear();
+
+        if (!File.Exists(PRODUCTS_FILE))
+        {
+            Console.WriteLine($"Info: {PRODUCTS_FILE} not found. No products loaded.");
+            return;
+        }
+
+        string[] lines = File.ReadAllLines(PRODUCTS_FILE);
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                continue;
+
+            string[] parts = line.Split(';');
+            if (parts.Length < 6)
+            {
+                Console.WriteLine($"Warning: Invalid product line: {line}");
+                continue;
+            }
+
+            try
+            {
+                string tip = parts[0].Trim();
+                string nume = parts[1].Trim();
+                var category = Enum.Parse<ProductCategory>(parts[2].Trim());
+                decimal productionCost = decimal.Parse(parts[3].Trim(), System.Globalization.CultureInfo.InvariantCulture);
+                decimal sellingPrice = decimal.Parse(parts[4].Trim(), System.Globalization.CultureInfo.InvariantCulture);
+                int cantitate = int.Parse(parts[5].Trim());
+                string marime = parts.Length >= 7 ? parts[6].Trim() : "";
+
+                Product produs = CreeazaProdus(tip, nume, productionCost, sellingPrice, cantitate, marime);
+                if (produs == null)
+                {
+                    Console.WriteLine($"Warning: Unknown product type '{tip}'");
+                    continue;
+                }
+
+                Add(produs);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Warning: Could not parse product line '{line}': {ex.Message}");
+            }
+        }
+
+        Console.WriteLine($"Loaded {_items.Count} products.");
+    }
+
+    private Product CreeazaProdus(string tip, string nume, decimal productionCost, decimal sellingPrice, int cantitate, string marime)
+    {
+        return tip switch
+        {
+            "WoodenCubes" => new WoodenCubes(nume, productionCost, sellingPrice, cantitate, marime),
+            "TedyBear" => new TedyBear(nume, productionCost, sellingPrice, cantitate, marime),
+            "Ball" => new Ball(nume, productionCost, sellingPrice, cantitate, marime),
+            "Doll" => new Doll(nume, productionCost, sellingPrice, cantitate, marime),
+            "Frisbee" => new Frisbee(nume, productionCost, sellingPrice, cantitate, marime),
+            _ => null
+        };
+
+
     }
 
     public List<Product> FindByCategory(ProductCategory category)

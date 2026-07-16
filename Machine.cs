@@ -113,6 +113,13 @@ public abstract class Machine
         ProductionCycles++;
     }
 
+
+      public void RestoreState(int productionCycles, DateTime? lastMaintenanceDate)
+    {
+        ProductionCycles = productionCycles;
+        LastMaintenanceDate = lastMaintenanceDate;
+    }
+
     public virtual void Start()
     {
         if (Status == MachineStatus.Maintenance)
