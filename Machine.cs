@@ -183,4 +183,71 @@ public abstract class Machine
                           " - Age: " + GetVarstaZile() + " zile" +
                           " - Pieces: " + NrPiese);
     }
+
+    public string ToDataLine()
+    {
+        string tip = GetType().Name;
+        string lastMaint = LastMaintenanceDate?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+
+        string pieseSerializate = string.Join("~", Piese.Take(NrPiese).Select(p =>
+            $"{p.Nume},{p.Tip},{p.EFunctionala},{p.DataInstalarii:yyyy-MM-dd HH:mm:ss}"));
+
+        return string.Join(";",
+            tip,
+            SerialNumber,
+            Nume,
+            Status,
+            Conditie,
+            DataFabricatiei.ToString("yyyy-MM-dd HH:mm:ss"),
+            ProductionCycles,
+            lastMaint,
+            pieseSerializate);
+    }
+
+    public static Machine FromDataLine(string line)
+    {
+        var parts = line.Split(';');
+        if (parts.Length != 9) throw new FormatException("Invalid machine line format");
+
+        string tip = parts[0].Trim();
+        string serial = parts[1].Trim();
+        string nume = parts[2].Trim();
+        var status = Enum.Parse<MachineStatus>(parts[3].Trim());
+        var conditie = Enum.Parse<MachineCondition>(parts[4].Trim());
+        var dataFab = DateTime.Parse(parts[5].Trim());
+        int cicluri = int.Parse(parts[6].Trim());
+        DateTime? lastMaint = string.IsNullOrWhiteSpace(parts[7]) ? null : DateTime.Parse(parts[7].Trim());
+        string pieseRaw = parts[8].Trim();
+
+        Machine masina = tip switch
+        {
+            "SewingMachine" => new SewingMachine(serial, nume, dataFab),
+            "CuttingMachine" => new CuttingMachine(serial, nume, dataFab),
+            _ => null
+        };
+
+        if (masina == null) return null;
+
+        masina.Status = status;
+        masina.Conditie = conditie;
+        masina.RestoreState(cicluri, lastMaint);
+
+        if (!string.IsNullOrWhiteSpace(pieseRaw))
+        {
+            foreach (string piesaStr in pieseRaw.Split('~'))
+            {
+                string[] pp = piesaStr.Split(',');
+                if (pp.Length != 4) continue;
+
+                var piesa = new MachinePart(pp[0].Trim(), pp[1].Trim())
+                {
+                    EFunctionala = bool.Parse(pp[2].Trim()),
+                    DataInstalarii = DateTime.Parse(pp[3].Trim())
+                };
+                masina.AdaugaPiesa(piesa);
+            }
+        }
+
+        return masina;
+    }
 }
