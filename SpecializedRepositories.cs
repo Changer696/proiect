@@ -40,7 +40,7 @@ public class EmployeeRepository : RepositoryWithId<Employee>
 
 public class MachineRepository : Repository<Machine>
 {
-    private readonly string MACHINES_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "machines.txt");
+    private string _machinesFilePath;
 
     public Machine FindBySerialNumber(string serialNumber)
     {
@@ -80,11 +80,11 @@ public class MachineRepository : Repository<Machine>
     {
         if (_items.Count == 0)
         {
-            Console.WriteLine("There are no machines!");
+            Console.WriteLine(Messages.NoMachinesMessage);
             return;
         }
 
-        Console.WriteLine("=== MACHINES ===");
+        Console.WriteLine(Messages.MachinesHeader);
         foreach (var machine in _items)
         {
             machine.Afiseaza();
@@ -93,12 +93,14 @@ public class MachineRepository : Repository<Machine>
 
     // ---------- SALVARE ----------
 
-    public bool SaveAllMachines()
+    public bool SaveAllMachines(string machinesFileName)
     {
+        _machinesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, machinesFileName);
+
         try
         {
             var lines = _items.Select(SerializeMachine);
-            File.WriteAllLines(MACHINES_FILE, lines);
+            File.WriteAllLines(_machinesFilePath, lines);
             Console.WriteLine($"Saved {_items.Count} machines.");
             return true;
         }
@@ -131,17 +133,18 @@ public class MachineRepository : Repository<Machine>
 
     // ---------- INCARCARE ----------
 
-    public void LoadMachines()
+    public void LoadMachines(string machinesFileName)
     {
+        _machinesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, machinesFileName);
         Clear(); // golim ce era deja in _items, ca sa nu duplicam la reincarcare
 
-        if (!File.Exists(MACHINES_FILE))
+        if (!File.Exists(_machinesFilePath))
         {
-            Console.WriteLine($"Error: {MACHINES_FILE} not found.");
+            Console.WriteLine($"Error: {_machinesFilePath} not found.");
             return;
         }
 
-        string[] lines = File.ReadAllLines(MACHINES_FILE);
+        string[] lines = File.ReadAllLines(_machinesFilePath);
 
         foreach (string line in lines)
         {
@@ -223,6 +226,8 @@ public class MachineRepository : Repository<Machine>
 
 public class ProductRepository : Repository<Product>
 {
+    private string _productsFilePath;
+
     public Product FindByName(string name)
     {
         return _items.FirstOrDefault(p => p.Nume == name);
@@ -246,27 +251,27 @@ public class ProductRepository : Repository<Product>
     {
         if (_items.Count == 0)
         {
-            Console.WriteLine("There are no products!");
+            Console.WriteLine(Messages.NoProductsMessage);
             return;
         }
 
-        Console.WriteLine("=== PRODUCTS ===");
+        Console.WriteLine(Messages.ProductsHeader);
         foreach (var product in _items)
         {
             product.Afiseaza();
         }
     }
 
-    private readonly string PRODUCTS_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "products.txt");
-
     // ---------- SAVE / LOAD ----------
 
-    public bool SaveAllProducts()
+    public bool SaveAllProducts(string productsFileName)
     {
+        _productsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, productsFileName);
+
         try
         {
             var lines = _items.Select(SerializeProduct);
-            File.WriteAllLines(PRODUCTS_FILE, lines);
+            File.WriteAllLines(_productsFilePath, lines);
             Console.WriteLine($"Saved {_items.Count} products.");
             return true;
         }
@@ -299,17 +304,18 @@ public class ProductRepository : Repository<Product>
             marime);
     }
 
-    public void LoadProducts()
+    public void LoadProducts(string productsFileName)
     {
+        _productsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, productsFileName);
         Clear();
 
-        if (!File.Exists(PRODUCTS_FILE))
+        if (!File.Exists(_productsFilePath))
         {
-            Console.WriteLine($"Info: {PRODUCTS_FILE} not found. No products loaded.");
+            Console.WriteLine($"Info: {_productsFilePath} not found. No products loaded.");
             return;
         }
 
-        string[] lines = File.ReadAllLines(PRODUCTS_FILE);
+        string[] lines = File.ReadAllLines(_productsFilePath);
         foreach (string line in lines)
         {
             if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
@@ -386,11 +392,11 @@ public class ProductionOrderRepository : RepositoryWithId<ProductionOrder>
     {
         if (_items.Count == 0)
         {
-            Console.WriteLine("There are no orders!");
+            Console.WriteLine(Messages.NoOrdersAvailable);
             return;
         }
 
-        Console.WriteLine("=== ORDERS ===");
+        Console.WriteLine(Messages.OrdersHeader);
         foreach (var order in _items)
         {
             order.Afiseaza();

@@ -14,6 +14,11 @@ namespace SmartFactorySimple
        
         public static string FilePath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), DefaultFileName);
 
+        public static void ConfigureFilePath(string fileName)
+        {
+            FilePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+        }
+
        
         public static void Log(string username, string description)
         {

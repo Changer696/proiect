@@ -6,7 +6,7 @@ using SmartFactorySimple;
 
 public class Login
 {
-    private readonly string CREDENTIALS_FILE;
+    private readonly string _credentialsFileName;
     private readonly Dictionary<string, EmployeeCredential> credentials = [];
 
     public class EmployeeCredential
@@ -17,10 +17,9 @@ public class Login
         public string Role { get; set; }
     }
 
-    public Login()
+    public Login(string credentialsFileName)
     {
-        // Set credentials file path in the project directory
-        CREDENTIALS_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "employees.txt");
+        _credentialsFileName = credentialsFileName;
         LoadCredentials();
     }
 
@@ -29,14 +28,15 @@ public class Login
     {
         try
         {
-            if (!File.Exists(CREDENTIALS_FILE))
+            string credentialsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _credentialsFileName);
+            if (!File.Exists(credentialsPath))
             {
-                Console.WriteLine($"Error: {CREDENTIALS_FILE} not found. Please ensure the file exists.");
+                Console.WriteLine($"Error: {credentialsPath} not found. Please ensure the file exists.");
                 return;
             }
 
             credentials.Clear();
-            string[] lines = File.ReadAllLines(CREDENTIALS_FILE);
+            string[] lines = File.ReadAllLines(credentialsPath);
 
             foreach (string line in lines)
             {
@@ -158,7 +158,8 @@ public class Login
             string credentialLine = $"{employeeId};{username};{password};{role}";
             
             // Append to file
-            File.AppendAllText(CREDENTIALS_FILE, credentialLine + Environment.NewLine);
+            string credentialsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _credentialsFileName);
+            File.AppendAllText(credentialsPath, credentialLine + Environment.NewLine);
             
             // Update in-memory dictionary
             var credential = new EmployeeCredential
