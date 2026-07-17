@@ -15,6 +15,8 @@ public abstract class Machine
 
     public MachinePart[] Piese;
     public int NrPiese;
+    // When false, the machine will not randomly break parts during production.
+    public bool AllowPartFailures { get; set; }
 
     protected Machine(string serialNumber, string nume, DateTime dataFabricatiei)
     {
@@ -25,6 +27,7 @@ public abstract class Machine
         Conditie = MachineCondition.Good;
         Piese = new MachinePart[10];
         NrPiese = 0;
+        AllowPartFailures = true;
     }
 
     // Adds a part to the machine's part array.
@@ -49,8 +52,9 @@ public abstract class Machine
         {
             Console.WriteLine("There are no existing parts");
         }
+         if (!AllowPartFailures) return;
          int sansa = _random.Next(1,101);
-         if(sansa <= 20)
+         if (sansa <= 20)
         {
             int index = _random.Next(NrPiese);
             if (Piese[index].EFunctionala)

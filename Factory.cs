@@ -13,6 +13,7 @@ public class Factory
     private MachineRepository _machineRepository = new MachineRepository();
     private ProductRepository _productRepository = new ProductRepository();
     private ProductionOrderRepository _orderRepository = new ProductionOrderRepository();
+    private System.Collections.Generic.List<PrimeMaterial> _primeMaterials = new System.Collections.Generic.List<PrimeMaterial>();
 
     private int _idComandaCounter = 1;
     private decimal _totalRevenue = 0;
@@ -35,6 +36,40 @@ public class Factory
     {
         Nume = nume;
         _ordersFileName = ordersFileName;
+    }
+
+    // Adds or increases a prime material stock by name.
+    public void AdaugaMateriePrima(string name, int cantitate)
+    {
+        if (string.IsNullOrWhiteSpace(name) || cantitate <= 0) return;
+        var m = GasesteMateriePrima(name);
+        if (m == null)
+        {
+            _primeMaterials.Add(new PrimeMaterial(name, cantitate));
+        }
+        else
+        {
+            m.AddStock(cantitate);
+        }
+    }
+
+    // Finds a prime material by name.
+    public PrimeMaterial GasesteMateriePrima(string name)
+    {
+        return _primeMaterials.FirstOrDefault(pm => string.Equals(pm.Name, name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    // Displays all prime materials and their quantities.
+    public void AfiseazaMateriiPrime()
+    {
+        if (!_primeMaterials.Any())
+        {
+            Console.WriteLine("No prime materials available.");
+            return;
+        }
+        Console.WriteLine("=== PRIME MATERIALS ===");
+        foreach (var m in _primeMaterials)
+            Console.WriteLine($"{m.Name}: {m.Quantity}");
     }
 
     // File where orders are persisted. Search for the requested file name in app base dir and up to 4 parent folders.
@@ -427,12 +462,74 @@ public class Factory
             return;
         }
 
-        op.Opereaza(comanda.Masina);
+        // Ensure machine is running before production
+        if (comanda.Masina.Status != MachineStatus.Running)
+        {
+            // attempt to operate (this may start the machine)
+            op.Opereaza(comanda.Masina);
+        }
 
         if (comanda.Masina.Status == MachineStatus.Running)
         {
-            comanda.InregistreazaProductie(unitati);
-            Logging.Log(idOperator, $"Produced {unitati} units for order {idComanda} ({comanda.NumeProdus})");
+            Product produs = GasesteProdus(comanda.NumeProdus);
+            if (produs == null)
+            {
+                Console.WriteLine(Messages.ProductNotFoundGeneric);
+                return;
+            }
+
+            var recipe = produs.PrimeMaterialRecipe ?? new System.Collections.Generic.Dictionary<string,int>();
+            if (recipe.Count > produs.MaxPrimeMaterialTypes)
+            {
+                Console.WriteLine($"Warning: product recipe contains more than {produs.MaxPrimeMaterialTypes} prime material types. Excess types will be ignored.");
+            }
+
+            int allowedTypes = Math.Min(3, recipe.Count);
+            var allowedMaterials = recipe.Keys.Take(allowedTypes).ToList();
+
+            int producedUnits = 0;
+
+            for (int i = 0; i < unitati; i++)
+            {
+                if (comanda.Masina.Status != MachineStatus.Running) break;
+
+                // Check availability for this unit for the allowed materials
+                bool canProduceUnit = true;
+                foreach (var mat in allowedMaterials)
+                {
+                    int need = recipe[mat];
+                    var pm = GasesteMateriePrima(mat);
+                    if (pm == null || pm.Quantity < need)
+                    {
+                        canProduceUnit = false;
+                        break;
+                    }
+                }
+
+                if (!canProduceUnit)
+                {
+                    Console.WriteLine("Stopped production due to insufficient prime materials.");
+                    break;
+                }
+
+                // consume materials for this unit
+                foreach (var mat in allowedMaterials)
+                {
+                    int need = recipe[mat];
+                    var pm = GasesteMateriePrima(mat);
+                    pm.Consume(need);
+                }
+
+                // run production cycle
+                comanda.Masina.Produce();
+                producedUnits++;
+            }
+
+            if (producedUnits > 0)
+            {
+                comanda.InregistreazaProductie(producedUnits);
+                Logging.Log(idOperator, $"Produced {producedUnits} units for order {idComanda} ({comanda.NumeProdus})");
+            }
         }
     }
 
@@ -668,6 +765,47 @@ public class Factory
     public void SalveazaProduse(string productsFileName)
     {
         _productRepository.SaveAllProducts(productsFileName);
+    }
+
+    // Saves prime materials to a simple text file (Name;Quantity per line).
+    public bool SalveazaMateriiPrime(string primeFileName)
+    {
+        try
+        {
+            var path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, primeFileName);
+            var lines = _primeMaterials.Select(pm => pm.Name + ";" + pm.Quantity);
+            System.IO.File.WriteAllLines(path, lines);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(Messages.SaveFailed("prime materials", ex));
+            return false;
+        }
+    }
+
+    // Loads prime materials from file, clearing existing list.
+    public void IncarcaMateriiPrime(string primeFileName)
+    {
+        try
+        {
+            var path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, primeFileName);
+            _primeMaterials.Clear();
+            if (!System.IO.File.Exists(path)) return;
+            var lines = System.IO.File.ReadAllLines(path).Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith("#"));
+            foreach (var line in lines)
+            {
+                var parts = line.Split(';');
+                if (parts.Length < 2) continue;
+                string name = parts[0].Trim();
+                if (!int.TryParse(parts[1].Trim(), out int qty)) qty = 0;
+                if (qty > 0) _primeMaterials.Add(new PrimeMaterial(name, qty));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(Messages.SaveFailed("prime materials", ex));
+        }
     }
 
     // Displays predictive maintenance information for machines within the given window.
@@ -942,6 +1080,60 @@ public class Factory
         else prioritate = Priority.Medium;
 
         CreazaComanda(idManager, serial, produs, cantitate, prioritate);
+    }
+
+    // Interactive flow to add prime material stock.
+    public void InteractiveAddPrimeMaterial()
+    {
+        Console.Write(Messages.NamePrompt);
+        string name = Console.ReadLine();
+        Console.Write(Messages.AmountToAddPrompt ?? "Amount: ");
+        if (!int.TryParse(Console.ReadLine(), out int qty) || qty <= 0)
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+        AdaugaMateriePrima(name, qty);
+        Console.WriteLine($"Prime material {name} +{qty} added.");
+    }
+
+    // Interactive flow to edit a product's prime-material recipe.
+    public void InteractiveEditProductRecipe()
+    {
+        AfiseazaProduse();
+        Console.Write(Messages.ProductToManufacturePrompt);
+        string prodName = Console.ReadLine();
+        var produs = GasesteProdus(prodName);
+        if (produs == null)
+        {
+            Console.WriteLine(Messages.ProductNotFoundGeneric);
+            return;
+        }
+
+        Console.WriteLine($"Editing recipe for {produs.Nume}. Max types: {produs.MaxPrimeMaterialTypes}");
+        var recipe = new System.Collections.Generic.Dictionary<string,int>();
+        while (true)
+        {
+            Console.Write("Material name (or empty to finish): ");
+            var name = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(name)) break;
+            Console.Write("Amount per unit: ");
+            if (!int.TryParse(Console.ReadLine(), out int amt) || amt <= 0)
+            {
+                Console.WriteLine(Messages.InvalidOption);
+                continue;
+            }
+            recipe[name] = amt;
+            if (recipe.Count >= produs.MaxPrimeMaterialTypes)
+            {
+                Console.WriteLine($"Reached max allowed types ({produs.MaxPrimeMaterialTypes}).");
+                break;
+            }
+        }
+        if (!produs.SetPrimeMaterialRecipe(recipe))
+            Console.WriteLine("Failed to set recipe: too many material types.");
+        else
+            Console.WriteLine("Recipe updated.");
     }
 
     // Interactive console flow to execute a chosen production order.

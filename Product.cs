@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using SmartFactorySimple;
 public abstract class Product
 {
@@ -34,6 +35,11 @@ public abstract class Product
     }
     public string Nume { get; set; }
     public ProductCategory Category { get; set; }
+    // Maximum distinct prime material types that producing this product may consume during a single execution.
+    // Default is 5 as per requirement.
+    public int MaxPrimeMaterialTypes { get; set; } = 5;
+    // Recipe of prime materials required per unit: material name -> amount per unit.
+    public System.Collections.Generic.Dictionary<string,int> PrimeMaterialRecipe { get; private set; } = new System.Collections.Generic.Dictionary<string,int>();
     
     protected Product(string nume, ProductCategory category, decimal productionCost, decimal sellingPrice, int cantitate)
     {
@@ -70,6 +76,27 @@ public abstract class Product
     public virtual void Afiseaza()
     {
         Console.WriteLine(Messages.ProductDisplay(GetDescription(), ProductionCost, SellingPrice, Cantitate));
+        if (PrimeMaterialRecipe != null && PrimeMaterialRecipe.Count > 0)
+        {
+            Console.WriteLine("  Prime materials:");
+            foreach (var kv in PrimeMaterialRecipe)
+            {
+                Console.WriteLine($"   - {kv.Key}: {kv.Value} per unit");
+            }
+        }
+    }
+
+    // Sets the recipe for this product. Validates the max number of distinct material types.
+    public bool SetPrimeMaterialRecipe(System.Collections.Generic.Dictionary<string,int> recipe)
+    {
+        if (recipe == null)
+        {
+            PrimeMaterialRecipe.Clear();
+            return true;
+        }
+        if (recipe.Count > MaxPrimeMaterialTypes) return false;
+        PrimeMaterialRecipe = new System.Collections.Generic.Dictionary<string,int>(recipe);
+        return true;
     }
 
     // Serializes the product to a semicolon-separated data line for persistence.
@@ -85,6 +112,13 @@ public abstract class Product
             marime = val?.ToString() ?? "";
         }
 
+        // serialize recipe as "mat=qty|mat2=qty2"
+        string recipeSerialized = "";
+        if (PrimeMaterialRecipe != null && PrimeMaterialRecipe.Count > 0)
+        {
+            recipeSerialized = string.Join("|", PrimeMaterialRecipe.Select(kv => kv.Key + "=" + kv.Value));
+        }
+
         return string.Join(";",
             tip,
             Nume,
@@ -92,7 +126,9 @@ public abstract class Product
             ProductionCost.ToString(System.Globalization.CultureInfo.InvariantCulture),
             SellingPrice.ToString(System.Globalization.CultureInfo.InvariantCulture),
             Cantitate,
-            marime);
+            marime,
+            MaxPrimeMaterialTypes,
+            recipeSerialized);
     }
 
     // Deserializes a product from a data line and returns the appropriate derived product.
@@ -108,6 +144,8 @@ public abstract class Product
         decimal sellingPrice = decimal.Parse(parts[4].Trim(), System.Globalization.CultureInfo.InvariantCulture);
         int cantitate = int.Parse(parts[5].Trim());
         string marime = parts.Length >= 7 ? parts[6].Trim() : "";
+        int maxTypes = parts.Length >= 8 && int.TryParse(parts[7].Trim(), out var mt) ? mt : 5;
+        string recipeSerialized = parts.Length >= 9 ? parts[8].Trim() : "";
 
         Product produs = tip switch
         {
@@ -118,6 +156,22 @@ public abstract class Product
             "Frisbee" => new Frisbee(nume, productionCost, sellingPrice, cantitate, marime),
             _ => null
         };
+
+        if (produs != null)
+        {
+            produs.MaxPrimeMaterialTypes = maxTypes;
+            if (!string.IsNullOrWhiteSpace(recipeSerialized))
+            {
+                var dict = new System.Collections.Generic.Dictionary<string,int>();
+                foreach (var entry in recipeSerialized.Split('|'))
+                {
+                    var kv = entry.Split('=');
+                    if (kv.Length != 2) continue;
+                    if (int.TryParse(kv[1], out int v)) dict[kv[0]] = v;
+                }
+                produs.SetPrimeMaterialRecipe(dict);
+            }
+        }
 
         return produs;
     }

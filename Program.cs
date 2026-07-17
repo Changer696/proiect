@@ -28,10 +28,11 @@ class Program
         }
 
         DateDemo();
-        // Load persisted orders from orders.txt if present
+        // Load persisted orders, machines, products and prime materials if present
         fabrica.LoadOrdersFromFile(OrdersFileName);
         fabrica.IncarcaMasini(MachinesFileName);
         fabrica.IncarcaProduse(ProductsFileName);
+        fabrica.IncarcaMateriiPrime("prime_materials.txt");
 
         bool running = true;
         while (running)
@@ -77,6 +78,7 @@ class Program
         Console.WriteLine(Messages.SavingData);
         fabrica.SalveazaMasini(MachinesFileName);
         fabrica.SalveazaProduse(ProductsFileName);
+        fabrica.SalveazaMateriiPrime("prime_materials.txt");
     }
 
 
@@ -480,6 +482,26 @@ class Program
             fabrica.AfiseazaDashboardEficienta();
         else if (alegere == "6")
             fabrica.AfiseazaAlerteInventar();
+        else if (alegere == "7")
+            MeniuMateriiPrime();
+    }
+
+    // Submenu for managing prime materials and product recipes.
+    static void MeniuMateriiPrime()
+    {
+        while (true)
+        {
+            Console.WriteLine(Messages.PrimeMaterialsMenu);
+            Console.Write(Messages.Choose);
+            string alegere = Console.ReadLine();
+            if (alegere == "0") break;
+            if (alegere == "1") fabrica.InteractiveAddPrimeMaterial();
+            else if (alegere == "2") fabrica.AfiseazaMateriiPrime();
+            else if (alegere == "3") fabrica.InteractiveEditProductRecipe();
+            else if (alegere == "4") fabrica.SalveazaMateriiPrime("prime_materials.txt");
+            else if (alegere == "5") fabrica.IncarcaMateriiPrime("prime_materials.txt");
+            else Console.WriteLine(Messages.InvalidOption);
+        }
     }
 
     // Triggers the interactive add-stock flow via Factory.
@@ -580,6 +602,29 @@ class Program
             fabrica.AdaugaProdus(new TedyBear("Barnie", 20, 60, 15, "M"));
             fabrica.AdaugaProdus(new Ball("Football", 13, 50, 5, "Normal"));
             fabrica.AdaugaProdus(new Frisbee("OZN", 10, 25, 7, "S"));
+
+            // Demo prime materials stock
+            fabrica.AdaugaMateriePrima("Wood", 200);
+            fabrica.AdaugaMateriePrima("Stuffing", 150);
+            fabrica.AdaugaMateriePrima("Thread", 500);
+            fabrica.AdaugaMateriePrima("Plastic", 300);
+            fabrica.AdaugaMateriePrima("Rubber", 100);
+
+            // Demo recipes (amount per unit)
+            var wc = fabrica.GasesteProdus("MagicBlocks");
+            wc?.SetPrimeMaterialRecipe(new System.Collections.Generic.Dictionary<string,int>{{"Wood",3}});
+
+            var doll = fabrica.GasesteProdus("Barbie");
+            doll?.SetPrimeMaterialRecipe(new System.Collections.Generic.Dictionary<string,int>{{"Plastic",2},{"Thread",1}});
+
+            var teddy = fabrica.GasesteProdus("Barnie");
+            teddy?.SetPrimeMaterialRecipe(new System.Collections.Generic.Dictionary<string,int>{{"Stuffing",2},{"Thread",1}});
+
+            var ball = fabrica.GasesteProdus("Football");
+            ball?.SetPrimeMaterialRecipe(new System.Collections.Generic.Dictionary<string,int>{{"Rubber",2},{"Thread",1}});
+
+            var fr = fabrica.GasesteProdus("OZN");
+            fr?.SetPrimeMaterialRecipe(new System.Collections.Generic.Dictionary<string,int>{{"Plastic",2}});
 
             Console.WriteLine(Messages.DemoLoaded);
             Console.ReadLine();
