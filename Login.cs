@@ -140,6 +140,30 @@ public class Login
         return null;
     }
 
+    public EmployeeCredential Reauthenticate(EmployeeCredential current)
+    {
+        if (current != null)
+        {
+            Logging.Log(current.Username, "User logged out");
+        }
+
+        return LoginWithAttempts(3);
+    }
+
+    public bool LogoutAndReauthenticate(ref EmployeeCredential current)
+    {
+        Console.WriteLine(Messages.LoggingOut);
+        current = Reauthenticate(current);
+        if (current == null)
+        {
+            Console.WriteLine(Messages.AuthenticationFailed);
+            return false;
+        }
+
+        Console.WriteLine(Messages.SuccessfullyLoggedIn(current.Username, current.Role));
+        return true;
+    }
+
    
     public bool SaveEmployeeCredential(string employeeId, string username, string password, string role)
     {

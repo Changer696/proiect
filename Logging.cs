@@ -74,6 +74,21 @@ namespace SmartFactorySimple
             return _stack.GetAll().ToArray();
         }
 
+        public static void DisplayLogs()
+        {
+            Console.WriteLine(Messages.OperationHistoryTitle);
+            string[] entries = GetAllEntries();
+            if (entries.Length == 0)
+            {
+                Console.WriteLine(Messages.NoOperationLogs);
+            }
+            else
+            {
+                entries.ToList().ForEach(e => Console.WriteLine(e));
+            }
+            Console.WriteLine(Messages.OperationHistoryEnd);
+        }
+
        
         
     }

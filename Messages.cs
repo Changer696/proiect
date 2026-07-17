@@ -157,6 +157,11 @@ public static class Messages
     public static string SaleImpact(string productName, decimal change) => $"Sale impact: {productName} price increased by {change:+0.00;-0.00;0.00}%";
     public static string StockPriceLine(string productName, decimal price, int stock) => $"{productName}: {price:F2} RON (stock: {stock})";
     public static string CompanyPublicAnnouncement(decimal percentage, int shares, decimal sharePrice) => $"The company is now public: {percentage}% made public, {shares} shares at {sharePrice} RON each.";
+    public const string SharePriceTitle = "\n=== SHARE PRICE ===";
+    public static string SharePriceLine(decimal price, decimal change) => $"Share price: {price:F2} RON (change: {change:+0.00;-0.00;0.00}%)";
+    public const string CompanyNotPublic = "Company is private. No share price available.";
+    public const string CompanyAlreadyPublicMenuLine = "8. Company already public";
+    public const string CompanyAlreadyPublicMessage = "Company is already public.";
     public static string NewStockAdded(string productName, int quantity) => $"New stock added: {productName} + {quantity} pieces";
     public static string SaleRecorded(int quantity, string productName, decimal saleAmount) => $"Sale recorded: {quantity}x {productName} = {saleAmount} RON";
     public static string NoMaintenanceInNextDays(int daysAhead) => $"No machines require maintenance in the next {daysAhead} days.";

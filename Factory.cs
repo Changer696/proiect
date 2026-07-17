@@ -22,6 +22,7 @@ public class Factory
     private decimal _companyPublicPercentage = 0;
     private int _companyShares = 0;
     private decimal _sharePrice = 0;
+    private decimal _lastShareChange = 0;
 
     public bool IsCompanyPublic => _companyPublic;
     public decimal CompanyPublicPercentage => _companyPublicPercentage;
@@ -241,6 +242,12 @@ public class Factory
 
     public void AplicaFluctuatiePreturiMeniu()
     {
+        // Only apply and show market-wide fluctuations when the company is public
+        if (!_companyPublic)
+        {
+            return;
+        }
+
         decimal schimbare = (decimal)(_random.Next(-200, 201)) / 100m;
         ModificaPreturi(schimbare);
         Console.WriteLine(Messages.MarketUpdate(schimbare));
@@ -269,27 +276,42 @@ public class Factory
         var produse = produsSpecific == null
             ? _productRepository.GetAll()
             : new List<Product> { produsSpecific };
+        produse.Where(produs => produs != null)
+               .ToList()
+               .ForEach(produs =>
+               {
+                   decimal noulPret = produs.SellingPrice * (1 + procent / 100m);
+                   produs.SellingPrice = Math.Round(noulPret, 2);
+               });
 
-            produse.Where(produs => produs != null)
-                   .ToList()
-                   .ForEach(produs =>
-                   {
-                       decimal noulPret = produs.SellingPrice * (1 + procent / 100m);
-                       produs.SellingPrice = Math.Round(noulPret, 2);
-                   });
+        // if the company is public, adjust share price by the same percentage and record the change
+        if (_companyPublic)
+        {
+            decimal newSharePrice = Math.Round(_sharePrice * (1 + procent / 100m), 2);
+            _lastShareChange = procent;
+            _sharePrice = newSharePrice;
+        }
     }
 
     public void AfiseazaPreturiStoc()
     {
         var produse = _productRepository.GetAll();
-            if (!produse.Any())
+        if (!produse.Any())
         {
             Console.WriteLine(Messages.NoProductsAvailable);
             return;
         }
 
-        Console.WriteLine(Messages.StockPricesTitle);
-        produse.ForEach(produs => Console.WriteLine(Messages.StockPriceLine(produs.Nume, produs.SellingPrice, produs.Cantitate)));
+        // Show share price and last change instead of individual product stock prices
+        Console.WriteLine(Messages.SharePriceTitle);
+        if (_companyPublic)
+        {
+            Console.WriteLine(Messages.SharePriceLine(_sharePrice, _lastShareChange));
+        }
+        else
+        {
+            Console.WriteLine(Messages.CompanyNotPublic);
+        }
         Console.WriteLine(string.Empty);
     }
 
@@ -482,18 +504,13 @@ public class Factory
 
     public bool MakeCompanyPublic(string directorId, decimal percentagePublic, int shares, decimal sharePrice)
     {
-        Employee angajat = GasesteAngajat(directorId);
-        if (angajat == null)
+        if (_companyPublic)
         {
-            Console.WriteLine(Messages.EmployeeDoesNotExistGeneric);
+            Console.WriteLine(Messages.CompanyAlreadyPublicMessage);
             return false;
         }
-
-        if (angajat.Rol != EmployeeRole.Director)
-        {
-            Console.WriteLine(angajat.Nume + " is not the Director!");
-            return false;
-        }
+        // The caller (UI) should ensure the caller is the Director; avoid requiring the Employee object
+        // to exist in the in-memory repository because credentials and employee records may be stored separately.
 
         if (percentagePublic <= 0 || percentagePublic > 100)
         {
@@ -621,6 +638,335 @@ public class Factory
 
         machines.ForEach(machine => Console.WriteLine(
             $"{machine.SerialNumber} - {machine.Nume}: maintenance due in {machine.EstimateDaysUntilMaintenance()} day(s)."));
+    }
+
+    
+    public void InteractiveAddMachine(string machinesFileName)
+    {
+        Console.Write(Messages.SerialNumberPrompt);
+        string serial = Console.ReadLine();
+        Console.Write(Messages.NamePrompt);
+        string nume = Console.ReadLine();
+
+        Console.WriteLine(Messages.MachineTypesMenu);
+        Console.Write(Messages.Choose);
+        string tip = Console.ReadLine();
+
+        Machine masina = null;
+
+        if (tip == "1")
+            masina = new SewingMachine(serial, nume, DateTime.Now);
+        else if (tip == "2")
+            masina = new CuttingMachine(serial, nume, DateTime.Now);
+        else
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        Console.Write(Messages.AddPartPrompt);
+        string raspuns = Console.ReadLine();
+        if (raspuns == "yes")
+        {
+            Console.Write(Messages.PartNamePrompt);
+            string numePiesa = Console.ReadLine();
+            Console.Write(Messages.PartTypePrompt);
+            string tipPiesa = Console.ReadLine();
+            masina.AdaugaPiesa(new MachinePart(numePiesa, tipPiesa));
+        }
+
+        if (AdaugaMasina(masina))
+        {
+            Console.WriteLine(Messages.MachineAdded);
+            SalveazaMasini(machinesFileName);
+        }
+    }
+
+    public void InteractiveRepairMachine()
+    {
+        AfiseazaAngajati();
+        Console.Write(Messages.TechnicianIdPrompt);
+        string idTeh = Console.ReadLine();
+        Console.Write(Messages.EngineerIdPrompt);
+        string idEng = Console.ReadLine();
+
+        AfiseazaMasini();
+        Console.Write(Messages.MachineSerialPrompt);
+        string serial = Console.ReadLine();
+
+        ReparaMasina(idTeh, idEng, serial);
+    }
+
+    public void InteractiveAddProduct(string productsFileName)
+    {
+        Console.Write(Messages.NamePrompt);
+        string nume = Console.ReadLine();
+        Console.Write(Messages.ProductionCostPrompt);
+        if (!decimal.TryParse(Console.ReadLine(), out decimal productionCost))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+        Console.Write(Messages.SellingPricePrompt);
+        if (!decimal.TryParse(Console.ReadLine(), out decimal sellingPrice))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+        Console.Write(Messages.InitialQuantityPrompt);
+        if (!int.TryParse(Console.ReadLine(), out int cantitate))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        Console.WriteLine(Messages.ProductTypesMenu);
+        Console.Write(Messages.Choose);
+        string tip = Console.ReadLine();
+
+        Product produs = null;
+
+        if (tip == "1")
+        {
+            Console.Write(Messages.SizePrompt);
+            string marime = Console.ReadLine();
+            produs = new WoodenCubes(nume, productionCost, sellingPrice, cantitate, marime);
+        }
+        else if (tip == "2")
+        {
+            Console.Write(Messages.SizePrompt);
+            string marime = Console.ReadLine();
+            produs = new Doll(nume, productionCost, sellingPrice, cantitate, marime);
+        }
+        else if (tip == "3")
+        {
+            Console.Write(Messages.SizePrompt);
+            string marime = Console.ReadLine();
+            produs = new TedyBear(nume, productionCost, sellingPrice, cantitate, marime);
+        }
+        else if (tip == "4")
+        {
+            Console.Write(Messages.SizePrompt);
+            string marime = Console.ReadLine();
+            produs = new Ball(nume, productionCost, sellingPrice, cantitate, marime);
+        }
+        else if (tip == "5")
+        {
+            Console.Write(Messages.SizePrompt);
+            string marime = Console.ReadLine();
+            produs = new Frisbee(nume, productionCost, sellingPrice, cantitate, marime);
+        }
+
+        if (produs == null)
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        if (AdaugaProdus(produs))
+        {
+            Console.WriteLine(Messages.ProductAdded);
+            SalveazaProduse(productsFileName);
+        }
+    }
+
+    public void InteractiveAddStock()
+    {
+        AfiseazaProduse();
+        Console.Write(Messages.ProductNamePrompt);
+        string nume = Console.ReadLine();
+
+        Console.Write(Messages.AmountToAddPrompt);
+        if (!int.TryParse(Console.ReadLine(), out int cantitate))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        AdaugaStocProduse(nume, cantitate);
+    }
+
+    public void InteractiveSellProduct()
+    {
+        AfiseazaAngajati();
+        Console.Write(Messages.SalesAgentIdPrompt);
+        string idAgent = Console.ReadLine();
+
+        AfiseazaProduse();
+        Console.Write(Messages.ProductToSellPrompt);
+        string numeProdus = Console.ReadLine();
+
+        Console.Write(Messages.SellingQuantityPrompt);
+        if (!int.TryParse(Console.ReadLine(), out int cantitate))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        VindeProdus(idAgent, numeProdus, cantitate);
+    }
+
+    public void InteractiveAddEmployee(string employeesFileName, Login loginManager)
+    {
+        Console.Write(Messages.IdPrompt);
+        string id = Console.ReadLine();
+        if (EmployeeIdExists(id))
+        {
+            Console.WriteLine(Messages.EmployeeIdAlreadyExists(id));
+            return;
+        }
+
+        Console.Write(Messages.NamePrompt);
+        string nume = Console.ReadLine();
+        Console.Write(Messages.SalaryPrompt);
+        if (!decimal.TryParse(Console.ReadLine(), out decimal salariu))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        Console.WriteLine(Messages.EmployeeTypesMenu);
+        Console.Write(Messages.Choose);
+        string tip = Console.ReadLine();
+
+        Employee angajat = null;
+        string role = null;
+
+        if (tip == "1") { angajat = new Director(id, nume, salariu, DateTime.Now); role = "Director"; }
+        else if (tip == "2") { angajat = new ProductionManager(id, nume, salariu, DateTime.Now); role = "ProductionManager"; }
+        else if (tip == "3") { angajat = new Engineer(id, nume, salariu, DateTime.Now); role = "Engineer"; }
+        else if (tip == "4") { angajat = new Technician(id, nume, salariu, DateTime.Now); role = "Technician"; }
+        else if (tip == "5") { angajat = new MachineOperator(id, nume, salariu, DateTime.Now); role = "MachineOperator"; }
+        else if (tip == "6") { angajat = new SalesAgent(id, nume, salariu, DateTime.Now); role = "SalesAgent"; }
+        else { Console.WriteLine(Messages.InvalidUser); return; }
+
+        // Ask for login credentials
+        Console.Write(Messages.UsernameForLoginPrompt);
+        string username = Console.ReadLine();
+        Console.Write(Messages.PasswordForLoginPrompt);
+        string password = Console.ReadLine();
+
+        if (AdaugaAngajat(angajat))
+        {
+            if (loginManager.SaveEmployeeCredential(id, username, password, role))
+            {
+                Console.WriteLine(Messages.EmployeeAdded);
+            }
+            else
+            {
+                Console.WriteLine(Messages.EmployeeAddedCredentialsFailed);
+            }
+        }
+    }
+
+    public void InteractiveCreateOrder()
+    {
+        AfiseazaAngajati();
+        Console.Write(Messages.ProductionManagerIdPrompt);
+        string idManager = Console.ReadLine();
+
+        AfiseazaMasini();
+        Console.Write(Messages.MachineForOrderPrompt);
+        string serial = Console.ReadLine();
+
+        Console.Write(Messages.ProductToManufacturePrompt);
+        string produs = Console.ReadLine();
+
+        Console.Write(Messages.TargetAmountPrompt);
+        if (!int.TryParse(Console.ReadLine(), out int cantitate))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        Console.WriteLine(Messages.PriorityMenu);
+        Console.Write(Messages.Choose);
+        string prio = Console.ReadLine();
+
+        Priority prioritate;
+        if (prio == "1") prioritate = Priority.Low;
+        else if (prio == "3") prioritate = Priority.High;
+        else prioritate = Priority.Medium;
+
+        CreazaComanda(idManager, serial, produs, cantitate, prioritate);
+    }
+
+    public void InteractiveExecuteOrder()
+    {
+        AfiseazaAngajati();
+        Console.Write(Messages.MachineOperatorIdPrompt);
+        string idOp = Console.ReadLine();
+
+        AfiseazaComenzi();
+        Console.Write(Messages.OrderIdPrompt);
+        string idComanda = Console.ReadLine();
+
+        Console.Write(Messages.UnitsToProducePrompt);
+        if (!int.TryParse(Console.ReadLine(), out int unitati))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        ExecutaComanda(idOp, idComanda, unitati);
+    }
+
+    public void InteractiveExecuteNextPriority()
+    {
+        AfiseazaAngajati();
+        Console.Write(Messages.MachineOperatorIdPrompt);
+        string idOp = Console.ReadLine();
+
+        ProductionOrder nextOrder = GetNextPriorityOrder(idOp);
+        if (nextOrder == null)
+        {
+            Console.WriteLine(Messages.NoActiveOrder);
+            return;
+        }
+
+        Console.WriteLine(Messages.NextPriorityOrder);
+        nextOrder.Afiseaza();
+
+        Console.Write(Messages.PriorityUnitsPrompt);
+        if (!int.TryParse(Console.ReadLine(), out int unitati))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+
+        ExecutaComanda(idOp, nextOrder.Id, unitati);
+    }
+
+    public void InteractiveMakeCompanyPublic(string directorId)
+    {
+        if (string.IsNullOrWhiteSpace(directorId))
+        {
+            Console.WriteLine(Messages.NoUserLoggedIn);
+            return;
+        }
+
+        Console.Write(Messages.PercentagePublicPrompt);
+        if (!decimal.TryParse(Console.ReadLine(), out decimal percentagePublic))
+        {
+            Console.WriteLine(Messages.InvalidPercentage);
+            return;
+        }
+
+        Console.Write(Messages.SharesPrompt);
+        if (!int.TryParse(Console.ReadLine(), out int shares))
+        {
+            Console.WriteLine(Messages.InvalidShareCount);
+            return;
+        }
+
+        Console.Write(Messages.SharePricePrompt);
+        if (!decimal.TryParse(Console.ReadLine(), out decimal sharePrice))
+        {
+            Console.WriteLine(Messages.InvalidSharePrice);
+            return;
+        }
+
+        MakeCompanyPublic(directorId, percentagePublic, shares, sharePrice);
     }
 
     public void AfiseazaDashboardEficienta() 
