@@ -1,16 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-
 
 public class Repository<T> where T : class
 {
     protected List<T> _items = new List<T>();
 
-    
     public int Count => _items.Count;
 
-   
     public virtual bool Add(T item)
     {
         if (item == null)
@@ -20,36 +16,19 @@ public class Repository<T> where T : class
         return true;
     }
 
-    
     public virtual bool Remove(T item)
     {
         return _items.Remove(item);
     }
 
-   
     public List<T> GetAll()
     {
         return [.. _items];
     }
 
-    
     public void Clear()
     {
         _items.Clear();
-    }
-
-   
-    public bool Contains(T item)
-    {
-        return _items.Contains(item);
-    }
-
-    
-    public T GetByIndex(int index)
-    {
-        if (index < 0 || index >= _items.Count)
-            return null;
-        return _items[index];
     }
 }
 
