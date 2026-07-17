@@ -384,6 +384,10 @@ class Program
             else
                 ang.PerformDuty();
         }
+        else if (alegere == "5")
+        {
+            fabrica.InteractiveSetEmployeeValuation();
+        }
     }
 
     // Triggers the interactive add-employee flow via Factory.
@@ -446,6 +450,10 @@ class Program
         else if (alegere == "8")
         {
             fabrica.AfiseazaStareMasini();
+        }
+        else if (alegere == "9")
+        {
+            fabrica.InteractiveSetMachineValuation();
         }
     }
 

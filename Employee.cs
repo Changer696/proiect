@@ -7,6 +7,8 @@ public abstract class Employee : IIdentifiable
     public EmployeeRole Rol;
     public decimal Salariu;
     public DateTime DataAngajarii;
+        // Arbitrary monetary valuation assigned to this employee.
+        public decimal Valuation { get; set; } = 0m;
 
     protected Employee(string id, string nume, decimal salariu, DateTime dataAngajarii)
     {
@@ -30,5 +32,6 @@ public abstract class Employee : IIdentifiable
     public virtual void Afiseaza()
     {
         Console.WriteLine(Messages.EmployeeDisplay(Id, Nume, Rol, Salariu, GetVechimeZile()));
+        Console.WriteLine($"  Valuation: {Valuation} RON");
     }
 }

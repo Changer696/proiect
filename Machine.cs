@@ -17,6 +17,8 @@ public abstract class Machine
     public int NrPiese;
     // When false, the machine will not randomly break parts during production.
     public bool AllowPartFailures { get; set; }
+    // Arbitrary monetary valuation assigned to this machine.
+    public decimal Valuation { get; set; } = 0m;
 
     protected Machine(string serialNumber, string nume, DateTime dataFabricatiei)
     {
@@ -203,6 +205,7 @@ public abstract class Machine
                           " - Condition: " + Conditie +
                           " - Age: " + GetVarstaZile() + " zile" +
                           " - Pieces: " + NrPiese);
+        Console.WriteLine($"  Valuation: {Valuation} RON");
     }
 
     // Serializes the machine to a semicolon-separated data line for persistence.
@@ -223,14 +226,15 @@ public abstract class Machine
             DataFabricatiei.ToString("yyyy-MM-dd HH:mm:ss"),
             ProductionCycles,
             lastMaint,
-            pieseSerializate);
+            pieseSerializate,
+            Valuation.ToString(System.Globalization.CultureInfo.InvariantCulture));
     }
 
     // Deserializes a machine from a data line and returns the appropriate derived instance.
     public static Machine FromDataLine(string line)
     {
         var parts = line.Split(';');
-        if (parts.Length != 9) throw new FormatException("Invalid machine line format");
+        if (parts.Length < 9) throw new FormatException("Invalid machine line format");
 
         string tip = parts[0].Trim();
         string serial = parts[1].Trim();
@@ -241,6 +245,9 @@ public abstract class Machine
         int cicluri = int.Parse(parts[6].Trim());
         DateTime? lastMaint = string.IsNullOrWhiteSpace(parts[7]) ? null : DateTime.Parse(parts[7].Trim());
         string pieseRaw = parts[8].Trim();
+        decimal valuation = 0m;
+        if (parts.Length >= 10)
+            decimal.TryParse(parts[9].Trim(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out valuation);
 
         Machine masina = tip switch
         {
@@ -270,6 +277,8 @@ public abstract class Machine
                 masina.AdaugaPiesa(piesa);
             }
         }
+
+        masina.Valuation = valuation;
 
         return masina;
     }

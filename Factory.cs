@@ -670,12 +670,30 @@ public class Factory
         Console.WriteLine(Messages.FactoryReportLine("Total Revenue", _totalRevenue + " RON"));
         Console.WriteLine(Messages.FactoryReportLine("Total Units Sold", _totalSalesQuantity));
         Console.WriteLine(Messages.FactoryReportLine("Inventory Value", GetTotalInventoryValue() + " RON"));
+        // Book valuation: inventory at production cost + accumulated revenue + machines + employee valuations.
+        decimal machinesVal = _machineRepository.GetAll().Sum(m => m.Valuation);
+        decimal employeesVal = _employeeRepository.GetAll().Sum(e => e.Valuation);
+        decimal bookValuation = GetTotalInventoryValue(useSellingPrice: false) + _totalRevenue + machinesVal + employeesVal;
+        Console.WriteLine(Messages.FactoryReportLine("Book Valuation (assets)", bookValuation + " RON"));
         Console.WriteLine(Messages.FactoryReportLine("Company Status", _companyPublic ? "Public" : "Private"));
         if (_companyPublic)
         {
             Console.WriteLine(Messages.FactoryReportLine("Public percentage", _companyPublicPercentage + "%"));
             Console.WriteLine(Messages.FactoryReportLine("Shares issued", _companyShares));
             Console.WriteLine(Messages.FactoryReportLine("Share price", _sharePrice + " RON"));
+            // Compute market capitalization from issued shares that represent the public percentage.
+            if (_companyPublicPercentage > 0)
+            {
+                decimal totalShares = _companyShares * 100m / _companyPublicPercentage;
+                decimal marketCap = totalShares * _sharePrice;
+                Console.WriteLine(Messages.FactoryReportLine("Market Capitalization", marketCap + " RON"));
+                // show comparison to book valuation
+                if (bookValuation > 0)
+                {
+                    decimal premiumPercent = (marketCap - bookValuation) / bookValuation * 100m;
+                    Console.WriteLine(Messages.FactoryReportLine("Market vs Book (premium)", premiumPercent.ToString("+0.00;-0.00;0.00") + "%"));
+                }
+            }
         }
         Console.WriteLine(Messages.FactoryReportLine("Machines requiring maintenance", GetMachinesRequiringMaintenance(7).Count));
         Console.WriteLine(Messages.FactoryReportLine("Products below stock threshold", GetLowStockProducts().Count));
@@ -1134,6 +1152,50 @@ public class Factory
             Console.WriteLine("Failed to set recipe: too many material types.");
         else
             Console.WriteLine("Recipe updated.");
+    }
+
+    // Interactive setter for a machine's arbitrary valuation.
+    public void InteractiveSetMachineValuation()
+    {
+        AfiseazaMasini();
+        Console.Write(Messages.MachineSerialPrompt);
+        string serial = Console.ReadLine();
+        var masina = GasesteMasina(serial);
+        if (masina == null)
+        {
+            Console.WriteLine(Messages.MachineDoesNotExist);
+            return;
+        }
+        Console.Write("Valuation (RON): ");
+        if (!decimal.TryParse(Console.ReadLine(), out decimal val))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+        masina.Valuation = val;
+        Console.WriteLine($"Machine {masina.SerialNumber} valuation set to {val} RON");
+    }
+
+    // Interactive setter for an employee's arbitrary valuation.
+    public void InteractiveSetEmployeeValuation()
+    {
+        AfiseazaAngajati();
+        Console.Write(Messages.IdEmployeePrompt);
+        string id = Console.ReadLine();
+        var ang = GasesteAngajat(id);
+        if (ang == null)
+        {
+            Console.WriteLine(Messages.EmployeeDoesNotExistGeneric);
+            return;
+        }
+        Console.Write("Valuation (RON): ");
+        if (!decimal.TryParse(Console.ReadLine(), out decimal val))
+        {
+            Console.WriteLine(Messages.InvalidOption);
+            return;
+        }
+        ang.Valuation = val;
+        Console.WriteLine($"Employee {ang.Id} valuation set to {val} RON");
     }
 
     // Interactive console flow to execute a chosen production order.
