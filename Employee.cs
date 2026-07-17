@@ -34,4 +34,53 @@ public abstract class Employee : IIdentifiable
         Console.WriteLine(Messages.EmployeeDisplay(Id, Nume, Rol, Salariu, GetVechimeZile()));
         Console.WriteLine($"  Valuation: {Valuation} RON");
     }
+
+    // Serializes employee data for line-based persistence.
+    public string ToDataLine()
+    {
+        return string.Join(";",
+            GetType().Name,
+            Id,
+            Nume,
+            Salariu.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            DataAngajarii.ToString("s"),
+            Valuation.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    // Deserializes an employee from a persisted line.
+    public static Employee FromDataLine(string line)
+    {
+        var parts = line.Split(';');
+        if (parts.Length < 5)
+            throw new FormatException("Invalid employee line format");
+
+        string tip = parts[0].Trim();
+        string id = parts[1].Trim();
+        string nume = parts[2].Trim();
+        decimal salariu = decimal.Parse(parts[3].Trim(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+        DateTime dataAngajarii = DateTime.Parse(parts[4].Trim(), null, System.Globalization.DateTimeStyles.RoundtripKind);
+        decimal valuation = 0m;
+        if (parts.Length >= 6)
+        {
+            decimal.TryParse(parts[5].Trim(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out valuation);
+        }
+
+        Employee angajat = tip switch
+        {
+            "Director" => new Director(id, nume, salariu, dataAngajarii),
+            "ProductionManager" => new ProductionManager(id, nume, salariu, dataAngajarii),
+            "Engineer" => new Engineer(id, nume, salariu, dataAngajarii),
+            "Technician" => new Technician(id, nume, salariu, dataAngajarii),
+            "MachineOperator" => new MachineOperator(id, nume, salariu, dataAngajarii),
+            "SalesAgent" => new SalesAgent(id, nume, salariu, dataAngajarii),
+            _ => null
+        };
+
+        if (angajat != null)
+        {
+            angajat.Valuation = valuation;
+        }
+
+        return angajat;
+    }
 }

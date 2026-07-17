@@ -24,6 +24,8 @@ public class Factory
     private int _companyShares = 0;
     private decimal _sharePrice = 0;
     private decimal _lastShareChange = 0;
+    private string _employeesDataFileName;
+    private string _machinesFileName;
 
     public bool IsCompanyPublic => _companyPublic;
     public decimal CompanyPublicPercentage => _companyPublicPercentage;
@@ -242,6 +244,38 @@ public class Factory
         return added;
     }
 
+    // Adds an employee, persists the new record to the data file, and logs the addition.
+    public bool AdaugaAngajatPersisted(Employee angajat, string employeesFileName)
+    {
+        if (!AdaugaAngajat(angajat))
+            return false;
+
+        _employeesDataFileName = employeesFileName;
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, employeesFileName);
+        if (!FileRepository.AppendLine(path, angajat.ToDataLine()))
+        {
+            _employeeRepository.RemoveById(angajat.Id);
+            Console.WriteLine(Messages.SaveFailed("employees", new Exception("Could not append employee data")));
+            return false;
+        }
+
+        return true;
+    }
+
+    // Saves all employees to a specified data file.
+    public void SaveEmployeesToFile(string employeesFileName)
+    {
+        _employeesDataFileName = employeesFileName;
+        _employeeRepository.SaveAllEmployees(employeesFileName);
+    }
+
+    // Loads all employees from a specified data file.
+    public void LoadEmployeesFromFile(string employeesFileName)
+    {
+        _employeesDataFileName = employeesFileName;
+        _employeeRepository.LoadEmployees(employeesFileName);
+    }
+
     // Checks whether an employee with the given id exists.
     public bool EmployeeIdExists(string id)
     {
@@ -263,11 +297,20 @@ public class Factory
         return _employeeRepository.FindById(id);
     }
 
-    // Removes an employee by id, applies price decrease and logs the removal.
+    // Removes an employee by id, applies price decrease, updates persistence, and logs the removal.
     public bool StergeAngajat(string id)
     {
         if (_employeeRepository.RemoveById(id))
         {
+            if (!string.IsNullOrWhiteSpace(_employeesDataFileName))
+            {
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _employeesDataFileName);
+                if (!TryRemoveLastEmployeeLineIfMatches(path, id))
+                {
+                    SaveEmployeesToFile(_employeesDataFileName);
+                }
+            }
+
             Console.WriteLine(Messages.EmployeeDeletedSuccessfully);
             AplicaScaderePreturiAngajatEliminat();
             Logging.Log(id, $"Employee removed: {id}");
@@ -278,6 +321,16 @@ public class Factory
             Console.WriteLine(Messages.EmployeeDoesNotExistGeneric);
             return false;
         }
+    }
+
+    // Attempts to remove the last line from the given employee data file if it matches the employee id.
+    private bool TryRemoveLastEmployeeLineIfMatches(string path, string employeeId)
+    {
+        return FileRepository.RemoveLastLineIf(path, line =>
+        {
+            var parts = line.Split(';');
+            return parts.Length > 1 && string.Equals(parts[1].Trim(), employeeId, StringComparison.OrdinalIgnoreCase);
+        });
     }
 
     // Applies a market-wide random price fluctuation if the company is public.
@@ -432,8 +485,14 @@ public class Factory
         // Create order with priority, add to repository, log and persist
         ProductionOrder comanda = manager.CreazaComanda(idComanda, masina, produs, cantitate, prioritate);
         _orderRepository.Add(comanda);
+        if (!AppendOrderToFile(comanda))
+        {
+            _orderRepository.RemoveById(comanda.Id);
+            Console.WriteLine(Messages.SaveFailed("orders", new Exception("Could not append order data")));
+            return;
+        }
+
         Logging.Log(idManager, $"Order created: {idComanda} ({produs}) qty={cantitate} priority={prioritate}");
-        SaveOrdersToFile(_ordersFileName);
     }
 
     // Executes a production order by a machine operator and records produced units.
@@ -764,6 +823,7 @@ public class Factory
     // Loads machines from the specified file into the repository.
     public void IncarcaMasini(string machinesFileName)
     {
+        _machinesFileName = machinesFileName;
         _machineRepository.LoadMachines(machinesFileName);
     }
 
@@ -776,7 +836,47 @@ public class Factory
     // Saves all machines to the specified file.
     public void SalveazaMasini(string machinesFileName)
     {
+        _machinesFileName = machinesFileName;
         _machineRepository.SaveAllMachines(machinesFileName);
+    }
+
+    // Adds a machine and persists the record to the machines file.
+    public bool AdaugaMasinaPersisted(Machine masina, string machinesFileName)
+    {
+        if (!AdaugaMasina(masina))
+            return false;
+
+        _machinesFileName = machinesFileName;
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, machinesFileName);
+        if (!FileRepository.AppendLine(path, masina.ToDataLine()))
+        {
+            _machineRepository.RemoveWhere(m => m.SerialNumber == masina.SerialNumber);
+            Console.WriteLine(Messages.SaveFailed("machines", new Exception("Could not append machine data")));
+            return false;
+        }
+
+        return true;
+    }
+
+    // Appends a production order to the orders file using line-based persistence semantics.
+    private bool AppendOrderToFile(ProductionOrder order)
+    {
+        if (order == null || string.IsNullOrWhiteSpace(_ordersFileName))
+            return false;
+
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _ordersFileName);
+        var line = string.Join(";",
+            order.Id,
+            order.Masina?.SerialNumber ?? "",
+            order.NumeProdus,
+            order.CantitateTarget.ToString(),
+            order.Prioritate.ToString(),
+            order.Status.ToString(),
+            order.CreatDe?.Id ?? "",
+            order.DataCrearii.ToString("s")
+        );
+
+        return FileRepository.AppendLine(path, line);
     }
 
     // Saves all products to the specified file.
@@ -878,10 +978,9 @@ public class Factory
             masina.AdaugaPiesa(new MachinePart(numePiesa, tipPiesa));
         }
 
-        if (AdaugaMasina(masina))
+        if (AdaugaMasinaPersisted(masina, machinesFileName))
         {
             Console.WriteLine(Messages.MachineAdded);
-            SalveazaMasini(machinesFileName);
         }
     }
 
@@ -1054,7 +1153,7 @@ public class Factory
         Console.Write(Messages.PasswordForLoginPrompt);
         string password = Console.ReadLine();
 
-        if (AdaugaAngajat(angajat))
+        if (AdaugaAngajatPersisted(angajat, employeesFileName))
         {
             if (loginManager.SaveEmployeeCredential(id, username, password, role))
             {
@@ -1062,6 +1161,10 @@ public class Factory
             }
             else
             {
+                // rollback employee if credential saving fails
+                _employeeRepository.RemoveById(id);
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, employeesFileName);
+                FileRepository.RemoveLastLine(path);
                 Console.WriteLine(Messages.EmployeeAddedCredentialsFailed);
             }
         }

@@ -190,14 +190,17 @@ public static class Messages
     public static string LoadedCredentialsCount(int count) => $"Loaded {count} employee credentials.";
     public static string LoadedMachinesCount(int count) => $"Loaded {count} machines.";
     public static string LoadedProductsCount(int count) => $"Loaded {count} products.";
+    public static string LoadedEmployeesCount(int count) => $"Loaded {count} employees.";
     public static string SavedMachinesCount(int count) => $"Saved {count} machines.";
     public static string SavedProductsCount(int count) => $"Saved {count} products.";
+    public static string SavedEmployeesCount(int count) => $"Saved {count} employees.";
     public static string WarningInvalidLine(string line) => $"Warning: Invalid line format: {line}";
     public static string WarningInvalidProductLine(string line) => $"Warning: Invalid product line: {line}";
     public static string WarningUnknownMachineType(string type) => $"Warning: Unknown machine type '{type}'";
     public static string WarningUnknownProductType(string type) => $"Warning: Unknown product type '{type}'";
     public static string WarningParseMachineLine(string line, Exception ex) => $"Warning: Could not parse line '{line}': {ex.Message}";
     public static string WarningParseProductLine(string line, Exception ex) => $"Warning: Could not parse product line '{line}': {ex.Message}";
+    public static string WarningParseEmployeeLine(string line, Exception ex) => $"Warning: Could not parse employee line '{line}': {ex.Message}";
     public static string FileNotFound(string path) => $"Error: {path} not found.";
     public static string FileInfoNotFound(string path) => $"Info: {path} not found. No products loaded.";
     public static string CredentialsSavedLine(string username, string role) => $"Credentials saved for employee {username} ({role})";

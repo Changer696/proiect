@@ -4,7 +4,8 @@ using System.Linq;
 
 class Program
 {
-    static readonly string EmployeesFileName = "employees.txt";
+    static readonly string EmployeeCredentialsFileName = "employees.txt";
+    static readonly string EmployeesDataFileName = "employees_data.txt";
     static readonly string MachinesFileName = "machines.txt";
     static readonly string ProductsFileName = "products.txt";
     static readonly string OrdersFileName = "orders.txt";
@@ -19,7 +20,7 @@ class Program
     {
         // Authentication - Login required
         Logging.ConfigureFilePath(OperationsFileName);
-        loginManager = new Login(EmployeesFileName);
+        loginManager = new Login(EmployeeCredentialsFileName);
         loggedInUser = loginManager.LoginWithAttempts(3);
 
         if (loggedInUser == null)
@@ -30,6 +31,7 @@ class Program
         DateDemo();
         // Load persisted orders, machines, products and prime materials if present
         fabrica.LoadOrdersFromFile(OrdersFileName);
+        fabrica.LoadEmployeesFromFile(EmployeesDataFileName);
         fabrica.IncarcaMasini(MachinesFileName);
         fabrica.IncarcaProduse(ProductsFileName);
         fabrica.IncarcaMateriiPrime("prime_materials.txt");
@@ -76,6 +78,7 @@ class Program
 
         Console.WriteLine(Messages.Goodbye);
         Console.WriteLine(Messages.SavingData);
+        fabrica.SaveEmployeesToFile(EmployeesDataFileName);
         fabrica.SalveazaMasini(MachinesFileName);
         fabrica.SalveazaProduse(ProductsFileName);
         fabrica.SalveazaMateriiPrime("prime_materials.txt");
@@ -393,7 +396,7 @@ class Program
     // Triggers the interactive add-employee flow via Factory.
     static void AdaugaAngajat()
     {
-        fabrica.InteractiveAddEmployee(EmployeesFileName, loginManager);
+        fabrica.InteractiveAddEmployee(EmployeesDataFileName, loginManager);
     }
 
     // ===== MENIU MASINI =====

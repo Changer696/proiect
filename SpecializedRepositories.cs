@@ -33,6 +33,62 @@ public class EmployeeRepository : RepositoryWithId<Employee>
         Console.WriteLine(Messages.EmployeesHeader);
         _items.ForEach(employee => employee.Afiseaza());
     }
+
+    // Saves all employees to a specified file path.
+    public bool SaveAllEmployees(string employeesFileName)
+    {
+        var employeesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, employeesFileName);
+        try
+        {
+            var lines = _items.Select(e => e.ToDataLine());
+            File.WriteAllLines(employeesFilePath, lines);
+            Console.WriteLine(Messages.SavedEmployeesCount(_items.Count));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(Messages.SaveFailed("employees", ex));
+            return false;
+        }
+    }
+
+    // Loads employees from a file into the repository.
+    public void LoadEmployees(string employeesFileName)
+    {
+        var employeesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, employeesFileName);
+        Clear();
+
+        if (!File.Exists(employeesFilePath))
+        {
+            Console.WriteLine(Messages.FileNotFound(employeesFilePath));
+            return;
+        }
+
+        var rawLines = File.ReadAllLines(employeesFilePath)
+            .Select(l => l.Trim())
+            .Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith("#"))
+            .ToList();
+
+        foreach (var line in rawLines)
+        {
+            try
+            {
+                var angajat = Employee.FromDataLine(line);
+                if (angajat == null)
+                {
+                    Console.WriteLine(Messages.WarningInvalidLine(line));
+                    continue;
+                }
+                Add(angajat);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(Messages.WarningParseProductLine(line, ex));
+            }
+        }
+
+        Console.WriteLine(Messages.LoadedEmployeesCount(_items.Count));
+    }
 }
 
 
