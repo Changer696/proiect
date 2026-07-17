@@ -1,4 +1,5 @@
 using System;
+// Domain enums used across the application for categories, statuses and roles.
 public enum ProductCategory{OutdoorToys , EducationalToys ,PretendToys }
 public enum MachineStatus { Stopped, Running, Maintenance }
 public enum MachineCondition { Excellent, Good, Worn, Critical }

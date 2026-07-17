@@ -14,6 +14,7 @@ class Program
     static Login.EmployeeCredential loggedInUser;
     static Login loginManager;
 
+    // Application entry point: initializes services, authenticates user and runs main menu loop.
     static void Main()
     {
         // Authentication - Login required
@@ -80,6 +81,7 @@ class Program
 
 
 
+    // Displays the director menu and handles director actions; returns whether app should continue running.
     static bool MeniuDirector()
     {
         fabrica.AplicaFluctuatiePreturiMeniu();
@@ -146,6 +148,7 @@ class Program
         return true;
     }
 
+    // UI wrapper that verifies role and delegates interactive company-public flow to Factory.
     static void MakeCompanyPublic()
     {
         if (loggedInUser == null)
@@ -163,6 +166,7 @@ class Program
         fabrica.InteractiveMakeCompanyPublic(loggedInUser.EmployeeId);
     }
 
+    // Displays the production manager menu and handles actions; returns whether to continue running.
     static bool MeniuProductionManager()
     {
         fabrica.AplicaFluctuatiePreturiMeniu();
@@ -184,6 +188,7 @@ class Program
         }
         return true;
     }
+    // Displays and handles the production-manager-specific machines menu.
     static void MeniuMasiniProductionManager()
     {
         Console.WriteLine(Messages.ProductionManagerMachinesMenu);
@@ -221,6 +226,7 @@ class Program
                 m.Start();
         }
     }
+    // Displays the engineer menu and handles engineer actions.
     static bool MeniuEngineer()
     {
         fabrica.AplicaFluctuatiePreturiMeniu();
@@ -242,6 +248,7 @@ class Program
         return true;
     }
 
+    // Displays the technician menu and handles technician actions.
     static bool MeniuTechnician()
     {
         fabrica.AplicaFluctuatiePreturiMeniu();
@@ -291,6 +298,7 @@ class Program
         return true;
     }
 
+    // Displays the machine operator menu and handles operator actions.
     static bool MeniuMachineOperator()
     {
         fabrica.AplicaFluctuatiePreturiMeniu();
@@ -312,6 +320,7 @@ class Program
         return true;
     }
 
+    // Displays the sales agent menu and handles sales-related actions.
     static bool MeniuSalesAgent()
     {
         fabrica.AplicaFluctuatiePreturiMeniu();
@@ -331,6 +340,7 @@ class Program
         return true;
     }
 
+    // Shows the operation logs by delegating to Logging.DisplayLogs.
     static void ShowOperationLogs()
     {
         Logging.DisplayLogs();
@@ -339,6 +349,7 @@ class Program
     
     // ===== MENIU ANGAJATI =====
 
+    // Displays the employees menu and handles employee-related actions.
     static void MeniuAngajati()
     {
         Console.WriteLine(Messages.EmployeesMenu);
@@ -373,6 +384,7 @@ class Program
         }
     }
 
+    // Triggers the interactive add-employee flow via Factory.
     static void AdaugaAngajat()
     {
         fabrica.InteractiveAddEmployee(EmployeesFileName, loginManager);
@@ -380,6 +392,7 @@ class Program
 
     // ===== MENIU MASINI =====
 
+    // Displays the machines menu and handles machine-related actions.
     static void MeniuMasini()
     {
         Console.WriteLine(Messages.MachinesMenu);
@@ -434,11 +447,13 @@ class Program
         }
     }
 
+    // Triggers the interactive add-machine flow via Factory.
     static void AdaugaMasina()
     {
         fabrica.InteractiveAddMachine(MachinesFileName);
     }
 
+    // Triggers the interactive repair-machine flow via Factory.
     static void ReparaMasina()
     {
         fabrica.InteractiveRepairMachine();
@@ -446,6 +461,7 @@ class Program
 
     // ===== MENIU PRODUSE =====
 
+    // Displays the products menu and handles product-related actions.
     static void MeniuProduse()
     {
         Console.WriteLine(Messages.ProductsMenu);
@@ -466,16 +482,19 @@ class Program
             fabrica.AfiseazaAlerteInventar();
     }
 
+    // Triggers the interactive add-stock flow via Factory.
     static void AdaugaStocProdus()
     {
         fabrica.InteractiveAddStock();
     }
 
+    // Triggers the interactive add-product flow via Factory.
     static void AdaugaProdus()
     {
         fabrica.InteractiveAddProduct(ProductsFileName);
     }
 
+    // Triggers the interactive sell-product flow via Factory.
     static void VandeProdus()
     {
         fabrica.InteractiveSellProduct();
@@ -483,6 +502,7 @@ class Program
 
         // ===== MENIU PRODUCTIE =====
 
+        // Displays the production menu and routes production actions.
         static void MeniuProductie()
         {
         Console.WriteLine(Messages.ProductionMenu);
@@ -501,6 +521,7 @@ class Program
                 fabrica.AfiseazaComenziSortedByPriority();
         }
 
+        // Gathers input and creates a production order via Factory.
         static void CreazaComanda()
         {
             fabrica.AfiseazaAngajati();
@@ -532,16 +553,19 @@ class Program
             fabrica.CreazaComanda(idManager, serial, produs, cantitate, prioritate);
         }
 
+        // Triggers interactive execution of a production order via Factory.
         static void ExecutaComanda()
         {
             fabrica.InteractiveExecuteOrder();
         }
 
+        // Triggers interactive execution of the next prioritized order via Factory.
         static void ExecutaComanaPrioritara()
         {
             fabrica.InteractiveExecuteNextPriority();
         }
 
+        // Displays the sales menu and handles sales-related selections.
         static void MeniuVanzari()
         {
         Console.WriteLine(Messages.SalesMenu);
@@ -556,11 +580,13 @@ class Program
                 fabrica.AfiseazaRaportGeneral();
         }
 
+        // Triggers the interactive sell-product flow via Factory.
         static void VindeProdus()
         {
             fabrica.InteractiveSellProduct();
         }
 
+        // Populates the factory with sample data for demo/testing purposes.
         static void DateDemo()
         {
             fabrica.AdaugaAngajat(new Director("DIR001", "Alex Popescu", 8000, DateTime.Now.AddYears(-5)));

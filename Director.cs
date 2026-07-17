@@ -13,6 +13,7 @@ public class Director : Employee
         Console.WriteLine(Messages.DirectorDuty(Nume));
     }
 
+    // Prints director-specific duty message.
     public override void Afiseaza()
     {
         Console.WriteLine(Messages.DirectorDisplay(Id, Nume, Salariu, GetVechimeZile()));

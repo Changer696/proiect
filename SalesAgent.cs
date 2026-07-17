@@ -21,7 +21,7 @@ public class SalesAgent : Employee
         Logging.Log(Id, $"Sold product {produs.Nume} x{cantitate}");
         return true;
     }
-
+    // Attempts to sell a product, records the sale and logs the transaction.
     public override void PerformDuty()
     {
         Console.WriteLine(Messages.SalesAgentDuty(Nume));

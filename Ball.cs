@@ -11,6 +11,7 @@ namespace SmartFactorySimple
             Marime = marime;
         }
 
+        // Returns a descriptive string for the ball product including size.
         public override string GetDescription()
         {
            

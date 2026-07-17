@@ -196,6 +196,7 @@ public class Factory
 
     
 
+    // Adds an employee to the repository and logs the addition.
     public bool AdaugaAngajat(Employee angajat)
     {
         bool added = _employeeRepository.Add(angajat);
@@ -206,6 +207,7 @@ public class Factory
         return added;
     }
 
+    // Checks whether an employee with the given id exists.
     public bool EmployeeIdExists(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
@@ -214,16 +216,19 @@ public class Factory
         return _employeeRepository.ExistsById(id);
     }
 
+    // Displays all employees stored in the repository.
     public void AfiseazaAngajati()
     {
         _employeeRepository.DisplayAll();
     }
 
+    // Finds and returns an employee by id, or null if not found.
     public Employee GasesteAngajat(string id)
     {
         return _employeeRepository.FindById(id);
     }
 
+    // Removes an employee by id, applies price decrease and logs the removal.
     public bool StergeAngajat(string id)
     {
         if (_employeeRepository.RemoveById(id))
@@ -240,6 +245,7 @@ public class Factory
         }
     }
 
+    // Applies a market-wide random price fluctuation if the company is public.
     public void AplicaFluctuatiePreturiMeniu()
     {
         // Only apply and show market-wide fluctuations when the company is public
@@ -253,6 +259,7 @@ public class Factory
         Console.WriteLine(Messages.MarketUpdate(schimbare));
     }
 
+    // Applies a price increase to products (and share price when public) after a sale.
     public void AplicaCresterePreturiVanzare(Product produs)
     {
         if (produs == null)
@@ -265,12 +272,14 @@ public class Factory
         Console.WriteLine(Messages.SaleImpact(produs.Nume, schimbare));
     }
 
+    // Applies a fixed price decrease when an employee is removed.
     public void AplicaScaderePreturiAngajatEliminat()
     {
         ModificaPreturi(-5m);
         Console.WriteLine(Messages.EmployeeRemovalImpact);
     }
 
+    // Modifies product prices by a percentage; optionally targets a specific product and updates share price when public.
     private void ModificaPreturi(decimal procent, Product produsSpecific = null)
     {
         var produse = produsSpecific == null
@@ -293,6 +302,7 @@ public class Factory
         }
     }
 
+    // Displays stock-related information; when company is public shows share price and last change.
     public void AfiseazaPreturiStoc()
     {
         var produse = _productRepository.GetAll();
@@ -315,16 +325,19 @@ public class Factory
         Console.WriteLine(string.Empty);
     }
 
+    // Adds a machine to the machine repository.
     public bool AdaugaMasina(Machine masina)
     {
         return _machineRepository.Add(masina);
     }
 
+    // Displays all machines in the repository.
     public void AfiseazaMasini()
     {
         _machineRepository.DisplayAll();
     }
 
+    // Finds and returns a machine by serial number, or null if not found.
     public Machine GasesteMasina(string serial)
     {
         return _machineRepository.Find(m => m.SerialNumber == serial);
@@ -332,17 +345,20 @@ public class Factory
 
 
 
+    // Adds a product to the product repository.
     public bool AdaugaProdus(Product produs)
     {
         _productRepository.Add(produs);
         return true;
     }
 
+    // Displays all products in the repository.
     public void AfiseazaProduse()
     {
         _productRepository.DisplayAll();
     }
 
+    // Finds and returns a product by name, or null if not found.
     public Product GasesteProdus(string nume)
     {
         return _productRepository.Find(p => p.Nume == nume);
@@ -350,6 +366,7 @@ public class Factory
 
     
 
+    // Creates a production order by a production manager and persists it.
     public void CreazaComanda(string idManager, string serialMasina,
                                string produs, int cantitate, Priority prioritate)
     {
@@ -384,6 +401,7 @@ public class Factory
         SaveOrdersToFile(_ordersFileName);
     }
 
+    // Executes a production order by a machine operator and records produced units.
     public void ExecutaComanda(string idOperator, string idComanda, int unitati)
     {
         Employee angajat = GasesteAngajat(idOperator);
@@ -418,6 +436,7 @@ public class Factory
         }
     }
 
+    // Coordinates a technician and an engineer to inspect and repair a machine.
     public void ReparaMasina(string idTehnician, string idEngineer, string serial)
     {
         Employee a1 = GasesteAngajat(idTehnician);
@@ -461,6 +480,7 @@ public class Factory
         teh.Repara(masina);
     }
 
+    // Adds stock quantity to a named product and reports the update.
     public void AdaugaStocProduse(string numeProdus, int cantitate)
     {
         Product produs = GasesteProdus(numeProdus);
@@ -473,6 +493,7 @@ public class Factory
         Console.WriteLine(Messages.NewStockAdded(numeProdus, cantitate));
     }
 
+    // Processes a sale initiated by a sales agent for a product and quantity.
     public void VindeProdus(string idAgent, string numeProdus, int cantitate)
     {
         Employee angajat = GasesteAngajat(idAgent);
@@ -502,6 +523,7 @@ public class Factory
 
     
 
+    // Makes the company public with the given percentage, shares and initial share price.
     public bool MakeCompanyPublic(string directorId, decimal percentagePublic, int shares, decimal sharePrice)
     {
         if (_companyPublic)
@@ -540,6 +562,7 @@ public class Factory
         return true;
     }
 
+    // Displays a general report about the factory (counts, revenue, status, alerts).
     public void AfiseazaRaportGeneral()
     {
         Console.WriteLine(Messages.ReportTitle(Nume));
@@ -561,8 +584,21 @@ public class Factory
         Console.WriteLine(string.Empty);
     }
 
+    // Returns the total inventory value. By default uses selling price; set useSellingPrice=false to use production cost.
+    public decimal GetTotalInventoryValue(bool useSellingPrice = true)
+    {
+        var produse = _productRepository.GetAll();
+        if (!produse.Any()) return 0m;
+
+        if (useSellingPrice)
+            return produse.Sum(p => p.SellingPrice * p.Cantitate);
+        else
+            return produse.Sum(p => p.ProductionCost * p.Cantitate);
+    }
+
     
 
+    // Records a sale: updates revenue, reduces stock, applies price changes and shows alerts.
     public void RecordSale(string productName, int quantity, decimal unitPrice)
     {
         decimal saleAmount = quantity * unitPrice;
@@ -579,16 +615,19 @@ public class Factory
         }
     }
 
+    // Returns the total revenue recorded by the factory.
     public decimal GetTotalRevenue()
     {
         return _totalRevenue;
     }
 
+    // Returns the total number of units sold.
     public int GetTotalSalesQuantity()
     {
         return _totalSalesQuantity;
     }
 
+    // Estimates profit by subtracting estimated production cost from revenue.
     public decimal CalculateProfit()
     {
         decimal totalCost = _productRepository
@@ -598,6 +637,7 @@ public class Factory
         return _totalRevenue - totalCost;
     }
 
+    // Returns a list of machines that require maintenance within the given number of days.
     public List<Machine> GetMachinesRequiringMaintenance(int daysAhead = 7)
     {
         return _machineRepository
@@ -605,26 +645,31 @@ public class Factory
             .Where(machine => machine.EstimateDaysUntilMaintenance() <= daysAhead)
             .ToList();
     }
+    // Loads machines from the specified file into the repository.
     public void IncarcaMasini(string machinesFileName)
     {
         _machineRepository.LoadMachines(machinesFileName);
     }
 
+    // Loads products from the specified file into the repository.
     public void IncarcaProduse(string productsFileName)
     {
         _productRepository.LoadProducts(productsFileName);
     }
 
+    // Saves all machines to the specified file.
     public void SalveazaMasini(string machinesFileName)
     {
         _machineRepository.SaveAllMachines(machinesFileName);
     }
 
+    // Saves all products to the specified file.
     public void SalveazaProduse(string productsFileName)
     {
         _productRepository.SaveAllProducts(productsFileName);
     }
 
+    // Displays predictive maintenance information for machines within the given window.
     public void AfiseazaMentenantaPredictiva(int daysAhead = 7)
     {
         List<Machine> machines = GetMachinesRequiringMaintenance(daysAhead);
@@ -641,6 +686,7 @@ public class Factory
     }
 
     
+    // Interactive console flow to add a new machine and optionally save it.
     public void InteractiveAddMachine(string machinesFileName)
     {
         Console.Write(Messages.SerialNumberPrompt);
@@ -682,6 +728,7 @@ public class Factory
         }
     }
 
+    // Interactive console flow to select technician, engineer and machine to repair.
     public void InteractiveRepairMachine()
     {
         AfiseazaAngajati();
@@ -697,6 +744,7 @@ public class Factory
         ReparaMasina(idTeh, idEng, serial);
     }
 
+    // Interactive console flow to create a new product with typed attributes and persist it.
     public void InteractiveAddProduct(string productsFileName)
     {
         Console.Write(Messages.NamePrompt);
@@ -770,6 +818,7 @@ public class Factory
         }
     }
 
+    // Interactive console flow to add stock to an existing product.
     public void InteractiveAddStock()
     {
         AfiseazaProduse();
@@ -786,6 +835,7 @@ public class Factory
         AdaugaStocProduse(nume, cantitate);
     }
 
+    // Interactive console flow to process a sale by a sales agent.
     public void InteractiveSellProduct()
     {
         AfiseazaAngajati();
@@ -806,6 +856,7 @@ public class Factory
         VindeProdus(idAgent, numeProdus, cantitate);
     }
 
+    // Interactive console flow to add an employee and create login credentials.
     public void InteractiveAddEmployee(string employeesFileName, Login loginManager)
     {
         Console.Write(Messages.IdPrompt);
@@ -859,6 +910,7 @@ public class Factory
         }
     }
 
+    // Interactive console flow to create a production order by prompting for inputs.
     public void InteractiveCreateOrder()
     {
         AfiseazaAngajati();
@@ -891,6 +943,7 @@ public class Factory
         CreazaComanda(idManager, serial, produs, cantitate, prioritate);
     }
 
+    // Interactive console flow to execute a chosen production order.
     public void InteractiveExecuteOrder()
     {
         AfiseazaAngajati();
@@ -911,6 +964,7 @@ public class Factory
         ExecutaComanda(idOp, idComanda, unitati);
     }
 
+    // Interactive console flow to execute the next prioritized order for an operator.
     public void InteractiveExecuteNextPriority()
     {
         AfiseazaAngajati();
@@ -937,6 +991,7 @@ public class Factory
         ExecutaComanda(idOp, nextOrder.Id, unitati);
     }
 
+    // Interactive console flow to prompt director for company-public parameters and apply them.
     public void InteractiveMakeCompanyPublic(string directorId)
     {
         if (string.IsNullOrWhiteSpace(directorId))
@@ -969,6 +1024,7 @@ public class Factory
         MakeCompanyPublic(directorId, percentagePublic, shares, sharePrice);
     }
 
+    // Displays a dashboard with production efficiency metrics for each machine.
     public void AfiseazaDashboardEficienta() 
     {
         List<Machine> machines = _machineRepository.GetAll();
@@ -985,6 +1041,7 @@ public class Factory
         Console.WriteLine(Messages.AverageEfficiency(machines.Average(machine => machine.CalculateEfficiencyPercentage())));
     }
 
+    // Displays current health/status for all machines.
     public void AfiseazaStareMasini()
     {
         List<Machine> machines = _machineRepository.GetAll();
@@ -1000,6 +1057,7 @@ public class Factory
             $"{machine.SerialNumber} - {machine.Nume} | {machine.Conditie} | {machine.GetHealthAlert()}"));
     }
 
+    // Returns products whose stock is below or equal to the threshold.
     public List<Product> GetLowStockProducts(int threshold = 5)
     {
         return _productRepository
@@ -1008,6 +1066,7 @@ public class Factory
             .ToList();
     }
 
+    // Displays inventory alerts for products below the specified threshold.
     public void AfiseazaAlerteInventar(int threshold = 5)
     {
         Console.WriteLine(Messages.InventoryAlertsTitle);
@@ -1022,12 +1081,14 @@ public class Factory
         products.ForEach(product => DisplayInventoryAlert(product, threshold));
     }
 
+    // Prints a low-stock alert for a single product when below threshold.
     private static void DisplayInventoryAlert(Product product, int threshold = 5)
     {
         if (product.Cantitate <= threshold)
             Console.WriteLine(Messages.LowStockAlert(product.Nume, product.Cantitate, threshold));
     }
 
+    // Displays the sales report including totals and estimated profit.
     public void AfiseazaRaportVanzari()
     {
         Console.WriteLine(Messages.SalesReportTitle(Nume));
@@ -1038,11 +1099,13 @@ public class Factory
         Console.WriteLine(string.Empty);
     }
 
+    // Displays all production orders from the repository.
     public void AfiseazaComenzi()
     {
         _orderRepository.DisplayAll();
     }
 
+    // Displays all production orders sorted by priority.
     public void AfiseazaComenziSortedByPriority()
     {
         List<ProductionOrder> comenziSortate = _orderRepository.GetSortedByPriority();
@@ -1060,6 +1123,7 @@ public class Factory
         }
     }
 
+    // Returns the next production order by priority for the given operator, or null.
     public ProductionOrder GetNextPriorityOrder(string idOperator)
     {
         // reload orders to make sure we consider persisted orders

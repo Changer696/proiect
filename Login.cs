@@ -24,6 +24,7 @@ public class Login
     }
 
    
+    // Loads employee credentials from the credentials file into memory.
     private void LoadCredentials()
     {
         try
@@ -73,6 +74,7 @@ public class Login
     }
 
     
+    // Validates provided username and password, returns credential on success.
     public EmployeeCredential Authenticate(string username, string password)
     {
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
@@ -93,6 +95,7 @@ public class Login
     }
 
     
+    // Prompts the console user for username/password and attempts authentication.
     public EmployeeCredential PromptLogin()
     {
         Console.WriteLine("\n========== SMART FACTORY LOGIN ==========");
@@ -120,6 +123,7 @@ public class Login
     }
 
     
+    // Repeats login prompts up to maxAttempts and returns a successful credential or null.
     public EmployeeCredential LoginWithAttempts(int maxAttempts = 3)
     {
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
@@ -140,6 +144,7 @@ public class Login
         return null;
     }
 
+    // Logs out the current user (if any) and prompts for re-authentication.
     public EmployeeCredential Reauthenticate(EmployeeCredential current)
     {
         if (current != null)
@@ -150,6 +155,7 @@ public class Login
         return LoginWithAttempts(3);
     }
 
+    // Performs logout message, re-authenticates and updates the provided current credential by reference.
     public bool LogoutAndReauthenticate(ref EmployeeCredential current)
     {
         Console.WriteLine(Messages.LoggingOut);
@@ -165,6 +171,7 @@ public class Login
     }
 
    
+    // Persists a new employee credential to the credentials file and updates in-memory store.
     public bool SaveEmployeeCredential(string employeeId, string username, string password, string role)
     {
         try
@@ -209,6 +216,7 @@ public class Login
     }
 
     // Read password from console while masking input with '*'
+    // Reads a password from console input while masking characters.
     public string ReadPassword()
     {
         var pwd = new System.Text.StringBuilder();

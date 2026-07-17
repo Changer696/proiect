@@ -23,6 +23,7 @@ public class EmployeeRepository : RepositoryWithId<Employee>
 
     public void DisplayAll()
     {
+        // Displays all employees or an empty-message when none exist.
         if (!_items.Any())
         {
             Console.WriteLine(Messages.NoEmployeesMessage);
@@ -56,6 +57,7 @@ public class MachineRepository : Repository<Machine>
 
     public void DisplayAll()
     {
+        // Displays all machines or an empty-message when none exist.
         if (!_items.Any())
         {
             Console.WriteLine(Messages.NoMachinesMessage);
@@ -71,6 +73,7 @@ public class MachineRepository : Repository<Machine>
     public bool SaveAllMachines(string machinesFileName)
     {
         _machinesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, machinesFileName);
+        // Saves all machines to the given file path.
         try
         {
             var lines = _items.Select(m => m.ToDataLine());
@@ -89,6 +92,7 @@ public class MachineRepository : Repository<Machine>
 
     public void LoadMachines(string machinesFileName)
     {
+        // Loads machines from file into repository (skips comments and invalid lines).
         _machinesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, machinesFileName);
         Clear(); // golim ce era deja in _items, ca sa nu duplicam la reincarcare
 
@@ -137,6 +141,7 @@ public class ProductRepository : Repository<Product>
     // Use base Repository<T> generic methods for find/exists/remove operations.
     public void DisplayAll()
     {
+        // Displays all products or a message when none are present.
         if (!_items.Any())
         {
             Console.WriteLine(Messages.NoProductsMessage);
@@ -151,6 +156,7 @@ public class ProductRepository : Repository<Product>
 
     public bool SaveAllProducts(string productsFileName)
     {
+        // Saves all products to the specified file.
         _productsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, productsFileName);
 
         try
@@ -169,6 +175,7 @@ public class ProductRepository : Repository<Product>
 
     public void LoadProducts(string productsFileName)
     {
+        // Loads products from file into repository, skipping comments and invalid lines.
         _productsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, productsFileName);
         Clear();
 
@@ -211,6 +218,7 @@ public class ProductRepository : Repository<Product>
 
     public List<Product> FindByCategory(ProductCategory category)
     {
+        // Returns all products that match the given category.
         return GetWhere(p => p.Category == category);
     }
 }
@@ -228,6 +236,7 @@ public class ProductionOrderRepository : RepositoryWithId<ProductionOrder>
 
     public void DisplayAll()
     {
+        // Displays all orders or a message when none exist.
         if (!_items.Any())
         {
             Console.WriteLine(Messages.NoOrdersAvailable);

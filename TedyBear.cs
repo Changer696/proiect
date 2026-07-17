@@ -7,6 +7,7 @@ public class TedyBear : Product
     {
         Marime = marime;
     }
+    // Returns a description string for the teddy bear including size.
     public override string GetDescription()
     {
         

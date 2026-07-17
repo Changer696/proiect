@@ -7,6 +7,7 @@ public class SewingMachine : Machine
     {
     }
 
+    // Produces items for sewing machines, degrades condition and checks parts.
     public override void Produce()
     {
         if (Status != MachineStatus.Running)
@@ -20,6 +21,7 @@ public class SewingMachine : Machine
         RegisterProductionCycle();
     }
 
+    // Produces items for sewing machines, degrades condition and checks parts.
     public override string RunDiagnostics()
     {
         if (Conditie == MachineCondition.Critical)

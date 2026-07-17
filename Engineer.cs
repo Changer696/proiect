@@ -14,6 +14,7 @@ public class Engineer : Employee
         Console.WriteLine(Messages.EngineerInspection(Nume, masina.Nume, rezultat));
     }
 
+    // Inspects a machine and prints diagnostic results.
     public override void PerformDuty()
     {
         Console.WriteLine(Messages.EngineerDuty(Nume));

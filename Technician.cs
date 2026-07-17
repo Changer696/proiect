@@ -31,7 +31,7 @@ public class Technician : Employee
         Logging.Log(Id, $"Repaired machine {masina.SerialNumber}");
         return true;
     }
-//com
+    // Attempts to repair a machine by replacing faulty parts and restoring condition.
     public override void PerformDuty()
     {
         Console.WriteLine(Messages.TechnicianDuty(Nume));

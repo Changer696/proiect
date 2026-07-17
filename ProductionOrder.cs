@@ -27,6 +27,7 @@ public class ProductionOrder : IIdentifiable
         DataCrearii = DateTime.Now;
     }
 
+    // Records produced units for the order, updates status and logs progress/completion.
     public void InregistreazaProductie(int unitati)
     {
         if (Status == ProductionOrderStatus.Completed)
@@ -52,6 +53,7 @@ public class ProductionOrder : IIdentifiable
                 Logging.Log(CreatDe.Id, $"Produced {unitati} units for order {Id} ({NumeProdus})");
         }
     }
+    // Displays a summary of the production order to the console.
     public void Afiseaza()
     {
         Console.WriteLine("[" + Id + "] " + NumeProdus +

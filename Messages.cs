@@ -1,5 +1,6 @@
 using System;
 
+// Collection of UI message constants and helper functions for formatting displayed text.
 public static class Messages
 {
     public const string Choose = "Choose: ";

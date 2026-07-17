@@ -7,6 +7,7 @@ public class CuttingMachine : Machine
     {
     }
 
+    // Produces items for cutting machines, degrades condition and checks parts.
     public override void Produce()
     {
         if (Status != MachineStatus.Running)
@@ -21,6 +22,7 @@ public class CuttingMachine : Machine
 
     }
 
+    // Produces items for cutting machines, degrades condition and checks parts.
     public override string RunDiagnostics()
     {
         if (Conditie == MachineCondition.Critical)

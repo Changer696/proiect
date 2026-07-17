@@ -44,6 +44,7 @@ public abstract class Product
         ProductionCost = productionCost;
         
     }
+    // Adds quantity to product stock, validates non-negative input.
     public void AdaugaStoc(int cantitate)
     {
         if (cantitate < 0)
@@ -53,6 +54,7 @@ public abstract class Product
         }
         Cantitate = Cantitate + cantitate;
     }
+    // Reduces stock by the sold quantity if available.
     public void VindeStoc(int cantitate)
     {
         if (cantitate > Cantitate)
@@ -62,12 +64,15 @@ public abstract class Product
         }
         Cantitate = Cantitate - cantitate;
     }
+    // Returns a textual description of the product (implemented in derived types).
     public abstract string GetDescription();
+    // Displays product details to the console.
     public virtual void Afiseaza()
     {
         Console.WriteLine(Messages.ProductDisplay(GetDescription(), ProductionCost, SellingPrice, Cantitate));
     }
 
+    // Serializes the product to a semicolon-separated data line for persistence.
     public string ToDataLine()
     {
         string tip = GetType().Name;
@@ -90,6 +95,7 @@ public abstract class Product
             marime);
     }
 
+    // Deserializes a product from a data line and returns the appropriate derived product.
     public static Product FromDataLine(string line)
     {
         var parts = line.Split(';');

@@ -27,12 +27,14 @@ public abstract class Machine
         NrPiese = 0;
     }
 
+    // Adds a part to the machine's part array.
     public void AdaugaPiesa(MachinePart piesa)
     {
         Piese[NrPiese] = piesa;
         NrPiese++;
     }
 
+    // Returns whether all existing parts are functional.
     public bool ArePieseComplete()
     {
         return NrPiese > 0 && Piese
@@ -40,6 +42,7 @@ public abstract class Machine
             .All(piesa => piesa.EFunctionala);
     }
 
+    // Randomly simulates part failures and reports broken parts.
     public void StareVerificarePiesa()
     {
         if (NrPiese == 0)
@@ -58,12 +61,14 @@ public abstract class Machine
         }
     }
 
+    // Returns machine age in days since manufacture.
     public int GetVarstaZile()
     {
         TimeSpan varsta = DateTime.Now - DataFabricatiei;
         return varsta.Days;
     }
 
+    // Estimates days until next maintenance based on condition.
     public int EstimateDaysUntilMaintenance()
     {
         int conditionAllowance = Conditie switch
@@ -77,6 +82,7 @@ public abstract class Machine
         return Math.Max(0, conditionAllowance - GetVarstaZile() / 365);
     }
 
+    // Calculates an efficiency percentage based on condition and functional parts ratio.
     public decimal CalculateEfficiencyPercentage()
     {
         decimal conditionScore = Conditie switch
@@ -94,6 +100,7 @@ public abstract class Machine
         return Math.Round(conditionScore * functionalPartsRatio, 2);
     }
 
+    // Returns a health alert string describing maintenance needs or warnings.
     public string GetHealthAlert()
     {
         int brokenParts = Piese.Take(NrPiese).Count(piesa => !piesa.EFunctionala);
@@ -108,18 +115,21 @@ public abstract class Machine
         return "HEALTHY: No maintenance alert.";
     }
 
+    // Increments the production cycle counter.
     protected void RegisterProductionCycle()
     {
         ProductionCycles++;
     }
 
 
-      public void RestoreState(int productionCycles, DateTime? lastMaintenanceDate)
+            // Restores machine runtime state (production cycles and last maintenance date).
+            public void RestoreState(int productionCycles, DateTime? lastMaintenanceDate)
     {
         ProductionCycles = productionCycles;
         LastMaintenanceDate = lastMaintenanceDate;
     }
 
+    // Starts the machine if not under maintenance and parts are complete.
     public virtual void Start()
     {
         if (Status == MachineStatus.Maintenance)
@@ -137,6 +147,7 @@ public abstract class Machine
         Logging.Log($"Started machine {SerialNumber}");
     }
 
+    // Stops the machine and logs the action.
     public virtual void Stop()
     {
         Status = MachineStatus.Stopped;
@@ -144,6 +155,7 @@ public abstract class Machine
         Logging.Log($"Stopped machine {SerialNumber}");
     }
 
+    // Sets the machine into maintenance mode (cannot be started while in maintenance).
     public void SetMaintenance()
     {
         if (Status == MachineStatus.Running)
@@ -154,6 +166,7 @@ public abstract class Machine
         Status = MachineStatus.Maintenance;
     }
 
+    // Downgrades the machine condition to the next worse level.
     protected void DegradeazaConditia()
     {
         if (Conditie == MachineCondition.Excellent)
@@ -165,6 +178,7 @@ public abstract class Machine
     
     }
 
+    // Restores machine condition to excellent and records maintenance date.
     public void RestoreazaConditia()
     {
         Conditie = MachineCondition.Excellent;
@@ -172,9 +186,12 @@ public abstract class Machine
         LastMaintenanceDate = DateTime.Now;
     }
 
+    // Produces items (implementation varies by machine type).
     public abstract void Produce();
+    // Runs diagnostics and returns a textual result.
     public abstract string RunDiagnostics();
 
+    // Displays the machine's summary information to the console.
     public virtual void Afiseaza()
     {
         Console.WriteLine("[" + SerialNumber + "] " + Nume +
@@ -184,6 +201,7 @@ public abstract class Machine
                           " - Pieces: " + NrPiese);
     }
 
+    // Serializes the machine to a semicolon-separated data line for persistence.
     public string ToDataLine()
     {
         string tip = GetType().Name;
@@ -204,6 +222,7 @@ public abstract class Machine
             pieseSerializate);
     }
 
+    // Deserializes a machine from a data line and returns the appropriate derived instance.
     public static Machine FromDataLine(string line)
     {
         var parts = line.Split(';');

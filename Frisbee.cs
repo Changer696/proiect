@@ -10,6 +10,7 @@ namespace SmartFactorySimple
             Marime = marime;
         }
 
+        // Returns a description string for the frisbee including size.
         public override string GetDescription()
         {
             

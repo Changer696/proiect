@@ -14,12 +14,14 @@ namespace SmartFactorySimple
        
         public static string FilePath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), DefaultFileName);
 
+        // Sets the file path used for logging operations.
         public static void ConfigureFilePath(string fileName)
         {
             FilePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
         }
 
        
+        // Appends a log entry with a timestamp, username and description to the log file and stack.
         public static void Log(string username, string description)
         {
             try
@@ -40,6 +42,7 @@ namespace SmartFactorySimple
         }
 
        
+        // Convenience overload that logs using the environment user name.
         public static void Log(string description)
         {
             Log(Environment.UserName, description);
@@ -47,6 +50,7 @@ namespace SmartFactorySimple
         }
 
         
+        // Attempts to pop the last log entry from the in-memory stack.
         public static bool TryPop(out string entry)
         {
             entry = null;
@@ -58,6 +62,7 @@ namespace SmartFactorySimple
         }
 
         
+        // Attempts to peek at the most recent log entry without removing it.
         public static bool TryPeek(out string entry)
         {
             entry = null;
@@ -69,11 +74,13 @@ namespace SmartFactorySimple
         }
 
         
+        // Returns all log entries currently stored in the in-memory stack.
         public static string[] GetAllEntries()
         {
             return _stack.GetAll().ToArray();
         }
 
+        // Prints all in-memory log entries to the console with header/footer messages.
         public static void DisplayLogs()
         {
             Console.WriteLine(Messages.OperationHistoryTitle);

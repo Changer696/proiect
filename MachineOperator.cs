@@ -37,7 +37,7 @@ public class MachineOperator : Employee
 
         }
     }
-
+    // Operates the machine: starts it if needed and triggers production when running.
     public override void PerformDuty()
     {
         Console.WriteLine(Messages.MachineOperatorDuty(Nume));

@@ -7,6 +7,7 @@ public class ProductionManager : Employee
         Rol = EmployeeRole.ProductionManager;
     }
 
+    // Creates a production order for a given machine, product, quantity and priority.
     public ProductionOrder CreazaComanda(string idComanda, Machine masina,
                                           string produs, int cantitate, Priority prioritate)
     {
@@ -14,6 +15,7 @@ public class ProductionManager : Employee
         return new ProductionOrder(idComanda, masina, this, produs, cantitate, prioritate);
     }
 
+    // Creates a production order for a given machine, product, quantity and priority.
     public override void PerformDuty()
     {
         Console.WriteLine(Messages.ProductionManagerDuty(Nume));

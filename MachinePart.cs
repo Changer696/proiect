@@ -15,17 +15,20 @@ public class MachinePart
         DataInstalarii = DateTime.Now;
     }
 
+    // Marks the part as broken.
     public void Strica()
     {
         EFunctionala = false;
     }
 
+    // Replaces the part (marks functional and updates installation date).
     public void Inlocuieste()
     {
         EFunctionala = true;
         DataInstalarii = DateTime.Now;
     }
 
+    // Displays the part status to the console.
     public void Afiseaza()
     {
         string status;

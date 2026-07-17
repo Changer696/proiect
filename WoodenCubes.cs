@@ -7,6 +7,7 @@ public class WoodenCubes : Product
     {
         Marime = marime;
     }
+    // Returns a description string for wooden cubes including size.
     public override string GetDescription()
     {
         return Messages.ProductDescription(Messages.ProductTypeWoodenCubes, Nume, Category, Marime);
