@@ -572,6 +572,7 @@ public class Factory
         Console.WriteLine(Messages.FactoryReportLine("Orders", _orderRepository.Count));
         Console.WriteLine(Messages.FactoryReportLine("Total Revenue", _totalRevenue + " RON"));
         Console.WriteLine(Messages.FactoryReportLine("Total Units Sold", _totalSalesQuantity));
+        Console.WriteLine(Messages.FactoryReportLine("Inventory Value", GetTotalInventoryValue() + " RON"));
         Console.WriteLine(Messages.FactoryReportLine("Company Status", _companyPublic ? "Public" : "Private"));
         if (_companyPublic)
         {

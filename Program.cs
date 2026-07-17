@@ -521,37 +521,7 @@ class Program
                 fabrica.AfiseazaComenziSortedByPriority();
         }
 
-        // Gathers input and creates a production order via Factory.
-        static void CreazaComanda()
-        {
-            fabrica.AfiseazaAngajati();
-            Console.Write(Messages.ProductionManagerIdPrompt);
-            string idManager = Console.ReadLine();
-
-            fabrica.AfiseazaMasini();
-            Console.Write(Messages.MachineForOrderPrompt);
-            string serial = Console.ReadLine();
-
-            Console.Write(Messages.ProductToManufacturePrompt);
-            string produs = Console.ReadLine();
-
-            Console.Write(Messages.TargetAmountPrompt);
-            int cantitate = int.Parse(Console.ReadLine());
-
-            Console.WriteLine(Messages.PriorityMenu);
-            Console.Write(Messages.Choose);
-            string prio = Console.ReadLine();
-
-            Priority prioritate;
-            if (prio == "1")
-                prioritate = Priority.Low;
-            else if (prio == "3")
-                prioritate = Priority.High;
-            else
-                prioritate = Priority.Medium;
-
-            fabrica.CreazaComanda(idManager, serial, produs, cantitate, prioritate);
-        }
+        // Production order interaction moved to Factory.InteractiveCreateOrder.
 
         // Triggers interactive execution of a production order via Factory.
         static void ExecutaComanda()
