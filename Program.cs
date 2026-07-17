@@ -1,5 +1,6 @@
 using SmartFactorySimple;
 using System;
+using System.Linq;
 
 class Program
 {
@@ -347,10 +348,7 @@ class Program
         }
         else
         {
-            foreach (string entry in entries)
-            {
-                Console.WriteLine(entry);
-            }
+            entries.ToList().ForEach(e => Console.WriteLine(e));
         }
         Console.WriteLine(Messages.OperationHistoryEnd);
     }

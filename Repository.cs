@@ -23,8 +23,20 @@ public class Repository<T> where T : class
 
     public List<T> GetAll()
     {
-        return [.. _items];
+        return _items.ToList();
     }
+
+    public T Find(System.Func<T, bool> predicate) => _items.FirstOrDefault(predicate);
+
+    public bool Exists(System.Func<T, bool> predicate) => _items.Any(predicate);
+
+    public bool RemoveWhere(System.Func<T, bool> predicate)
+    {
+        var item = _items.FirstOrDefault(predicate);
+        return item != null && Remove(item);
+    }
+
+    public List<T> GetWhere(System.Func<T, bool> predicate) => _items.Where(predicate).ToList();
 
     public void Clear()
     {
@@ -35,27 +47,14 @@ public class Repository<T> where T : class
 
 public class RepositoryWithId<T> : Repository<T> where T : class, IIdentifiable
 {
-   
-    public T FindById(string id)
-    {
-        return _items.FirstOrDefault(x => x.Id == id);
-    }
+    public T FindById(string id) => _items.FirstOrDefault(x => x.Id == id);
 
-    
-    public bool ExistsById(string id)
-    {
-        return _items.Any(x => x.Id == id);
-    }
+    public bool ExistsById(string id) => _items.Any(x => x.Id == id);
 
-   
     public bool RemoveById(string id)
     {
-        T item = FindById(id);
-        if (item != null)
-        {
-            return Remove(item);
-        }
-        return false;
+        var item = FindById(id);
+        return item != null && Remove(item);
     }
 }
 
@@ -93,7 +92,7 @@ public class StackRepository<T> where T : class
         _items.Clear();
     }
 
-    public bool IsEmpty => _items.Count == 0;
+    public bool IsEmpty => !_items.Any();
 
     public List<T> GetAll()
     {
@@ -129,7 +128,7 @@ public class QueueRepository<T> where T : class
         _items.Clear();
     }
 
-    public bool IsEmpty => _items.Count == 0;
+    public bool IsEmpty => !_items.Any();
 }
 
 public class HashSetRepository<T> where T : class
@@ -163,7 +162,7 @@ public class HashSetRepository<T> where T : class
         _items.Clear();
     }
 
-    public bool IsEmpty => _items.Count == 0;
+    public bool IsEmpty => !_items.Any();
 }
 
 public class DictionaryRepository<TKey, TValue> where TValue : class
@@ -212,5 +211,6 @@ public class DictionaryRepository<TKey, TValue> where TValue : class
         _items.Clear();
     }
 
-    public bool IsEmpty => _items.Count == 0;
+    public bool IsEmpty => !_items.Any();
+    
 }

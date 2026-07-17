@@ -146,6 +146,7 @@ public static class Messages
     public static string OrderLoadSkipped(string id) => $"Skipping order {id}: missing machine or manager";
     public static string OrderLoadFailed(Exception ex) => $"Failed to load orders: {ex.Message}";
     public static string OrderSaveFailed(Exception ex) => $"Failed to save orders: {ex.Message}";
+    public static string SaveFailed(string entity, Exception ex) => $"Error saving {entity}: {ex.Message}";
     public static string MachineTurnedOn(string name) => $"{name} was turned on.";
     public static string MachineTurnedOff(string name) => $"{name} was stopped.";
     public static string MachineUnderMaintenance(string name) => $"{name} It's under maintenance, it can't be started!";

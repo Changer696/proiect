@@ -14,7 +14,7 @@ public class EmployeeRepository : RepositoryWithId<Employee>
 
         if (ExistsById(employee.Id))
         {
-            Console.WriteLine($"There is already an employee with the ID {employee.Id}");
+            Console.WriteLine(Messages.ExistingEmployeeConflict(employee.Id));
             return false;
         }
 
@@ -23,17 +23,14 @@ public class EmployeeRepository : RepositoryWithId<Employee>
 
     public void DisplayAll()
     {
-        if (_items.Count == 0)
+        if (!_items.Any())
         {
-            Console.WriteLine("There are no employees!");
+            Console.WriteLine(Messages.NoEmployeesMessage);
             return;
         }
 
-        Console.WriteLine("=== EMPLOYEES ===");
-        foreach (var employee in _items)
-        {
-            employee.Afiseaza();
-        }
+        Console.WriteLine(Messages.EmployeesHeader);
+        _items.ForEach(employee => employee.Afiseaza());
     }
 }
 
@@ -41,35 +38,16 @@ public class EmployeeRepository : RepositoryWithId<Employee>
 public class MachineRepository : Repository<Machine>
 {
     private string _machinesFilePath;
-
-    public Machine FindBySerialNumber(string serialNumber)
-    {
-        return _items.FirstOrDefault(m => m.SerialNumber == serialNumber);
-    }
-
-    public bool ExistsBySerialNumber(string serialNumber)
-    {
-        return _items.Any(m => m.SerialNumber == serialNumber);
-    }
-
-    public bool RemoveBySerialNumber(string serialNumber)
-    {
-        Machine machine = FindBySerialNumber(serialNumber);
-        if (machine != null)
-        {
-            return Remove(machine);
-        }
-        return false;
-    }
+    // Generic find/exists/remove operations are provided by the base Repository<T>
 
     public override bool Add(Machine machine)
     {
         if (machine == null)
             return false;
 
-        if (ExistsBySerialNumber(machine.SerialNumber))
+        if (Exists(m => m.SerialNumber == machine.SerialNumber))
         {
-            Console.WriteLine($"There is already a machine with the serial number {machine.SerialNumber}");
+            Console.WriteLine(Messages.ExistingMachineConflict(machine.SerialNumber));
             return false;
         }
 
@@ -78,17 +56,14 @@ public class MachineRepository : Repository<Machine>
 
     public void DisplayAll()
     {
-        if (_items.Count == 0)
+        if (!_items.Any())
         {
             Console.WriteLine(Messages.NoMachinesMessage);
             return;
         }
 
         Console.WriteLine(Messages.MachinesHeader);
-        foreach (var machine in _items)
-        {
-            machine.Afiseaza();
-        }
+        _items.ForEach(machine => machine.Afiseaza());
     }
 
     // ---------- SALVARE ----------
@@ -97,16 +72,16 @@ public class MachineRepository : Repository<Machine>
     {
         _machinesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, machinesFileName);
 
-        try
-        {
-            var lines = _items.Select(SerializeMachine);
-            File.WriteAllLines(_machinesFilePath, lines);
-            Console.WriteLine($"Saved {_items.Count} machines.");
-            return true;
-        }
+            try
+            {
+                var lines = _items.Select(SerializeMachine);
+                File.WriteAllLines(_machinesFilePath, lines);
+                Console.WriteLine(Messages.SavedMachinesCount(_items.Count));
+                return true;
+            }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving machines: {ex.Message}");
+            Console.WriteLine(Messages.SaveFailed("machines", ex));
             return false;
         }
     }
@@ -140,42 +115,43 @@ public class MachineRepository : Repository<Machine>
 
         if (!File.Exists(_machinesFilePath))
         {
-            Console.WriteLine($"Error: {_machinesFilePath} not found.");
+            Console.WriteLine(Messages.FileNotFound(_machinesFilePath));
             return;
         }
 
-        string[] lines = File.ReadAllLines(_machinesFilePath);
+        var rawLines = File.ReadAllLines(_machinesFilePath)
+            .Select(l => l.Trim())
+            .Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith("#"))
+            .ToList();
 
-        foreach (string line in lines)
+        var parsed = rawLines.Select(l => new { Line = l, Parts = l.Split(';') }).ToList();
+
+        foreach (var entry in parsed)
         {
-            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
-                continue;
-
-            string[] parts = line.Split(';');
-            if (parts.Length != 9)
+            if (entry.Parts.Length != 9)
             {
-                Console.WriteLine($"Warning: Invalid line format: {line}");
+                Console.WriteLine(Messages.WarningInvalidLine(entry.Line));
                 continue;
             }
 
             try
             {
-                string tip = parts[0].Trim();
-                string serial = parts[1].Trim();
-                string nume = parts[2].Trim();
-                var status = Enum.Parse<MachineStatus>(parts[3].Trim());
-                var conditie = Enum.Parse<MachineCondition>(parts[4].Trim());
-                var dataFab = DateTime.Parse(parts[5].Trim());
-                int cicluri = int.Parse(parts[6].Trim());
-                DateTime? lastMaint = string.IsNullOrWhiteSpace(parts[7])
+                string tip = entry.Parts[0].Trim();
+                string serial = entry.Parts[1].Trim();
+                string nume = entry.Parts[2].Trim();
+                var status = Enum.Parse<MachineStatus>(entry.Parts[3].Trim());
+                var conditie = Enum.Parse<MachineCondition>(entry.Parts[4].Trim());
+                var dataFab = DateTime.Parse(entry.Parts[5].Trim());
+                int cicluri = int.Parse(entry.Parts[6].Trim());
+                DateTime? lastMaint = string.IsNullOrWhiteSpace(entry.Parts[7])
                     ? null
-                    : DateTime.Parse(parts[7].Trim());
-                string pieseRaw = parts[8].Trim();
+                    : DateTime.Parse(entry.Parts[7].Trim());
+                string pieseRaw = entry.Parts[8].Trim();
 
                 Machine masina = CreeazaMasina(tip, serial, nume, dataFab);
                 if (masina == null)
                 {
-                    Console.WriteLine($"Warning: Unknown machine type '{tip}'");
+                    Console.WriteLine(Messages.WarningUnknownMachineType(tip));
                     continue;
                 }
 
@@ -203,11 +179,10 @@ public class MachineRepository : Repository<Machine>
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Warning: Could not parse line '{line}': {ex.Message}");
+                Console.WriteLine(Messages.WarningParseMachineLine(entry.Line, ex));
             }
         }
-
-        Console.WriteLine($"Loaded {_items.Count} machines.");
+        Console.WriteLine(Messages.LoadedMachinesCount(_items.Count));
     }
 
     // ---------- FACTORY ----------
@@ -227,39 +202,17 @@ public class MachineRepository : Repository<Machine>
 public class ProductRepository : Repository<Product>
 {
     private string _productsFilePath;
-
-    public Product FindByName(string name)
-    {
-        return _items.FirstOrDefault(p => p.Nume == name);
-    }
-
-    public bool ExistsByName(string name)
-    {
-        return _items.Any(p => p.Nume == name);
-    }
-
-    public bool RemoveByName(string name)
-    {
-        Product product = FindByName(name);
-        if (product != null)
-        {
-            return Remove(product);
-        }
-        return false;
-    }
+    // Use base Repository<T> generic methods for find/exists/remove operations.
     public void DisplayAll()
     {
-        if (_items.Count == 0)
+        if (!_items.Any())
         {
             Console.WriteLine(Messages.NoProductsMessage);
             return;
         }
 
         Console.WriteLine(Messages.ProductsHeader);
-        foreach (var product in _items)
-        {
-            product.Afiseaza();
-        }
+        _items.ForEach(product => product.Afiseaza());
     }
 
     // ---------- SAVE / LOAD ----------
@@ -272,12 +225,12 @@ public class ProductRepository : Repository<Product>
         {
             var lines = _items.Select(SerializeProduct);
             File.WriteAllLines(_productsFilePath, lines);
-            Console.WriteLine($"Saved {_items.Count} products.");
+            Console.WriteLine(Messages.SavedProductsCount(_items.Count));
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving products: {ex.Message}");
+            Console.WriteLine(Messages.SaveFailed("products", ex));
             return false;
         }
     }
@@ -311,37 +264,39 @@ public class ProductRepository : Repository<Product>
 
         if (!File.Exists(_productsFilePath))
         {
-            Console.WriteLine($"Info: {_productsFilePath} not found. No products loaded.");
+            Console.WriteLine(Messages.FileInfoNotFound(_productsFilePath));
             return;
         }
 
-        string[] lines = File.ReadAllLines(_productsFilePath);
-        foreach (string line in lines)
-        {
-            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
-                continue;
+        var rawLines = File.ReadAllLines(_productsFilePath)
+            .Select(l => l.Trim())
+            .Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith("#"))
+            .ToList();
 
-            string[] parts = line.Split(';');
-            if (parts.Length < 6)
+        var parsed = rawLines.Select(l => new { Line = l, Parts = l.Split(';') }).ToList();
+
+        foreach (var entry in parsed)
+        {
+            if (entry.Parts.Length < 6)
             {
-                Console.WriteLine($"Warning: Invalid product line: {line}");
+                Console.WriteLine(Messages.WarningInvalidProductLine(entry.Line));
                 continue;
             }
 
             try
             {
-                string tip = parts[0].Trim();
-                string nume = parts[1].Trim();
-                var category = Enum.Parse<ProductCategory>(parts[2].Trim());
-                decimal productionCost = decimal.Parse(parts[3].Trim(), System.Globalization.CultureInfo.InvariantCulture);
-                decimal sellingPrice = decimal.Parse(parts[4].Trim(), System.Globalization.CultureInfo.InvariantCulture);
-                int cantitate = int.Parse(parts[5].Trim());
-                string marime = parts.Length >= 7 ? parts[6].Trim() : "";
+                string tip = entry.Parts[0].Trim();
+                string nume = entry.Parts[1].Trim();
+                var category = Enum.Parse<ProductCategory>(entry.Parts[2].Trim());
+                decimal productionCost = decimal.Parse(entry.Parts[3].Trim(), System.Globalization.CultureInfo.InvariantCulture);
+                decimal sellingPrice = decimal.Parse(entry.Parts[4].Trim(), System.Globalization.CultureInfo.InvariantCulture);
+                int cantitate = int.Parse(entry.Parts[5].Trim());
+                string marime = entry.Parts.Length >= 7 ? entry.Parts[6].Trim() : "";
 
                 Product produs = CreeazaProdus(tip, nume, productionCost, sellingPrice, cantitate, marime);
                 if (produs == null)
                 {
-                    Console.WriteLine($"Warning: Unknown product type '{tip}'");
+                    Console.WriteLine(Messages.WarningUnknownProductType(tip));
                     continue;
                 }
 
@@ -349,11 +304,10 @@ public class ProductRepository : Repository<Product>
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Warning: Could not parse product line '{line}': {ex.Message}");
+                Console.WriteLine(Messages.WarningParseProductLine(entry.Line, ex));
             }
         }
-
-        Console.WriteLine($"Loaded {_items.Count} products.");
+        Console.WriteLine(Messages.LoadedProductsCount(_items.Count));
     }
 
     private Product CreeazaProdus(string tip, string nume, decimal productionCost, decimal sellingPrice, int cantitate, string marime)
@@ -373,7 +327,7 @@ public class ProductRepository : Repository<Product>
 
     public List<Product> FindByCategory(ProductCategory category)
     {
-        return _items.Where(p => p.Category == category).ToList();
+        return GetWhere(p => p.Category == category);
     }
 }
 
@@ -390,43 +344,39 @@ public class ProductionOrderRepository : RepositoryWithId<ProductionOrder>
 
     public void DisplayAll()
     {
-        if (_items.Count == 0)
+        if (!_items.Any())
         {
             Console.WriteLine(Messages.NoOrdersAvailable);
             return;
         }
 
         Console.WriteLine(Messages.OrdersHeader);
-        foreach (var order in _items)
-        {
-            order.Afiseaza();
-        }
+        _items.ForEach(order => order.Afiseaza());
     }
 
     public List<ProductionOrder> GetAllActive()
     {
-        return _items.Where(o => o.Status != ProductionOrderStatus.Completed).ToList();
+        return GetWhere(o => o.Status != ProductionOrderStatus.Completed);
     }
 
     public List<ProductionOrder> GetAllCompleted()
     {
-        return _items.Where(o => o.Status == ProductionOrderStatus.Completed).ToList();
+        return GetWhere(o => o.Status == ProductionOrderStatus.Completed);
     }
 
     public List<ProductionOrder> GetByStatus(ProductionOrderStatus status)
     {
-        return _items.Where(o => o.Status == status).ToList();
+        return GetWhere(o => o.Status == status);
     }
 
     public List<ProductionOrder> GetByPriority(Priority priority)
     {
-        return _items.Where(o => o.Prioritate == priority).ToList();
+        return GetWhere(o => o.Prioritate == priority);
     }
 
     public List<ProductionOrder> GetSortedByPriority()
     {
-        return _items
-            .Where(o => o.Status != ProductionOrderStatus.Completed)
+        return GetWhere(o => o.Status != ProductionOrderStatus.Completed)
             .OrderByDescending(o => GetPriorityValue(o.Prioritate))
             .ThenBy(o => GetStatusValue(o.Status))
             .ToList();
@@ -434,8 +384,7 @@ public class ProductionOrderRepository : RepositoryWithId<ProductionOrder>
 
     public ProductionOrder GetNextByPriority()
     {
-        return _items
-            .Where(o => o.Status != ProductionOrderStatus.Completed)
+        return GetWhere(o => o.Status != ProductionOrderStatus.Completed)
             .OrderByDescending(o => GetPriorityValue(o.Prioritate))
             .ThenBy(o => GetStatusValue(o.Status))
             .FirstOrDefault();

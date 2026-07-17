@@ -7,7 +7,7 @@ using SmartFactorySimple;
 public class Login
 {
     private readonly string _credentialsFileName;
-    private readonly Dictionary<string, EmployeeCredential> credentials = [];
+    private readonly Dictionary<string, EmployeeCredential> credentials = new Dictionary<string, EmployeeCredential>();
 
     public class EmployeeCredential
     {
@@ -36,26 +36,29 @@ public class Login
             }
 
             credentials.Clear();
-            string[] lines = File.ReadAllLines(credentialsPath);
+            var rawLines = File.ReadAllLines(credentialsPath)
+                .Select(l => l.Trim())
+                .Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith("#"))
+                .ToList();
 
-            foreach (string line in lines)
+            var parsed = rawLines
+                .Select(l => new { Line = l, Parts = l.Split(';') })
+                .ToList();
+
+            foreach (var entry in parsed)
             {
-                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
-                    continue;
-
-                string[] parts = line.Split(';');
-                if (parts.Length != 4)
+                if (entry.Parts.Length != 4)
                 {
-                    Console.WriteLine($"Warning: Invalid line format: {line}");
+                    Console.WriteLine($"Warning: Invalid line format: {entry.Line}");
                     continue;
                 }
 
                 var credential = new EmployeeCredential
                 {
-                    EmployeeId = parts[0].Trim(),
-                    Username = parts[1].Trim(),
-                    Password = parts[2].Trim(),
-                    Role = parts[3].Trim()
+                    EmployeeId = entry.Parts[0].Trim(),
+                    Username = entry.Parts[1].Trim(),
+                    Password = entry.Parts[2].Trim(),
+                    Role = entry.Parts[3].Trim()
                 };
 
                 credentials[credential.Username] = credential;

@@ -168,16 +168,22 @@ public class Factory
         try
         {
             var orders = _orderRepository.GetAll();
-            List<string> lines = new List<string>();
-            lines.Add("# Production Orders");
-            lines.Add("# Format: Id;MachineSerial;ProductName;Quantity;Priority;Status;CreatedBy;CreatedAt");
-            foreach (var o in orders)
+            var lines = new List<string>
             {
-                string createdBy = o.CreatDe != null ? o.CreatDe.Id : "";
-                string createdAt = o.DataCrearii.ToString("s");
-                string line = string.Join(";", o.Id, o.Masina?.SerialNumber ?? "", o.NumeProdus, o.CantitateTarget.ToString(), o.Prioritate.ToString(), o.Status.ToString(), createdBy, createdAt);
-                lines.Add(line);
-            }
+                "# Production Orders",
+                "# Format: Id;MachineSerial;ProductName;Quantity;Priority;Status;CreatedBy;CreatedAt"
+            };
+
+            lines.AddRange(orders.Select(o => string.Join(";",
+                o.Id,
+                o.Masina?.SerialNumber ?? "",
+                o.NumeProdus,
+                o.CantitateTarget.ToString(),
+                o.Prioritate.ToString(),
+                o.Status.ToString(),
+                (o.CreatDe != null ? o.CreatDe.Id : ""),
+                o.DataCrearii.ToString("s")
+            )));
 
             File.WriteAllLines(OrdersFilePath, lines);
         }
@@ -264,32 +270,26 @@ public class Factory
             ? _productRepository.GetAll()
             : new List<Product> { produsSpecific };
 
-        foreach (var produs in produse)
-        {
-            if (produs == null)
-            {
-                continue;
-            }
-
-            decimal noulPret = produs.SellingPrice * (1 + procent / 100m);
-            produs.SellingPrice = Math.Round(noulPret, 2);
-        }
+            produse.Where(produs => produs != null)
+                   .ToList()
+                   .ForEach(produs =>
+                   {
+                       decimal noulPret = produs.SellingPrice * (1 + procent / 100m);
+                       produs.SellingPrice = Math.Round(noulPret, 2);
+                   });
     }
 
     public void AfiseazaPreturiStoc()
     {
         var produse = _productRepository.GetAll();
-        if (produse.Count == 0)
+            if (!produse.Any())
         {
             Console.WriteLine(Messages.NoProductsAvailable);
             return;
         }
 
         Console.WriteLine(Messages.StockPricesTitle);
-        foreach (var produs in produse)
-        {
-            Console.WriteLine(Messages.StockPriceLine(produs.Nume, produs.SellingPrice, produs.Cantitate));
-        }
+        produse.ForEach(produs => Console.WriteLine(Messages.StockPriceLine(produs.Nume, produs.SellingPrice, produs.Cantitate)));
         Console.WriteLine(string.Empty);
     }
 
@@ -305,7 +305,7 @@ public class Factory
 
     public Machine GasesteMasina(string serial)
     {
-        return _machineRepository.FindBySerialNumber(serial);
+        return _machineRepository.Find(m => m.SerialNumber == serial);
     }
 
 
@@ -323,7 +323,7 @@ public class Factory
 
     public Product GasesteProdus(string nume)
     {
-        return _productRepository.FindByName(nume);
+        return _productRepository.Find(p => p.Nume == nume);
     }
 
     
@@ -613,7 +613,7 @@ public class Factory
         List<Machine> machines = GetMachinesRequiringMaintenance(daysAhead);
         Console.WriteLine(Messages.PredictiveMaintenanceTitle);
 
-        if (machines.Count == 0)
+        if (!machines.Any())
         {
             Console.WriteLine(Messages.NoMaintenanceInNextDays(daysAhead));
             return;
@@ -628,7 +628,7 @@ public class Factory
         List<Machine> machines = _machineRepository.GetAll();
         Console.WriteLine(Messages.ProductionEfficiencyDashboardTitle);
 
-        if (machines.Count == 0)
+        if (!machines.Any())
         {
             Console.WriteLine(Messages.NoMachinesMessage);
             return;
@@ -644,7 +644,7 @@ public class Factory
         List<Machine> machines = _machineRepository.GetAll();
         Console.WriteLine(Messages.MachineHealthMonitoringTitle);
 
-        if (machines.Count == 0)
+        if (!machines.Any())
         {
             Console.WriteLine(Messages.NoMachinesMessage);
             return;
@@ -667,7 +667,7 @@ public class Factory
         Console.WriteLine(Messages.InventoryAlertsTitle);
         List<Product> products = GetLowStockProducts(threshold);
 
-        if (products.Count == 0)
+        if (!products.Any())
         {
             Console.WriteLine(Messages.InventoryThresholdAlert(threshold));
             return;
@@ -701,7 +701,7 @@ public class Factory
     {
         List<ProductionOrder> comenziSortate = _orderRepository.GetSortedByPriority();
 
-        if (comenziSortate.Count == 0)
+        if (!comenziSortate.Any())
         {
             Console.WriteLine(Messages.NoOrdersAvailable);
             return;
